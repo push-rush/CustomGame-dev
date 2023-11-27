@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "E:\\MinGW\\include\\**",
+                "${workspaceFolder}\\External\\SDL2\\SDL2-devel-2.0.22-mingw\\SDL2-2.0.22\\x86_64-w64-mingw32\\include\\SDL2\\**",
+                "${workspaceFolder}\\External\\SDL2\\SDL2_image-devel-2.6.3-mingw\\SDL2_image-2.6.3\\i686-w64-mingw32\\include\\SDL2\\**",
+                "${workspaceFolder}\\External\\SDL2\\SDL2_ttf-devel-2.20.2-mingw\\SDL2_ttf-2.20.2\\i686-w64-mingw32\\include\\SDL2\\**",
+                "${workspaceFolder}\\External\\glfw-3.3.8.bin.WIN32\\glfw-3.3.8.bin.WIN32\\include\\GLFW\\**",
+                "${workspaceFolder}\\External\\soil\\inc\\SOIL\\**",
+                "${workspaceFolder}\\External\\RapidJson\\rapidjson-1.1.0\\rapidjson-1.1.0\\include\\rapidjson\\**",
+                "${workspaceFolder}\\External\\FMOD\\FMOD_Studio_API_Windows_1.09.09\\api\\lowlevel\\inc\\**",
+                "${workspaceFolder}\\External\\FMOD\\FMOD_Studio_API_Windows_1.09.09\\api\\fsbank\\inc\\**",
+                "${workspaceFolder}\\External\\FMOD\\FMOD_Studio_API_Windows_1.09.09\\api\\studio\\inc\\**",
+                "${workspaceFolder}\\External\\freetype-windows-binaries\\include\\**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}

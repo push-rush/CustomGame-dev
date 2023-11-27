@@ -1,0 +1,78 @@
+{
+    "files.associations": {
+        "array": "cpp",
+        "atomic": "cpp",
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "exception": "cpp",
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "string": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "fstream": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "cinttypes": "cpp",
+        "typeinfo": "cpp",
+        "cstring": "cpp",
+        "math.h": "c",
+        "list": "cpp",
+        "*.cs": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "condition_variable": "cpp",
+        "ctime": "cpp",
+        "map": "cpp",
+        "iomanip": "cpp",
+        "mutex": "cpp",
+        "bitset": "cpp",
+        "ratio": "cpp",
+        "cfenv": "cpp",
+        "regex": "cpp",
+        "thread": "cpp"
+    },
+
+    "python.analysis.extraPaths": [
+        "Expoter/Blender/Modules/fake_bpy_modules_2.93-20230117"
+    ],
+
+    "python.autoComplete.extraPaths": [
+        "Expoter/Blender/Modules/fake_bpy_modules_2.93-20230117"
+    ],
+    
+    "blender.executables": [
+        {
+            "path": "E:\\Blender\\blender.exe",
+            "isDebug": false,
+            "name": ""
+        }    
+    ]
+}

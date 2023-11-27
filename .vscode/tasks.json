@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "g++.exe build active file",
+            //注意改成自己的MinGW目录
+            "command": "E:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-lmingw32",
+                "-I",
+                "E:/SDL2/SDL2-devel-2.0.22-mingw/SDL2-2.0.22/i686-w64-mingw32/include/SDL2",
+                "-I",
+				"E:/SDL2/SDL2-devel-2.0.22-mingw/SDL2-2.0.22/i686-w64-mingw32/bin",
+                "-I",
+                "E:/SDL2/SDL2_image-devel-2.6.3-mingw/SDL2_image-2.6.3/i686-w64-mingw32/include/SDL2",
+                "-I",
+                "E:/SDL2/SDL2_image-devel-2.6.3-mingw/SDL2_image-2.6.3/i686-w64-mingw32/bin",
+                "-I",
+                "E:/SDL2/SDL2_ttf-devel-2.20.2-mingw/SDL2_ttf-2.20.2/i686-w64-mingw32/bin",
+                "-I",
+                "E:/SDL2/SDL2_ttf-devel-2.20.2-mingw/SDL2_ttf-2.20.2/i686-w64-mingw32/include/SDL2",
+                "-I",
+                "E:/OpenGL/glfw-3.3.8.bin.WIN32/glfw-3.3.8.bin.WIN32/include/GLFW",
+                "-I",
+                "E:/OpenGL/glfw-3.3.8.bin.WIN32/glfw-3.3.8.bin.WIN32/lib-mingw",
+                "-I",
+                "E:/OpenGL/glew-2.2.0-win32/glew-2.2.0/include/GL",
+                "-I",
+                "E:/OpenGL/glew-2.2.0-win32/glew-2.2.0/bin/Release/Win32",
+                "-I",
+                "E:/OpenGL/soil/inc/SOIL",
+                "-I",
+                "E:/OpenGL/soil/build/libsoil.dll",
+                "-lSDL2main",
+                "-lSDL2",
+                "-mwindows",
+            ],
+            "options": {
+                //注意改成自己的MinGW目录
+                "cwd": "E:\\MinGW\\bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

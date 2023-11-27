@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap mp">
+  
+  <Identity Name="6aa12fcd-9d15-4c7d-b11b-36fc2667a0fd" Publisher="CN=Firelight Technologies" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>FMOD Example</DisplayName>
+    <PublisherDisplayName>Firelight Technologies</PublisherDisplayName>
+    <Logo>FMOD_LogoStore.png</Logo>
+  </Properties>
+  
+  <mp:PhoneIdentity PhoneProductId="6aa12fcd-9d15-4c7d-b11b-36fc2667a0fd" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources> 
+  
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="FmodExample.App">
+      <uap:VisualElements
+        DisplayName="FMOD Example"
+        Square150x150Logo="FMOD_Logo.png"
+        Square44x44Logo="FMOD_SmallLogo.png"
+        Description="FMOD Example"
+        BackgroundColor="#464646">
+        <!--<DefaultTile ShowName="allLogos" />-->
+        <!--<uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>-->
+        <uap:SplashScreen Image="FMOD_Splash.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="privateNetworkClientServer" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="internetClient" />
+    <DeviceCapability Name="microphone" />
+  </Capabilities>
+</Package>

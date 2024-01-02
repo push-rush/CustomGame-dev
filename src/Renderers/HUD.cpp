@@ -1,13 +1,18 @@
 #include "../../include/Renderers/HUD.h"
+
 #include "../../include/Game.h"
-#include "../../include/Components/TargetComponent.h"
+
+#include "../../include/Renderers/Texture.h"
 #include "../../include/Renderers/Renderer.h"
+#include "../../include/Renderers/Shader.h"
+#include "../../include/Renderers/GBuffer.h"
+#include "../../include/Renderers/EmptySprite.h"
+#include "../../include/Renderers/Button.h"
+
+#include "../../include/Actors/Actor.h"
 #include "../../include/Renderers/Collision.h"
 #include "../../include/Renderers/PhysWorld.h"
-#include "../../include/Renderers/Texture.h"
-#include "../../include/Renderers/Shader.h"
-#include "../../include/Actors/Actor.h"
-#include "../../include/Renderers/GBuffer.h"
+#include "../../include/Components/TargetComponent.h"
 
 HUD::HUD(class Game* game)
 : UIScreen(game)
@@ -18,13 +23,20 @@ HUD::HUD(class Game* game)
     this->mRadarRadius = 90.0f;
     this->mTargetEnemy = false;
 
-    Renderer* r = game->getRenderer();
-    this->mHealthBar = r->getTexture("../Assets/Images/HealthBar.png");
-    this->mRadar = r->getTexture("../Assets/Images/Radar.png");
-    this->mCrosschair = r->getTexture("../Assets/Images/Crosshair.png");
-    this->mCrosshairEnemy = r->getTexture("../Assets/Images/CrosshairRed.png");
-    this->mBlipTex = r->getTexture("../Assets/Images/Blip.png");
-    this->mRadarArrow = r->getTexture("../Assets/Images/RadarArrow.png");
+    this->mRadar = nullptr;
+    this->mHealthBar = nullptr;
+    this->mBlipTex = nullptr;
+    this->mCrosschair = nullptr;
+    this->mCrosshairEnemy = nullptr;
+    this->mRadarArrow = nullptr;
+
+    // Renderer* r = game->getRenderer();
+    // this->mHealthBar = r->getTexture("../Assets/Images/HealthBar.png");
+    // this->mRadar = r->getTexture("../Assets/Images/Radar.png");
+    // this->mCrosschair = r->getTexture("../Assets/Images/Crosshair.png");
+    // this->mCrosshairEnemy = r->getTexture("../Assets/Images/CrosshairRed.png");
+    // this->mBlipTex = r->getTexture("../Assets/Images/Blip.png");
+    // this->mRadarArrow = r->getTexture("../Assets/Images/RadarArrow.png");
 }
 
 HUD::~HUD()
@@ -80,76 +92,142 @@ void HUD::updateCrosshair(float dt)
     }
 }
 
-void HUD::draw(class Shader* shader, class Shader* fontShader)
+void HUD::draw(class Shader* shader, class Shader* fontShader, EmptySprite* e)
 {
-    shader->setActive();
-    Texture* tex = this->mTargetEnemy ? this->mCrosshairEnemy : this->mCrosschair;
-    if (tex)
+    // UIScreen::draw(shader, fontShader, this->getUIElements());
+    
+    for (auto elem : this->getUIElements())
     {
-        this->drawTexture(shader, tex, Vector2::Zero, 1.8f);
+        UIScreen::draw(shader, fontShader, elem);
 
-        const Vector2 cRadarPos = Vector2(-390.0f, 180.0f);
-
-        // 绘制雷达纹理
-        if (this->mRadar)
+        if (!strcmp(elem->getSpriteName().c_str(), "Radar"))
         {
-            this->drawTexture(shader, this->mRadar, cRadarPos, 1.0f);
-        }
-        else
-        {
-            SDL_Log("[Radar] Texture is null...");
-        }
-
-        for (auto& blip : this->mBlips)
-        {   
-            if (this->mBlipTex)
+            EmptySprite* radar = elem;
+            // SDL_Log("[HUD] Radar pos: [%.3f %.3f]", radar->getPosition().x, radar->getPosition().y);
+            
+            auto iter = this->getUITextures().find("blipTex");
+            if (iter != this->getUITextures().end())
             {
-                // 绘制光点
-                this->drawTexture(shader, this->mBlipTex, cRadarPos + blip, 1.0f);
-                // SDL_Log("[HUD] Blip texture...");
-            }
-            else
-            {
-                SDL_Log("[Blip] Texture is null...");
+                auto tex = (*iter).second;
+                if (tex)
+                {
+                    for (auto& blip : this->mBlips)
+                    {   
+                        // 绘制光点
+                        this->drawTexture(shader, tex, radar->getPosition() + blip, 1.0f);
+                        // SDL_Log("[HUD] Blip texture...");
+                    }
+                }
             }
         }
+    }
 
-        if (this->mRadarArrow)
+    // 绘制ui树节点
+    if ((int)(this->mNodeStack.size()) > 0)
+    {
+        for (auto node : this->mNodeStack)
         {
-            this->drawTexture(shader, this->mRadarArrow, cRadarPos);
-            // SDL_Log("[HUD] Radar arrow tex...");
+            UIScreen::draw(shader, fontShader, reinterpret_cast<EmptySprite*>(node->mNodeValuePointer));
         }
-        else
-        {
-            SDL_Log("[HUD] Radar arrow texture is null...");
-        }
+    }
+    
+//     // std::vector<UIElement*> vec;
+//     // for (auto iter = elems.begin(); iter != elems.end(); ++iter)
+//     // {
+//     //     vec.emplace_back((*iter).second);
+//     // }    
 
-    }
-    else
-    {
-        SDL_Log("[Crosshair] Texture is null...");
-    }
+//     // sort(vec.begin(), vec.end(), [](UIElement* e1, UIElement* e2)
+//     // {
+//     //     return e1->mUpdateOrder < e2->mUpdateOrder;
+//     // });
 
-    Texture* mirror = this->getGame()->getRenderer()->getMirrorTexture();
-    if (mirror)
-    {
-        this->drawTexture(shader, mirror, Vector2(-350.0f, -250.0f), 1.0f, 1.0f, true);
-        // SDL_Log("[UIScreen] mirror texture...");
-    }
-    else
-    {
-        SDL_Log("[UIScreen] Mirror texture is null...");
-    }
+//     // for (auto e : vec)
+//     // {
+//     //     if (e->mTexture)
+//     //     {
+//     //         // SDL_Log("[HUD] tex updateOrder: %d", e->mUpdateOrder);
+//     //         this->drawTexture(shader, e->mTexture, e->mPosOffset);
+//     //     }
+//     // }
 
-    // Texture* gbufferTexture = this->getGame()->getRenderer()->getGBuffer()->getTexture(GBuffer::EDiffuse);
-    // if (gbufferTexture)
-    // {
-	//     this->drawTexture(shader, gbufferTexture, Vector2::Zero, 1.0f, true);
-    // }
-    // else
-    // {
-    //     SDL_Log("[HUD] GBuffer texture is null...");
-    // }
+//     if (!this->mRadar)
+//     {
+//         auto elems = this->getUIElements();
+
+//         this->mRadar = (*elems.find("Radar")).second;
+//         this->mCrosschair = (*elems.find("Crosschair")).second;     
+//         this->mCrosshairEnemy = (*elems.find("CrosshairEnemy")).second;
+//         this->mBlipTex = (*elems.find("BlipTex")).second;
+//         this->mRadarArrow = (*elems.find("RadarArrow")).second;
+//     }
+
+//     UIScreen::UIElement* uiCrosshair = this->mTargetEnemy ? this->mCrosshairEnemy : this->mCrosschair;
+//     if (uiCrosshair->mTexture)
+//     {
+//         this->drawTexture(shader, uiCrosshair->mTexture, uiCrosshair->mPosOffset, 1.8f);
+
+//         // const Vector2 cRadarPos = Vector2(-390.0f, 180.0f);
+//         // 绘制雷达纹理
+//         if (this->mRadar->mTexture)
+//         {
+//             this->drawTexture(shader, this->mRadar->mTexture, this->mRadar->mPosOffset, 1.0f);
+//         }
+//         else
+//         {
+//             SDL_Log("[Radar] Texture is null...");
+//         }
+
+//         for (auto& blip : this->mBlips)
+//         {   
+//             if (this->mBlipTex->mTexture)
+//             {
+//                 // 绘制光点
+//                 this->drawTexture(shader, this->mBlipTex->mTexture, this->mRadar->mPosOffset + blip, 1.0f);
+//                 // SDL_Log("[HUD] Blip texture...");
+//             }
+//             else
+//             {
+//                 SDL_Log("[Blip] Texture is null...");
+//             }
+//         }
+        
+//         if (this->mRadarArrow->mTexture)
+//         {
+//             this->drawTexture(shader, this->mRadarArrow->mTexture, uiRadarArrow->mPosOffset);
+//             // SDL_Log("[HUD] Radar arrow tex...");
+//         }
+//         else
+//         {
+//             SDL_Log("[HUD] Radar arrow texture is null...");
+//         }
+
+//     }
+//     else
+//     {
+//         SDL_Log("[Crosshair] Texture is null...");
+//     }
+
+//     Texture* mirror = this->getGame()->getRenderer()->getMirrorTexture();
+//     if (mirror)
+//     {
+//         this->drawTexture(shader, mirror, Vector2(-350.0f, -250.0f), 1.0f, 1.0f, true);
+//         // SDL_Log("[UIScreen] mirror texture...");
+//     }
+//     else
+//     {
+//         SDL_Log("[UIScreen] Mirror texture is null...");
+//     }
+
+//     // Texture* gbufferTexture = this->getGame()->getRenderer()->getGBuffer()->getTexture(GBuffer::EDiffuse);
+//     // if (gbufferTexture)
+//     // {
+// 	//     this->drawTexture(shader, gbufferTexture, Vector2::Zero, 1.0f, true);
+//     // }
+//     // else
+//     // {
+//     //     SDL_Log("[HUD] GBuffer texture is null...");
+//     // }
 }
 
 void HUD::updateRadar(float dt)
@@ -203,4 +281,244 @@ void HUD::update(float dt)
     this->updateRadar(dt);
 
     // SDL_Log("[HUD] Update...");
+}
+
+void HUD::bindEvent(const UIBindEvent& event)
+{
+    SDL_Log("[HUD] Bind event id: %d", (int)(event));
+
+    UIScreen::bindEvent(event);
+
+    switch (event)
+    {
+        case UIQuit:
+        {
+            this->close();
+            break;
+        }
+        case OpenMenuLayer1:
+        {
+            TreeNode* root = this->mMenuTree.findTreeNode("root");
+            bool flag = false;
+            if (root)
+            {
+                auto n = (*root->mChildren.begin());
+                for (auto s : this->mNodeStack)
+                {
+                    if (!strcmp(n->mNodeName.c_str(), s->mNodeName.c_str()))
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+
+            if (flag)
+            {
+                SDL_Log("[HUD] Close layer1...");
+
+                for (auto n : root->mChildren)
+                {
+                    for (auto iter = this->mNodeStack.begin() + 1; iter != this->mNodeStack.end();)
+                    {
+                        if (!strcmp((*iter)->mNodeName.c_str(), n->mNodeName.c_str()))
+                        {
+                            iter = this->mNodeStack.erase(iter);
+                            break;
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SDL_Log("[HUD] Open layer1...");
+
+                for (auto n : root->mChildren)
+                {
+                    this->mNodeStack.emplace_back(n);
+                }
+            }
+            break;
+        }
+        case OpenMenuLayer2_1:
+        {
+            TreeNode* layer1 = this->mMenuTree.findTreeNode("MenuLayer1_2");
+            bool flag = false;
+            if (layer1)
+            {
+                auto n = (*layer1->mChildren.begin());
+                for (auto s : this->mNodeStack)
+                {
+                    if (!strcmp(n->mNodeName.c_str(), s->mNodeName.c_str()))
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+
+            if (flag)
+            {
+                SDL_Log("[HUD] Close layer2_1...");
+
+                for (auto n : layer1->mChildren)
+                {
+                    for (auto iter = this->mNodeStack.begin() + 1; iter != this->mNodeStack.end();)
+                    {
+                        if (!strcmp((*iter)->mNodeName.c_str(), n->mNodeName.c_str()))
+                        {
+                            iter = this->mNodeStack.erase(iter);
+                            break;
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SDL_Log("[HUD] Open layer2_1...");
+                
+                for (auto n : layer1->mChildren)
+                {
+                    this->mNodeStack.emplace_back(n);
+                }
+            }
+
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+TreeStruct* HUD::getUIMenuTree() 
+{
+    return (&this->mMenuTree);
+}
+
+void HUD::handleKeyPress(int key)
+{
+    switch (key)
+    {
+    case (SDL_BUTTON_LEFT):
+    {
+        if (!this->getUIElements().empty())
+        {
+            for (auto elem : this->getUIElements())
+            {
+                if (!strcmp(elem->getType().c_str(), "button"))
+                {
+                    auto b = (Button*)(elem);
+                    if (b && b->getHighlighted())
+                    {
+                        b->onClick();
+                        // break;
+                    }
+                }
+            }
+        }
+
+        if (!this->mNodeStack.empty())
+        {
+            for (auto n : this->mNodeStack)
+            {
+                 if (!strcmp((reinterpret_cast<EmptySprite*>(n->mNodeValuePointer))->getType().c_str(), "button"))
+                {
+                    auto b = (Button*)(n->mNodeValuePointer);
+                    if (b && b->getHighlighted())
+                    {
+                        b->onClick();
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case (SDLK_ESCAPE):
+    {
+        this->close();
+        break;
+    }
+    case (SDLK_SPACE):
+    {
+        // 设置为运行态
+        this->getGame()->setGameState(Game::EGamePlay);
+
+        // 设置鼠标为相对模式
+        this->setRelativeMouseMode(true);
+        
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void HUD::nodeAddToStack(TreeNode* node)
+{
+    if (node)
+    {
+        this->mNodeStack.emplace_back(node);
+    }
+}   
+
+void HUD::processInput(const uint8_t* keys)
+{
+    if (!this->getUIElements().empty())
+    {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
+        mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+        mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
+
+        for (auto elem : this->getUIElements())
+        {
+            if (!strcmp(elem->getType().c_str(), "button"))
+            {
+                Button* b = reinterpret_cast<Button*>(elem);
+                if (b->containsPoint(mousePos))
+                {
+                    b->setHighlighted(true);
+                    // SDL_Log("[UIScreen] button: %s is highlighted...", b->getSpriteName().c_str());
+                }
+                else
+                {
+                    b->setHighlighted(false);
+                }
+
+                // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
+                    // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
+            }
+        }
+
+        if (!this->mNodeStack.empty())
+        {
+            for (auto n : this->mNodeStack)
+            {
+                if (!strcmp((reinterpret_cast<EmptySprite*>(n->mNodeValuePointer))->getType().c_str(), "button"))
+                {
+                    Button* b = reinterpret_cast<Button*>(n->mNodeValuePointer);
+                    if (b->containsPoint(mousePos))
+                    {
+                        b->setHighlighted(true);
+                        // SDL_Log("[UIScreen] button: %s is highlighted...", b->getSpriteName().c_str());
+                    }
+                    else
+                    {
+                        b->setHighlighted(false);
+                    }
+                    // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
+                        // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
+                }
+            }
+        }
+    }
 }

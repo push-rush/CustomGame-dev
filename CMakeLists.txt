@@ -4,7 +4,7 @@ find_package(OpenGL REQUIRED)
 
 # set(UNICODE ON)
 # set(_UNICODE ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17) 
 set(CMAKE_CXX_FLAGS "-finput-charset=utf-8")  
 set(CMAKE_C_FLAGS "-finput-charset=utf-8")  
 
@@ -68,6 +68,7 @@ add_executable(${PROJECT_NAME}
     ./src/Renderers/Font.cpp
     ./src/Renderers/FreeTypeFont.cpp
     ./src/Renderers/Setting.cpp
+    ./src/Renderers/EmptySprite.cpp
     
     # Actors
     ./src/Actors/Actor.cpp
@@ -108,6 +109,8 @@ add_executable(${PROJECT_NAME}
     ./src/General/Random.cpp 
     ./src/General/LevelLoader.cpp
     ./src/General/DebugManager.cpp
+    ./src/General/TreeStruct.cpp
+    ./src/General/ResourceManager.cpp
     
     # Audios
     ./src/Audios/AudioSystem.cpp

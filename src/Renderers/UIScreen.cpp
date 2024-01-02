@@ -7,6 +7,7 @@
 #include "../../include/Renderers/FreeTypeFont.h"
 #include "../../include/Renderers/VertexArray.h"
 #include "../../include/Renderers/Shader.h"
+#include "../../include/Renderers/EmptySprite.h"
 
 UIScreen::UIScreen(class Game* game)
 {
@@ -20,30 +21,34 @@ UIScreen::UIScreen(class Game* game)
     // this->mFont = game->getFont("../Assets/Texts/comic.ttf");
     this->mSpriteVerts = createFontVerts(false, Vector2{-0.5f, -0.5f}, 1.0f, 1.0f);
 
-    this->mFreeTypeFont = new FreeTypeFont(game);
-    this->mFreeTypeFont->load("../Assets/Texts/Deng.ttf");
+    // this->mFreeTypeFont = new FreeTypeFont(game);
+    // this->mFreeTypeFont->load("../Assets/Texts/Deng.ttf");
 
-    this->mButtonOn = game->getRenderer()->getTexture("../Assets/Images/ButtonYellow.png");
-    this->mButtonOff = game->getRenderer()->getTexture("../Assets/Images/ButtonBlue.png");
-    this->mSoundSliderOff = game->getRenderer()->getTexture("../Assets/Images/Slider3.png");
-    this->mSoundSliderOn = game->getRenderer()->getTexture("../Assets/Images/Slider4.png");
-    this->mHookButtonOff = game->getRenderer()->getTexture("../Assets/Images/Hook0.png");
-    this->mHookButtonOn = game->getRenderer()->getTexture("../Assets/Images/Hook1.png");
-    this->mCrossOff = game->getRenderer()->getTexture("../Assets/Images/Cross2.png"); 
-    this->mCrossOn = game->getRenderer()->getTexture("../Assets/Images/Cross3.png"); 
-    this->mSoundSlider = game->getRenderer()->getTexture("../Assets/Images/Slider2.png");
+    // this->mButtonOn = game->getRenderer()->getTexture("../Assets/Images/ButtonYellow.png");
+    // this->mButtonOff = game->getRenderer()->getTexture("../Assets/Images/ButtonBlue.png");
+    // this->mSoundSliderOff = game->getRenderer()->getTexture("../Assets/Images/Slider7.png");
+    // this->mSoundSliderOn = game->getRenderer()->getTexture("../Assets/Images/Slider4.png");
+    // this->mHookButtonOff = game->getRenderer()->getTexture("../Assets/Images/Hook0.png");
+    // this->mHookButtonOn = game->getRenderer()->getTexture("../Assets/Images/Hook1.png");
+    // this->mCrossOff = game->getRenderer()->getTexture("../Assets/Images/Cross2.png"); 
+    // this->mCrossOn = game->getRenderer()->getTexture("../Assets/Images/Cross3.png"); 
+    // this->mVolumeOff = game->getRenderer()->getTexture("../Assets/Images/Volume1.png");
+    // this->mVolumeOn = game->getRenderer()->getTexture("../Assets/Images/Volume2.png");
+    // this->mSoundSlider = game->getRenderer()->getTexture("../Assets/Images/Slider2.png");
 
-    this->mButtonTexs.emplace(RectButtonON, this->mButtonOn);
-    this->mButtonTexs.emplace(RectButtonOFF, this->mButtonOff);
-    this->mButtonTexs.emplace(SoundSliderOFF, this->mSoundSliderOff);
-    this->mButtonTexs.emplace(SoundSliderOn, this->mSoundSliderOn);
-    this->mButtonTexs.emplace(HookButtonOFF, this->mHookButtonOff);
-    this->mButtonTexs.emplace(HookButtonON, this->mHookButtonOn);
-    this->mButtonTexs.emplace(CrossOFF, this->mCrossOff);
-    this->mButtonTexs.emplace(CrossOn, this->mCrossOn);
-    this->mButtonTexs.emplace(SoundSlider, this->mSoundSlider);
+    // this->mButtonTexs.emplace(RectButtonON, this->mButtonOn);
+    // this->mButtonTexs.emplace(RectButtonOFF, this->mButtonOff);
+    // this->mButtonTexs.emplace(SoundSliderOFF, this->mSoundSliderOff);
+    // this->mButtonTexs.emplace(SoundSliderOn, this->mSoundSliderOn);
+    // this->mButtonTexs.emplace(HookButtonOFF, this->mHookButtonOff);
+    // this->mButtonTexs.emplace(HookButtonON, this->mHookButtonOn);
+    // this->mButtonTexs.emplace(CrossOFF, this->mCrossOff);
+    // this->mButtonTexs.emplace(CrossOn, this->mCrossOn);
+    // this->mButtonTexs.emplace(VolumeOFF, this->mVolumeOff);
+    // this->mButtonTexs.emplace(VolumeOn, this->mVolumeOn);
+    // this->mButtonTexs.emplace(SoundSlider, this->mSoundSlider);
 
-    game->pushUI(this);
+    // game->pushUI(this);
 }
 
 UIScreen::~UIScreen()
@@ -59,15 +64,39 @@ UIScreen::~UIScreen()
     }
     this->mTitleTextures.clear();
 
-    for (auto b : mButtons)
+    Texture* temp = nullptr;
+    for (auto tex : this->mUITextures)
     {
-        if (b)
+        temp = tex.second;
+        if (temp)
         {
-            delete b;
-            b = nullptr;
+            delete temp;
+            temp = nullptr;
         }
     }
-    this->mButtons.clear();
+    this->mUITextures.clear();
+
+    // UIElement* temp = nullptr;
+    // for (auto elem : this->mUIElements)
+    // {
+    //     temp = elem.second;
+    //     if (temp)
+    //     {
+    //         delete temp;
+    //         temp = nullptr;
+    //     }
+    // }
+    // this->mUIElements.clear();
+
+    // for (auto b : mButtons)
+    // {
+    //     if (b)
+    //     {
+    //         delete b;
+    //         b = nullptr;
+    //     }
+    // }
+    // this->mButtons.clear();
 
     // for (auto bg : this->mBackgrounds)
     // {
@@ -84,121 +113,317 @@ UIScreen::~UIScreen()
 
 void UIScreen::update(float dt)
 {
-
+    
 }
 
-void UIScreen::draw(class Shader* spriteShader, class Shader* fontShader)
+void UIScreen::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem)
 {
+    // SDL_Log("[UIScreen] drawing...");
+
     // 禁用深度缓存区
-    glDisable(GL_DEPTH_TEST);
-    // 开启Alpha混合渲染
-    glEnable(GL_BLEND);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+    // glDisable(GL_DEPTH_TEST);
+    // // 开启Alpha混合渲染
+    // glEnable(GL_BLEND);
+    // glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+    // if (sorted)
+    // {
+    //     std::sort(elems.begin(), elems.end(), [](EmptySprite* e1, EmptySprite* e2)
+    //     {
+    //         return e1->getUpdateOrder() < e2->getUpdateOrder();
+    //     });
+    // }
     
-    this->mSpriteVerts->setActive();
-    
-    // 绘制背景
-    if (this->mBackgrounds.size() > 0)
+    // 绘制ui元素
+    // for (auto elem : elems)
+    // {
+        // // 激活精灵着色器
+
+    if (elem)
     {
-        for (auto bg : this->mBackgrounds)
+        spriteShader->setActive();
+        this->mSpriteVerts->setActive();
+
+        std::string bind_tex = (*elem->getBindTexName().begin()).second;
+        if (!strcmp(elem->getType().c_str(), "button"))
         {
-            spriteShader->setActive();
-            this->drawTexture(spriteShader, bg, this->mBGPos, bg->getScale().x, bg->getScale().y);
-            // SDL_Log("[UIScreen] BG texture path: %s", this->mBackground->getFileName().c_str());
+            Button* b = reinterpret_cast<Button*>(elem);
+            // SDL_Log("[UIScreen] SPRITE NAME: %s", b->getSpriteName().c_str());
+
+            if (b->getBindTexName().find("on") != b->getBindTexName().end() &&
+                b->getBindTexName().find("off") != b->getBindTexName().end()
+            )
+            {
+                bind_tex = b->getHighlighted() ? 
+                    (*b->getBindTexName().find("on")).second : (*b->getBindTexName().find("off")).second;
+            }
+            else
+            {
+                SDL_Log("[UIScreen] bind tex is null: %s", b->getSpriteName().c_str());
+            }
+        }
+
+        auto iter = this->mUITextures.find(bind_tex);
+        if (iter != this->mUITextures.end())
+        {
+            auto tex = (*iter).second;
+            if (tex)
+            {
+                // SDL_Log("[UIScreen] draw texture name: %s", tex->getFileName().c_str());
+                this->drawTexture(spriteShader, tex, elem->getPosition());
+            }
+            else
+            {
+                SDL_Log("[UIScreen] tex is null: %s", elem->getSpriteName().c_str());
+            }
+        }
+        else
+        {
+            SDL_Log("[UIScreen] tex is not find: %s", elem->getSpriteName().c_str());
+        }
+
+        if (elem->getNameTextures().size() > 0)
+        {
+            std::wstring w_text = elem->getText();
+            std::string str(w_text.begin(), w_text.end());
+
+            float dx = -0.5 * elem->getTextSize().x;
+            float dy = 0.5 * elem->getTextSize().y;
+            
+            // 激活文本着色器
+            fontShader->setActive();
+            // 设置文本颜色
+            fontShader->setVectorUniform("uColor", elem->getTextColor());
+
+            // 绘制按钮文本
+            this->drawTextures(fontShader, elem->getNameTextures(), 
+                Vector2{elem->getPosition().x + dx, elem->getPosition().y - dy}, 
+                1.0f, 1.0f, false, true
+            );
         }
     }
     else
     {
-        // SDL_Log("[BG] Texture is null...");
+        SDL_Log("[UIScreen] elem is null...");
     }
 
-    // 绘制标题
-    if (this->mTitleTextures.size() > 0)
-    {
-        fontShader->setActive();
-        fontShader->setVectorUniform("uColor", this->mTextColor);
-        // std::cout << "color:" << this->mTextColor.x << " " << this->mTextColor.y << " " << this->mTextColor.z << std::endl;
+    // }
+
+    // std::vector<Texture*> fonts;
+    // for (auto elem : this->mUIElements)
+    // {
+    //     auto b = elem.second->mBindButton;
+    //     if (b)
+    //     {
+    //         spriteShader->setActive();
+    //         this->mSpriteVerts->setActive();
+            
+    //         auto texs = elem.second->mTextures;
+    //         std::string type = b->getHighlighted() ? "on" : "off";
+    //         Texture* selected = nullptr;
+    //         for (auto tex : texs)
+    //         {
+    //             if (tex->getTexType() == type)
+    //             {
+    //                 selected = tex;
+    //                 break;
+    //             }
+    //         }
+
+    //         if (selected)
+    //         {
+    //             this->drawTexture(spriteShader, selected, 
+    //                 b->getPosition() + selected->getPosOffset(), 
+    //                 selected->getScale().x, selected->getScale().y
+    //             );
+    //         }
+
+    //         auto text = elem.second->mBindText;
+    //         if (text)
+    //         {
+    //             Vector2 size = this->mFreeTypeFont->renderText(fonts, (*text).c_str());
+    //             float dx = -0.5 * size.x;
+    //             float dy = 0.5 * size.y;
+
+    //             // 设置文本颜色
+    //             fontShader->setActive();
+    //             fontShader->setVectorUniform("uColor", Color::Red);
+    //             this->drawTextures(fontShader, fonts, 
+    //                 Vector2{b->getPosition().x + dx, b->getPosition().y - dy}, 
+    //                 1.0f, 1.0f, false, true
+    //             );
+    //         }
+    //     }
+    //     else
+    //     {
+    //         spriteShader->setActive();
+    //         this->mSpriteVerts->setActive();
+            
+    //         auto texs = elem.second->mTextures;
+    //         Texture* selected = nullptr;
+    //         if (texs.size() > 0)
+    //         {
+    //             selected = texs[0];
+    //             this->drawTexture(
+    //                 spriteShader, 
+    //                 selected, 
+    //                 selected->getPosOffset(), 
+    //                 selected->getScale().x, 
+    //                 selected->getScale().y
+    //             );
+    //         }
+
+    //         if (selected)
+    //         {
+    //             auto text = elem.second->mBindText;
+    //             if (text)
+    //             {
+    //                 Vector2 size = this->mFreeTypeFont->renderText(fonts, (*text).c_str());
+    //                 float dx = -0.5 * size.x;
+    //                 float dy = 0.5 * size.y;
+
+    //                 // 设置文本颜色
+    //                 // fontShader->setActive();
+    //                 // fontShader->setVectorUniform("uColor", );
+                    
+    //                 this->drawTextures(fontShader, fonts, 
+    //                     Vector2{selected->getPosOffset().x + dx, 
+    //                         selected->getPosOffset().y - dy
+    //                     }, 1.0f, 1.0f, false, true
+    //                 );
+    //             }
+    //         }
+    //     }
+    //     fonts.clear();
+    // }
+
+    // // 绘制背景
+    // auto iter = this->mUIElements.find("Background");
+    // if (iter != this->mUIElements.end())
+    // {
+    //     spriteShader->setActive();
+    //     this->mSpriteVerts->setActive();
+
+    //     auto bgs = (*iter).second;
+    //     for (auto bg : bgs->mTextures)
+    //     {
+    //         this->drawTexture(spriteShader, bg, this->mBGPos, bg->getScale().x, bg->getScale().y);
+    //     }
+    // }
+
+    // // 绘制标题
+    // if (this->mTitleTextures.size() > 0)
+    // {
+    //     fontShader->setActive();
+    //     fontShader->setVectorUniform("uColor", this->mTextColor);
         
-        this->drawTextures(fontShader, this->mTitleTextures, Vector2{this->mTitlePos.x - this->mTextSize.x * 0.5, this->mTitlePos.y - this->mTextSize.y * 0.5}, 1.0f, 1.0f, false, true);
-        // std::cout << "Text_Size:(" << this->mTextSize.x << " " << this->mTextSize.y << ")" << std::endl;
-        // SDL_Log("[Title] Draw title success...");
-    }
+    //     this->drawTextures(fontShader, this->mTitleTextures, 
+    //         Vector2{this->mTitlePos.x - this->mTextSize.x * 0.5, 
+    //             this->mTitlePos.y - this->mTextSize.y * 0.5
+    //         }, 1.0f, 1.0f, false, true
+    //     );
+    // }
 
-    // 绘制按钮
-    for (auto b : this->mButtons)
-    {
-        this->mSpriteVerts->setActive();
+    // for (auto b : this->mButtons)
+    // {
+    //     this->mSpriteVerts->setActive();
 
-        Texture* tex = nullptr;
-        auto iter = this->mButtonTexs.find(UIButtonType(b->getButtonType()));
+    //     Texture* tex = b->getHighlighted() ? b->getButtonOn() : b->getButtonOff();
+    //     // if (!tex)
+    //     // {
+    //     //     auto iter = this->mButtonTexs.find(UIButtonType(b->getButtonType()));
+    //     //     if (iter != this->mButtonTexs.end())
+    //     //     {
+    //     //         auto texOn = (*iter).second;
+    //     //         if (!b->getHighlighted()) 
+    //     //         {
+    //     //             if (b->getButtonType() + 1 < int(NUM_Buttons))
+    //     //             {
+    //     //                 iter = this->mButtonTexs.find(UIButtonType(b->getButtonType() + 1));
+    //     //             }
+    //     //         }
+    //     //         tex = (*iter).second;
 
-        // std::cout << "type1: " << b->getButtonType() << std::endl;
-        if (iter != this->mButtonTexs.end())
-        {
-            if (!b->getHighlighted()) 
-            {
-                if (b->getButtonType() + 1 < int(NUM_Buttons))
-                {
-                    iter = this->mButtonTexs.find(UIButtonType(b->getButtonType() + 1));
-                }
-            }
-            tex = (*iter).second;
+    //     //         b->setButtonTex(texOn, tex);
+    //     //     }
+    //     // }
 
-            if (tex)
-            {
-                spriteShader->setActive();
-                this->drawTexture(spriteShader, tex, b->getPosition(), b->getButtonScale().x, b->getButtonScale().y);
-            }
-            else
-            {
-                SDL_Log("[BG Button] Texture is null");
-            }
-
-            if ((b->getNameTextures()).size() > 0)
-            {
-                // std::cout << "[UIScreen] Contain text " << b->getButtonType() << std::endl;
+    //     // std::cout << "type1: " << b->getButtonType() << std::endl;
+    //     if (tex)
+    //     {
+    //         spriteShader->setActive();
+    //         this->drawTexture(spriteShader, tex, b->getPosition(), b->getButtonScale().x, b->getButtonScale().y);
+           
+    //         if ((b->getNameTextures()).size() > 0)
+    //         {
+    //             // std::cout << "[UIScreen] Contain text " << b->getButtonType() << std::endl;
                 
-                std::wstring w_text = b->getText();
-                std::string str(w_text.begin(), w_text.end());
+    //             std::wstring w_text = b->getText();
+    //             std::string str(w_text.begin(), w_text.end());
 
-                // std::cout << "button text:" << str << std::endl;
-                // std::cout << "button text:" << std::endl;
+    //             // std::cout << "button text:" << str << std::endl;
+    //             // std::cout << "button text:" << std::endl;
 
-                float dx = -0.5 * b->getTextSize().x;
-                float dy = 0.5 * b->getTextSize().y;
+    //             float dx = -0.5 * b->getTextSize().x;
+    //             float dy = 0.5 * b->getTextSize().y;
                 
-                // 设置文本颜色
-                fontShader->setActive();
-                fontShader->setVectorUniform("uColor", b->getTextColor());
+    //             // 设置文本颜色
+    //             fontShader->setActive();
+    //             fontShader->setVectorUniform("uColor", b->getTextColor());
 
-                // 绘制按钮文本
-                this->drawTextures(fontShader, b->getNameTextures(), Vector2{b->getPosition().x + dx, b->getPosition().y - dy}, 1.0f, 1.0f, false, true);
+    //             // 绘制按钮文本
+    //             this->drawTextures(fontShader, b->getNameTextures(), Vector2{b->getPosition().x + dx, b->getPosition().y - dy}, 1.0f, 1.0f, false, true);
                 
-                // std::cout << "button_pos:" << b->getPosition().x << " " << b->getPosition().y << std::endl;
-                // std::cout << "button_width:" << b->getDimensions().x << " text_length:" << b->getTextLength() << "dx:" << dx << std::endl;
-            }
-        }
-    }
+    //             // std::cout << "button_pos:" << b->getPosition().x << " " << b->getPosition().y << std::endl;
+    //             // std::cout << "button_width:" << b->getDimensions().x << " text_length:" << b->getTextLength() << "dx:" << dx << std::endl;
+    //         }
+    //     }
+    // }
 }
 
 void UIScreen::handleKeyPress(int key)
 {
+    // SDL_Log("[UIScreen] type: %d", (int)this->getUIType());
+
     switch (key)
     {
     case (SDL_BUTTON_LEFT):
-        if (!this->mButtons.empty())
+    {
+        // if (!this->mButtons.empty())
+        // {
+        //     for (auto b : this->mButtons)
+        //     {
+        //         if (b->getHighlighted())
+        //         {
+        //             b->onClick();
+        //             // break;
+        //         }
+        //     }
+        // }
+
+        if (!this->mUIElements.empty())
         {
-            for (auto b : this->mButtons)
+            for (auto elem : this->mUIElements)
             {
-                if (b->getHighlighted())
+                if (!strcmp(elem->getType().c_str(), "button"))
                 {
-                    b->onClick();
-                    // break;
+                    auto b = (Button*)(elem);
+                    if (b && b->getHighlighted())
+                    {
+                        b->onClick();
+                        // break;
+                    }
                 }
             }
         }
         break;
+    }
+    case (SDLK_ESCAPE):
+    {
+        // 退出当前ui菜单
+        this->close();
+    }
     default:
         break;
     }
@@ -207,8 +432,9 @@ void UIScreen::handleKeyPress(int key)
 void UIScreen::close()
 {
     this->mState = EClosing;
-    // this->getGame()->setGameState(Game::EGamePlay);
-    // this->setRelativeMouseMode(true);
+
+    this->getGame()->setGameState(Game::EGamePlay);
+    this->setRelativeMouseMode(true);
 }
 
 void UIScreen::setTitleTexture(const std::wstring& text, 
@@ -232,7 +458,7 @@ void UIScreen::setTitleTexture(const std::wstring& text,
     // memcpy(wtext, text.c_str(), sizeof(char) * text.length());
 
     this->mTextColor = color;
-    this->mTextSize = this->mFreeTypeFont->renderText(this->mTitleTextures, text.c_str(), color, pointSize);
+    this->mTextSize = this->getGame()->getFreeTypeFont()->renderText(this->mTitleTextures, text.c_str(), color, pointSize);
     // std::cout << "Size:(" << this->mTextSize.x << " " << this->mTextSize.y << ")" << std::endl;
 
     if (this->mTitleTextures.size() > 0)
@@ -302,88 +528,178 @@ Game* UIScreen::getGame() const
     return this->mGame;    
 }
 
-void UIScreen::addButton(const UIButtonType& type, const std::wstring& name, const Vector3& color, std::function<void()> onClick, const Vector2& scale)
-{
-    Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
-    auto iter = this->mButtonTexs.find(type);
-    if (iter != this->mButtonTexs.end())
-    {
-        dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
-    }
-
-    // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
-    Button* b = new Button(int(type), name, this->mFreeTypeFont, color, onClick, this->mNextButtonPos, dims, scale);
-    this->mButtons.emplace_back(b);
-
-    this->mNextButtonPos.y -= (static_cast<float>(this->mButtonOff->getHeight()) + 20.0f);
-}
-
-void UIScreen::addButton(const UIButtonType& type, const std::wstring& name, 
-    const Vector3& color, const Vector2& pos, std::function<void()> onClick, const Vector2& scale)
+Button* UIScreen::addButton(
+    const std::string& name, const std::string& type, 
+    const std::map<std::string, std::string>& bindTex,
+    const std::wstring& text, const Vector3& color, const int& fontSize,
+    const Vector2& pos, const UIBindEvent& bind_event, 
+    std::function<void()> onClick, const bool& addIn, const Vector2& scale
+)
 {
     this->setButtonPos(pos);
 
-    Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
-    auto iter = this->mButtonTexs.find(type);
-    if (iter != this->mButtonTexs.end())
+    class Texture* bn_tex = nullptr;
+    auto iter = this->mUITextures.find((*bindTex.begin()).second);
+    if (iter != this->mUITextures.end())
     {
-        dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
+        bn_tex = (*iter).second;
     }
 
-    // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
-    Button* b = new Button(int(type), name, this->mFreeTypeFont, color, onClick, pos, dims, scale);
-    this->mButtons.emplace_back(b);
+    if (bn_tex)
+    {
+        Vector2 dims(static_cast<float>(bn_tex->getWidth()), static_cast<float>(bn_tex->getHeight()));
+
+        // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
+        // Button* b = new Button(this, int(type), name, this->mFreeTypeFont, color, onClick, this->mNextButtonPos, dims, scale);
+
+        SDL_Log("dim: (%.2f, %.2f)", dims.x, dims.y);
+
+        Button* b = new Button(
+            this, name, type, 
+            bindTex,
+            text, color, fontSize,
+            int(bind_event),
+            onClick,
+            pos, dims, scale, 
+            addIn
+        );
+
+        // this->mButtons.emplace_back(b);
+
+        this->mNextButtonPos.y -= (static_cast<float>(bn_tex->getHeight()) + 20.0f);
+
+        return b;
+    }
+
+    return nullptr;
 }
 
-void UIScreen::drawScreen()
+Button* UIScreen::addButton(
+    const std::string& name, const std::string& type, 
+    const std::map<std::string, std::string>& bindTex,
+    const Vector2& pos, 
+    const UIBindEvent& bind_event, std::function<void()> onClick, 
+    const bool& addIn, 
+    const Vector2& scale)
 {
-    Shader* spriteShader = this->getGame()->getRenderer()->getSpriteShader();
-    Shader* fontShader = this->getGame()->getRenderer()->getFontShader();
+    this->setButtonPos(pos);
 
-    for (auto b : this->mButtons)
+    // Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
+    // auto iter = this->mButtonTexs.find(type);
+    // if (iter != this->mButtonTexs.end())
+    // {
+    //     dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
+    // }
+
+    // // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
+    // Button* b = new Button(this, int(type), name, this->mFreeTypeFont, color, onClick, pos, dims, scale);
+    // this->mButtons.emplace_back(b);
+
+    class Texture* bn_tex = nullptr;
+    auto iter = this->mUITextures.find((*bindTex.begin()).second);
+    if (iter != this->mUITextures.end())
     {
-        Texture* tex = nullptr;
-        auto iter = this->mButtonTexs.find(UIButtonType(b->getButtonType()));
-
-        // std::cout << "type2: " << b->getButtonType() << std::endl;
-        if (iter != this->mButtonTexs.end())
-        {
-            if (!b->getHighlighted())
-            {
-                iter = this->mButtonTexs.find(UIButtonType(b->getButtonType() + 1));
-            }
-            tex = (*iter).second;
-
-            if (tex)
-            {
-                // 绘制按钮背景纹理
-                this->drawTexture(spriteShader, tex, b->getPosition());
-            }
-            else
-            {
-                SDL_Log("[BG button] Texture is null...");
-            }
-            
-            if ((b->getNameTextures()).size() > 0)
-            {
-                // std::cout << "Contain text..." << std::endl;
-
-                // 绘制按钮纹理
-                float dx = -0.5 * b->getTextSize().x;
-                float dy = 0.5 * b->getTextSize().y;
-                this->drawTextures(fontShader, b->getNameTextures(), Vector2{b->getPosition().x + dx, b->getPosition().y - dy}, 1.0f, 1.0f, false, true);
-            }
-            else
-            {
-                SDL_Log("[button] Texture is null...");
-            }
-        }
+        bn_tex = (*iter).second;
     }
+
+    if (bn_tex)
+    {
+        Vector2 dims(static_cast<float>(bn_tex->getWidth()), static_cast<float>(bn_tex->getHeight()));
+
+        SDL_Log("dim: (%.2f, %.2f)", dims.x, dims.y);
+
+        // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
+        // Button* b = new Button(this, int(type), name, this->mFreeTypeFont, color, onClick, this->mNextButtonPos, dims, scale);
+
+        Button* b = new Button(
+            this, name, type, 
+            bindTex,
+            int(bind_event),
+            onClick, 
+            pos, dims, scale,
+            addIn
+        );
+
+        // this->mButtons.emplace_back(b);
+
+        this->mNextButtonPos.y -= (static_cast<float>(bn_tex->getHeight()) + 20.0f);
+
+        return b;
+    }
+
+    return nullptr;
 }
+
+// void UIScreen::drawScreen()
+// {
+//     Shader* spriteShader = this->getGame()->getRenderer()->getSpriteShader();
+//     Shader* fontShader = this->getGame()->getRenderer()->getFontShader();
+
+//     for (auto b : this->mButtons)
+//     {
+//         Texture* tex = nullptr;
+//         auto iter = this->mButtonTexs.find(UIButtonType(b->getButtonType()));
+
+//         // std::cout << "type2: " << b->getButtonType() << std::endl;
+//         if (iter != this->mButtonTexs.end())
+//         {
+//             if (!b->getHighlighted())
+//             {
+//                 iter = this->mButtonTexs.find(UIButtonType(b->getButtonType() + 1));
+//             }
+//             tex = (*iter).second;
+
+//             if (tex)
+//             {
+//                 // 绘制按钮背景纹理
+//                 this->drawTexture(spriteShader, tex, b->getPosition());
+//             }
+//             else
+//             {
+//                 SDL_Log("[BG button] Texture is null...");
+//             }
+            
+//             if ((b->getNameTextures()).size() > 0)
+//             {
+//                 // std::cout << "Contain text..." << std::endl;
+
+//                 // 绘制按钮纹理
+//                 float dx = -0.5 * b->getTextSize().x;
+//                 float dy = 0.5 * b->getTextSize().y;
+//                 this->drawTextures(fontShader, b->getNameTextures(), Vector2{b->getPosition().x + dx, b->getPosition().y - dy}, 1.0f, 1.0f, false, true);
+//             }
+//             else
+//             {
+//                 SDL_Log("[button] Texture is null...");
+//             }
+//         }
+//     }
+// }
 
 void UIScreen::processInput(const uint8_t* keys)
 {
-    if (!this->mButtons.empty())
+    // if (!this->mButtons.empty())
+    // {
+    //     int x, y;
+    //     SDL_GetMouseState(&x, &y);
+    //     Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
+    //     mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+    //     mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
+
+    //     for (auto b : this->mButtons)
+    //     {
+    //         if (b->containsPoint(mousePos))
+    //         {
+    //             b->setHighlighted(true);
+    //         }
+    //         else
+    //         {
+    //             b->setHighlighted(false);
+    //         }
+    //     }
+    // }
+
+    if (!this->mUIElements.empty())
     {
         int x, y;
         SDL_GetMouseState(&x, &y);
@@ -391,15 +707,23 @@ void UIScreen::processInput(const uint8_t* keys)
         mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
         mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
 
-        for (auto b : this->mButtons)
+        for (auto elem : this->mUIElements)
         {
-            if (b->containsPoint(mousePos))
+            if (!strcmp(elem->getType().c_str(), "button"))
             {
-                b->setHighlighted(true);
-            }
-            else
-            {
-                b->setHighlighted(false);
+                Button* b = reinterpret_cast<Button*>(elem);
+                if (b->containsPoint(mousePos))
+                {
+                    b->setHighlighted(true);
+                    // SDL_Log("[UIScreen] button: %s is highlighted...", b->getSpriteName().c_str());
+                }
+                else
+                {
+                    b->setHighlighted(false);
+                }
+
+                // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
+                    // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
             }
         }
     }
@@ -430,20 +754,20 @@ void UIScreen::setNextButtonPos(Vector2 nextButtonPos)
     this->mNextButtonPos = nextButtonPos;
 }
 
-void UIScreen::addBackground(Texture* tex)
-{   
-    this->mBackgrounds.emplace_back(tex);
-}
+// void UIScreen::addBackground(Texture* tex)
+// {   
+//     this->mBackgrounds.emplace_back(tex);
+// }
 
 class Font* UIScreen::getFont() const
 {
     return this->mFont;
 }
 
-std::vector<class Texture*>& UIScreen::getTexture()
-{
-    return this->mTitleTextures;
-}
+// std::vector<class Texture*>& UIScreen::getTexture()
+// {
+//     return this->mTitleTextures;
+// }
 
 Vector2 UIScreen::getTitlePos() const
 {
@@ -465,10 +789,10 @@ Vector2 UIScreen::getNextButtonPos() const
     return this->mNextButtonPos;
 }
 
-std::vector<Texture*>& UIScreen::getBackgrounds()
-{
-    return this->mBackgrounds;
-}
+// std::vector<Texture*>& UIScreen::getBackgrounds()
+// {
+//     return this->mBackgrounds;
+// }
 
 void UIScreen::setRelativeMouseMode(bool relative)
 {
@@ -543,47 +867,47 @@ Vector2 UIScreen::getButtonPos() const
     return this->mNextButtonPos;
 }
 
-void UIScreen::addButton(const UIButtonType& type, const Vector2& pos, const Vector2& scale)
-{
-    this->setButtonPos(pos);
+// void UIScreen::addButton(const std::string& type, const Vector2& pos, const Vector2& scale)
+// {
+//     this->setButtonPos(pos);
 
-    Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
-    auto iter = this->mButtonTexs.find(type);
-    if (iter != this->mButtonTexs.end())
-    {
-        dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
-    }
+//     Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
+//     auto iter = this->mButtonTexs.find(type);
+//     if (iter != this->mButtonTexs.end())
+//     {
+//         dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
+//     }
     
-    // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
-    Button* b = new Button(int(type), pos, dims, scale);
-    this->mButtons.emplace_back(b);
-}
+//     // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
+//     Button* b = new Button(this, int(type), pos, dims, scale);
+//     this->mButtons.emplace_back(b);
+// }
 
-void UIScreen::addButton(const UIButtonType& type, const Vector2& pos, std::function<void()> onClick, const Vector2& scale)
-{
-    this->setButtonPos(pos);
+// void UIScreen::addButton(const std::string& type, const Vector2& pos, std::function<void()> onClick, const Vector2& scale)
+// {
+//     this->setButtonPos(pos);
 
-    Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
-    auto iter = this->mButtonTexs.find(type);
-    if (iter != this->mButtonTexs.end())
-    {
-        dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
-    }
+//     Vector2 dims(static_cast<float>(this->mButtonOn->getWidth()), static_cast<float>(this->mButtonOn->getHeight()));
+//     auto iter = this->mButtonTexs.find(type);
+//     if (iter != this->mButtonTexs.end())
+//     {
+//         dims = Vector2{(float)((*iter).second->getWidth()), (float)((*iter).second->getHeight())};
+//     }
 
-    // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
-    Button* b = new Button(int(type), onClick, pos, dims, scale);
-    this->mButtons.emplace_back(b);
-}
+//     // Button* b = new Button(name, this->mFont, onClick, this->mNextButtonPos, dims);
+//     Button* b = new Button(this, int(type), onClick, pos, dims, scale);
+//     this->mButtons.emplace_back(b);
+// }
 
-std::unordered_map<UIScreen::UIButtonType, class Texture*>& UIScreen::getButtonTexs()
-{   
-    return this->mButtonTexs;
-}
+// std::unordered_map<UIScreen::UIButtonType, class Texture*>& UIScreen::getButtonTexs()
+// {   
+//     return this->mButtonTexs;
+// }
 
-std::vector<class Button*>& UIScreen::getButtons()
-{
-    return this->mButtons;
-}
+// std::vector<class Button*>& UIScreen::getButtons()
+// {
+//     return this->mButtons;
+// }
 
 UIScreen::UIType UIScreen::getUIType() const
 {
@@ -593,4 +917,78 @@ UIScreen::UIType UIScreen::getUIType() const
 void UIScreen::setUIType(UIScreen::UIType type)
 {
     this->mUIType = type;
+}
+
+std::vector<EmptySprite*>& UIScreen::getUIElements()
+{
+    return this->mUIElements;
+}   
+
+void UIScreen::addUIElement(class EmptySprite* sprite)
+{
+    this->mUIElements.emplace_back(sprite);
+}
+
+void UIScreen::removeElement(class EmptySprite* sprite)
+{
+    for (auto elem : this->mUIElements)
+    {
+        if (elem == sprite)
+        {
+            delete elem;
+            elem = nullptr;
+            break;
+        }
+    }
+}
+
+void UIScreen::addUITexture(const std::string& name, class Texture* tex)
+{
+    this->mUITextures.emplace(name, tex);
+}
+
+void UIScreen::removeTexture(const std::string& name)
+{
+    auto iter = this->mUITextures.find(name);
+
+    if (iter != this->mUITextures.end())
+    {
+        Texture* temp = nullptr;
+        temp = (*iter).second;
+        iter = this->mUITextures.erase(iter);
+        if (temp)
+        {
+            delete temp;
+            temp = nullptr;
+        }
+    }
+}
+
+std::unordered_map<std::string, class Texture*>& UIScreen::getUITextures()
+{
+    return this->mUITextures;
+}
+
+void UIScreen::bindEvent(const UIBindEvent& event)
+{
+    switch (event)
+    {
+    case UICancel:
+    {
+        this->close();
+        break;
+    }
+    case UIConfirm:
+    {
+        this->close();
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+VertexArray* UIScreen::getSpriteVerts() const
+{
+    return this->mSpriteVerts;
 }

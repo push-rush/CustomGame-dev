@@ -2,12 +2,18 @@
 
 #include "./UIScreen.h"
 
-class DialogBox : public UIScreen
-{
-public:
-    DialogBox(class Game* game, const std::wstring& text, std::function<void()> onOK);
-    ~DialogBox();
+// namespace Renderer2D
+// {
+    class DialogBox : public UIScreen
+    {
+    public:
+        DialogBox(class Game* game);
+        DialogBox(class Game* game, const std::wstring& text, std::function<void()> onOK);
+        ~DialogBox();
 
-private:
+        void draw(class Shader* spriteShader, class Shader* textShader, class EmptySprite* elem = nullptr) override;
 
-};
+    private:
+        void close() override;
+    };
+// }

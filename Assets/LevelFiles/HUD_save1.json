@@ -1,0 +1,517 @@
+{
+    "version": 1,
+    "HUD": {
+        "textures": [
+            {
+                "name": "menu_root2",
+                "texturePath": "../Assets/Images/MenuRoot2.png"
+            },
+            {
+                "name": "menu_bg1",
+                "texturePath": "../Assets/Images/MenuChild1.png"
+            },
+            {
+                "name": "radar",
+                "texturePath": "../Assets/Images/Radar.png"
+            },
+            {
+                "name": "crosschair",
+                "texturePath": "../Assets/Images/Crosshair.png"
+            },
+            {
+                "name": "blipTex",
+                "texturePath": "../Assets/Images/Blip.png"
+            },
+            {
+                "name": "menu_button2",
+                "texturePath": "../Assets/Images/MenuButton2.png"
+            },
+            {
+                "name": "crosshairEnemy",
+                "texturePath": "../Assets/Images/CrosshairRed.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "menu1",
+                "texturePath": "../Assets/Images/Menu1.png"
+            },
+            {
+                "name": "radarArrow",
+                "texturePath": "../Assets/Images/RadarArrow.png"
+            },
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "menu_root1",
+                "texturePath": "../Assets/Images/MenuRoot1.png"
+            },
+            {
+                "name": "menu_button1",
+                "texturePath": "../Assets/Images/MenuButton1.png"
+            },
+            {
+                "name": "menu2",
+                "texturePath": "../Assets/Images/Menu2.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "Menu2",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "menu2",
+                    "updateOrder": 100,
+                    "position": [
+                        -495.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "Menu1",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "menu1",
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        265.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "Crosschair",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "crosschair",
+                    "updateOrder": 80,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "Radar",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "radar",
+                    "updateOrder": 90,
+                    "position": [
+                        -350.0,
+                        120.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "Blip",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "blipTex",
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "RadarArrow",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "radarArrow",
+                    "updateOrder": 100,
+                    "position": [
+                        -390.0,
+                        180.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        ]
+    },
+    "PauseMenu": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindText": "Cancel",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        120.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindText": "Quit",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 3,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        50.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        ]
+    },
+    "DialogBox": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "bg",
+                "texturePath": "../Assets/Images/DialogBG.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "background",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "bg",
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindText": "Cancel",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        55.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindText": "Confirm",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 1,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        -35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        ]
+    },
+    "Setting": {
+        "textures": [
+            {
+                "name": "volume1",
+                "texturePath": "../Assets/Images/Volume1.png"
+            },
+            {
+                "name": "cross2",
+                "texturePath": "../Assets/Images/Cross3.png"
+            },
+            {
+                "name": "slider2",
+                "texturePath": "../Assets/Images/Slider4.png"
+            },
+            {
+                "name": "slider1",
+                "texturePath": "../Assets/Images/Slider7.png"
+            },
+            {
+                "name": "background1",
+                "texturePath": "../Assets/Images/BG1.png"
+            },
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "volume2",
+                "texturePath": "../Assets/Images/Volume2.png"
+            },
+            {
+                "name": "slider0",
+                "texturePath": "../Assets/Images/Slider2.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "hook2",
+                "texturePath": "../Assets/Images/Hook1.png"
+            },
+            {
+                "name": "hook1",
+                "texturePath": "../Assets/Images/Hook0.png"
+            },
+            {
+                "name": "cross1",
+                "texturePath": "../Assets/Images/Cross2.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "background1",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "background1",
+                    "updateOrder": 80,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "slider0",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "slider0",
+                    "updateOrder": 100,
+                    "position": [
+                        60.0,
+                        150.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "cross1",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "cross1",
+                        "on": "cross2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        330.0,
+                        210.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "volume",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "volume1",
+                        "on": "volume2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -300.0,
+                        150.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button3",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 4,
+                    "bindTexName": {
+                        "off": "slider1",
+                        "on": "slider2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        150.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindText": "Cancel",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -220.0,
+                        -200.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindText": "Confirm",
+                    "textColor": [
+                        0.5,
+                        0.25,
+                        0.25
+                    ],
+                    "fontSize": 35,
+                    "bindEventID": 1,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        220.0,
+                        -200.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,214 @@
+{
+    "version": 1,
+    "tree": [
+        {
+            "node_name": "root",
+            "parent_name": "-1",
+            "value": {
+                "name": "MenuButton1",
+                "type": "button",
+                "properties": {
+                    "bindText": "File",
+                    "textColor": [
+                        0.90, 0.90, 0.90
+                    ],
+                    "fontSize": 26,
+                    "bindEventID": 5,
+                    "bindTexName": {
+                        "off": "menu_root2",
+                        "on": "menu_root1"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -485.0,
+                        265.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer1_1",
+            "parent_name": "root",
+            "value": {
+                "name": "MenuBG1",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "menu_bg1",
+                    "updateOrder": 100,
+                    "position": [
+                        -392.0,
+                        48.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer1_2",
+            "parent_name": "root",
+            "value": {
+                "name": "MenuButton2",
+                "type": "button",
+                "properties": {
+                    "bindText": "Open File...",
+                    "textColor": [
+                        0.90, 0.90, 0.90
+                    ],
+                    "fontSize": 26,
+                    "bindEventID": 6,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -392.0,
+                        220.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer1_3",
+            "parent_name": "root",
+            "value": {
+                "name": "MenuButton3",
+                "type": "button",
+                "properties": {
+                    "bindText": "Open Folder...",
+                    "textColor": [
+                        0.90, 0.90, 0.90
+                    ],
+                    "fontSize": 26,
+                    "bindEventID": 6,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -392.0,
+                        170.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer1_4",
+            "parent_name": "root",
+            "value": {
+                "name": "MenuButton4",
+                "type": "button",
+                "properties": {
+                    "bindText": "Save",
+                    "textColor": [
+                        0.90, 0.90, 0.90
+                    ],
+                    "fontSize": 26,
+                    "bindEventID": 6,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -392.0,
+                        120.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer1_5",
+            "parent_name": "root",
+            "value": {
+                "name": "MenuButton5",
+                "type": "button",
+                "properties": {
+                    "bindText": "Exit",
+                    "textColor": [
+                        0.90, 0.90, 0.90
+                    ],
+                    "fontSize": 26,
+                    "bindEventID": 6,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -392.0,
+                        70.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer2_1",
+            "parent_name": "MenuLayer1_2",
+            "value": {
+                "name": "MenuBG2",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "menu_bg1",
+                    "updateOrder": 100,
+                    "position": [
+                        -192.0,
+                        20.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "node_name": "MenuLayer2_2",
+            "parent_name": "MenuLayer1_2",
+            "value": {
+                "name": "MenuButton3",
+                "type": "button",
+                "properties": {
+                    "bindEventID": -1,
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        -192.0,
+                        170.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        }
+    ]
+}

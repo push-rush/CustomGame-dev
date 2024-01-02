@@ -2,6 +2,13 @@
 #include "../../include/Game.h"
 #include "../../include/Renderers/Renderer.h"
 #include "../../include/Renderers/Texture.h"
+#include "../../include/Renderers/EmptySprite.h"
+
+DialogBox::DialogBox(class Game* game)
+: UIScreen(game)
+{
+    this->setUIType(UIScreen::EDialogBox);
+}
 
 DialogBox::DialogBox(Game* game, const std::wstring& text, std::function<void()> onOK)
 : UIScreen(game)
@@ -13,17 +20,17 @@ DialogBox::DialogBox(Game* game, const std::wstring& text, std::function<void()>
     this->setNextButtonPos(Vector2(0.0f, 0.0f));
 
     // 设置背景
-    this->addBackground(game->getRenderer()->getTexture("../Assets/Images/DialogBG.png"));
-    this->setTitleTexture(text, Vector3::Zero, 40);
+    // this->addBackground(game->getRenderer()->getTexture("../Assets/Images/DialogBG.png"));
+    // this->setTitleTexture(text, Vector3::Zero, 40);
 
     // 设置按钮
-    this->addButton(RectButtonON, L"确定", this->getTextColor(), [onOK](){
-        onOK();
-    });
+    // this->addButton(RectButtonON, L"确定", this->getTextColor(), [onOK](){
+    //     onOK();
+    // });
 
-    this->addButton(RectButtonON, L"取消", this->getTextColor(), [this](){
-        this->close();
-    });
+    // this->addButton(RectButtonON, L"取消", this->getTextColor(), [this](){
+    //     this->close();
+    // });
 
     std::cout << "dialog ..." << std::endl;
 }
@@ -34,4 +41,23 @@ DialogBox::~DialogBox()
     // this->setRelativeMouseMode(true);
 
     std::cout << "[DialogBox] Releasing..." << std::endl;
+}
+
+void DialogBox::close()
+{
+    this->setUIState(EClosing);
+}
+
+void DialogBox::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem)
+{
+    std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
+    {
+        return e1->getUpdateOrder() < e2->getUpdateOrder();
+    });
+
+    for (auto e : this->getUIElements())
+    {
+        // SDL_Log("[PauseMenu] ui elem: %s", e->getSpriteName().c_str());
+        UIScreen::draw(spriteShader, fontShader, e);
+    }
 }

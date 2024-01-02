@@ -19,19 +19,20 @@
 class Texture
 {
 private:
-    uint32_t mTextureID; // 纹理ID
     int mHeight;
     int mWidth;
+    std::string mName;
     Vector2 mPosOffset;
-    std::string mFileName;
     Vector2 mScale;
+    std::string mTexPath;
+    uint32_t mTextureID; // 纹理ID
 
 public:
     Texture(/* args */);
     ~Texture();
 
     // 加载纹理
-    bool load(const std::string& fileName);
+    bool load(const std::string& fileName, const std::string& type = "default");
     void unLoad();
 
     // settters
@@ -41,7 +42,8 @@ public:
     void setTextureID(GLuint texture_id);
     void setPosOffset(const Vector2& pos_offset);
     void setScale(const Vector2&);
-
+    void setTexName(const std::string& type);
+    
     // getters
     int getWidth() const;
     int getHeight() const;
@@ -49,6 +51,7 @@ public:
     const std::string& getFileName();
     const Vector2& getPosOffset();
     const Vector2& getScale(); 
+    const std::string& getTexName() const;
 
     void createForRendering(int width, int height, unsigned int format);
     void createFromSurface(class SDL_Surface* surface);

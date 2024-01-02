@@ -46,13 +46,20 @@ public:
     std::vector<class PlaneActor*>& getPlanes();
     class Actor* getPlayer() const;
     class Font* getFont(const std::string& name);
-    class FreeTypeFont* getFreeTypeFont(const std::string& name);
+    class FreeTypeFont* getFreeTypeFont();
+    const GameState& getGameState() const;
 
     std::string getText(const std::string& key);
-    class HUD* getHUD();
     class Skeleton* getSkeleton(const std::string& fileName);
     class Animation* getAnimation(const std::string& fileName);
     const std::vector<class Actor*>& getActors() const;
+
+    class HUD* getHUD();
+    class PauseMenu* getPauseMenu();
+    class Setting* getSetting();
+    class DialogBox* getDialogBox();
+
+    class ResourceManager* getResourceManager() const;
 
     // 返回ui栈的引用
     const std::vector<class UIScreen*>& getUIStack();
@@ -72,6 +79,12 @@ public:
 
     void addPlane(class PlaneActor*);
     void removePlane(class PlaneActor*);
+
+private:
+    // 输入处理/游戏更新/画面输出
+    void processInput();
+    void updateGame(std::string name = "PlanetaryWars");
+    void generateOutput();
 
 private:
     const int thickness = 15;
@@ -96,6 +109,10 @@ private:
 
     // ui栈
     std::vector<class UIScreen*> mUIStack;
+    class HUD* mHUD;
+    class PauseMenu* mPauseMenu;
+    class Setting* mSetting;
+    class DialogBox* mDialogBox;
 
     // 游戏状态
     GameState mGameState;
@@ -111,10 +128,10 @@ private:
     class OrbitActor* mOrbitActor;
     class SplineActor* mSplineActor;
     class PhysWorld* mPhysWorld;
-    class HUD* mHUD;
 
-    // 输入处理/游戏更新/画面输出
-    void processInput();
-    void updateGame(std::string name = "PlanetaryWars");
-    void generateOutput();
+    // 字体类
+    class FreeTypeFont* mFreeTypeFont;
+
+    // 资源管理类
+    class ResourceManager* mResourceManager;
 };

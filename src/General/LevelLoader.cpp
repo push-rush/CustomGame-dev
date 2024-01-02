@@ -1,6 +1,16 @@
 #include "../../include/General/LevelLoader.h"
 #include "../../include/Game.h"
+
 #include "../../include/Renderers/Renderer.h"
+#include "../../include/Renderers/HUD.h"
+#include "../../include/Renderers/Texture.h"
+#include "../../include/Renderers/UIScreen.h"
+#include "../../include/Renderers/Setting.h"
+#include "../../include/Renderers/PauseMenu.h"
+#include "../../include/Renderers/EmptySprite.h"
+#include "../../include/Renderers/DialogBox.h"
+#include "../../include/Renderers/Button.h"
+
 #include "../../include/Actors/Actor.h"
 #include "../../include/Actors/TargetActor.h"
 #include "../../include/Actors/BallActor.h"
@@ -28,6 +38,8 @@
 #include "../../include/Components/SplineCamera.h"
 #include "../../include/Components/SpriteComponent.h"
 #include "../../include/Components/TargetComponent.h"
+
+#include "../../include/General/TreeStruct.h"
 
 #include <stringbuffer.h>
 #include <prettywriter.h>
@@ -105,6 +117,98 @@ bool LevelLoader::loadLevel(class Game* game, const std::string& fileName)
         loadActors(game, actors);
     }
 
+    return true;
+}
+
+// 加载ui元素信息
+bool LevelLoader::loadUIElements(class Game* game, const std::string& fileName)
+{   
+    // 加载json文件
+    rapidjson::Document doc;
+    if (!loadJSON(fileName, doc))
+    {
+        SDL_Log("Failed to load level %s", fileName.c_str());
+        return false;
+    }
+
+    int version = 0;
+    if (!JsonHelper::getInt(doc, "version", version))
+    {
+        SDL_Log("Incorrect ui element file version for %s", fileName.c_str());
+        return false;
+    }
+
+    // 加载HUD信息
+    const rapidjson::Value& hud = doc["HUD"];
+    if (hud.IsObject())
+    {
+        SDL_Log("[LevelLoader] load hud elems...");
+        loadHUD(game, hud, game->getHUD());
+    }
+    SDL_Log("[LevelLoader] Load HUD over...");
+
+    // 加载PauseMenu信息
+    const rapidjson::Value& pause_menu = doc["PauseMenu"];
+    if (pause_menu.IsObject())
+    {
+        // loadPauseMenu(game, pause_menu);
+        loadHUD(game, pause_menu, game->getPauseMenu());
+    }
+    SDL_Log("[LevelLoader] Load PauseMenu over...");
+
+    // 加载DialogBox信息
+    const rapidjson::Value& dialog_box = doc["DialogBox"];
+    if (dialog_box.IsObject())
+    {
+        // loadDialogBox(game, dialog_box);
+        loadHUD(game, dialog_box, game->getDialogBox());
+    }
+    SDL_Log("[LevelLoader] Load DialogBox over...");
+
+    // 加载Setting信息
+    const rapidjson::Value& setting = doc["Setting"];
+    if (setting.IsObject())
+    {
+        // loadSetting(game, setting);
+        loadHUD(game, setting, game->getSetting());
+    }
+
+    SDL_Log("[LevelLoader] Load ui element over...");
+
+    return true;
+}
+
+bool LevelLoader::loadUITrees(class Game* game, const std::string& fileName)
+{
+    SDL_Log("[LevelLoader] Load ui tree...");
+
+    // 加载json文件
+    rapidjson::Document doc;
+    if (!loadJSON(fileName, doc))
+    {
+        SDL_Log("Failed to load level %s", fileName.c_str());
+        return false;
+    }
+
+    const rapidjson::Value& v = doc["version"];
+    if (v.GetInt() != 1)
+    {
+        SDL_Log("[LevelLoader] Load ui tree: version is not matched...");
+        return false;
+    }
+
+    // 加载ui树
+    const rapidjson::Value& tree = doc["tree"];
+    if (tree.IsArray())
+    {
+        loadUITree(game, tree, game->getHUD());
+    }
+    else
+    {
+        return false;
+    }
+
+    SDL_Log("[LevelLoader] Load ui tree over!");
     return true;
 }
 
@@ -267,18 +371,418 @@ void LevelLoader::loadComponents(class Actor* actor, const rapidjson::Value& inA
 
                     if (!cp)
                     {
-                        SDL_Log("[LevelLoader] Create Component: %s...", type.c_str());
                         cp = (*iter).second(actor, compObj["properties"]);
+
+                        SDL_Log("[LevelLoader] Create Component: %s...", type.c_str());
                     }
                     else
                     {
-                        SDL_Log("[LevelLoader] Update Component: %s...", type.c_str());
                         cp->loadProperties(compObj["properties"]);
+
+                        SDL_Log("[LevelLoader] Update Component: %s...", type.c_str());
                     }
                 }
             }
         }
     }
+}
+
+bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, class UIScreen* ui)
+{
+    if (ui && inArray.IsArray())
+    {
+        auto hud = (HUD*)ui;
+        auto tree = hud->getUIMenuTree();
+        for (rapidjson::SizeType i = 0; i < inArray.Size(); ++i)
+        {
+            const rapidjson::Value& node = inArray[i];
+            if (node.IsObject())
+            {
+                std::string node_name, parent_name;
+                if (JsonHelper::getString(node, "node_name", node_name) &&
+                    JsonHelper::getString(node, "parent_name", parent_name)
+                )
+                {
+                    auto iter = node.FindMember("value");
+                    if (iter != node.MemberEnd())
+                    {
+                        auto& v = iter->value;
+
+                        std::string name, type, bind_name;
+                        int updateOrder = 100;
+                        Vector2 pos = Vector2{0.0f, 0.0f};
+                        Vector2 scale = Vector2{0.0f, 0.0f};
+                        if (JsonHelper::getString(v, "name", name) &&
+                            JsonHelper::getString(v, "type", type) &&
+                            v.HasMember("properties")
+                        )
+                        {
+                            const rapidjson::Value& props = v["properties"];
+                            if (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
+                                JsonHelper::getVector2(props, "position", pos) &&
+                                JsonHelper::getVector2(props, "scale", scale)
+                            )
+                            {
+                                std::string text;
+                                std::map<std::string, std::string> texs_map;
+                                if (!strcmp(type.c_str(), "button"))
+                                {
+                                    std::string buttonOn, buttonOff;
+                                    int event_id = -1;
+                                    // String2WString str2Wstr;
+                                    const rapidjson::Value& texs = props["bindTexName"];
+                                    if (texs.IsObject() &&
+                                        JsonHelper::getString(texs, "off", buttonOff) &&
+                                        JsonHelper::getString(texs, "on", buttonOn) &&
+                                        JsonHelper::getInt(props, "bindEventID", event_id)
+                                    )
+                                    {
+                                        texs_map.emplace("off", buttonOff);
+                                        texs_map.emplace("on", buttonOn);
+                                        
+                                        Button* b = nullptr;
+                                        if (JsonHelper::getString(props, "bindText", text))
+                                        {
+                                            // std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                                            // std::wstring w_str = converter.from_bytes(text);
+
+                                            wchar_t pwchar[text.length()] = {'\0'};
+                                            for (int i = 0; i < (int)text.length(); ++i)
+                                            {
+                                                memcpy(&pwchar[i], &text[i], sizeof(char));
+                                            }  
+                                            wstring w_str(pwchar, pwchar + (int)text.length());
+                                            
+                                            int font_size = 35;
+                                            Vector3 text_color = Vector3{0.5, 0.25, 0.25};
+                                            // 读取文本颜色和字体大小
+                                            JsonHelper::getVector3(props, "textColor", text_color);
+                                            JsonHelper::getInt(props, "fontSize", font_size);
+
+                                            b = ui->addButton(
+                                                name, type, 
+                                                texs_map, 
+                                                w_str, text_color, font_size,
+                                                pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                                    ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                                }, false, scale
+                                            );
+                                        }
+                                        else
+                                        {
+                                            b = ui->addButton(
+                                                name, type,
+                                                texs_map,
+                                                pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                                    ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                                }, false, scale
+                                            );
+                                        }
+
+                                        // 添加到ui树中
+                                        if (b)
+                                        {
+                                            tree->addTreeNode(new TreeNode{
+                                                node_name, parent_name,
+                                                (EmptySprite*)b
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    JsonHelper::getString(props, "bindTexName", bind_name);
+                                    texs_map.emplace("default", bind_name);
+
+                                    EmptySprite* s = nullptr;
+                                    if (JsonHelper::getString(props, "bindText", text))
+                                    {
+                                        wchar_t pwchar[text.length()] = {'\0'};
+                                        for (int i = 0; i < (int)text.length(); ++i)
+                                        {
+                                            memcpy(&pwchar[i], &text[i], sizeof(char));
+                                        }  
+                                        wstring w_str(pwchar, pwchar + (int)text.length());
+
+                                        int font_size = 35;
+                                        Vector3 text_color = Vector3{0.5, 0.25, 0.25};
+                                        
+                                        // 读取文本颜色和字体大小
+                                        JsonHelper::getVector3(props, "textColor", text_color);
+                                        JsonHelper::getInt(props, "fontSize", font_size);
+
+                                        s = new EmptySprite(
+                                            ui, 
+                                            name, 
+                                            type,
+                                            texs_map,  
+                                            false,
+                                            pos, 
+                                            scale, 
+                                            updateOrder,
+                                            Vector2{0.0f, 0.0f},
+                                            true, w_str, text_color, font_size 
+                                        );
+                                    }
+                                    else
+                                    {
+                                        s = new EmptySprite(
+                                            ui, 
+                                            name, 
+                                            type,
+                                            texs_map,  
+                                            false,
+                                            pos, 
+                                            scale, 
+                                            updateOrder
+                                        );
+                                    }
+
+                                    if (s)
+                                    {
+                                        // 添加到ui树中
+                                        tree->addTreeNode(new TreeNode{
+                                            node_name, 
+                                            parent_name, 
+                                            s
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 将树的根节点入栈
+        hud->nodeAddToStack(tree->findTreeNode("root"));
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, class UIScreen* ui)
+{
+    if (ui)
+    {
+        auto iter = inObject.FindMember("textures");
+        if (iter != inObject.MemberEnd())
+        {
+            auto& textures = iter->value;
+            for (rapidjson::SizeType i = 0; i < textures.Size(); ++i)
+            {
+                const rapidjson::Value& tex = textures[i];
+                if (tex.IsObject())
+                {
+                    std::string name, path;
+                    if (JsonHelper::getString(tex, "name", name) &&
+                        JsonHelper::getString(tex, "texturePath", path)
+                    )
+                    {
+                        auto t = game->getRenderer()->getTexture(path.c_str());
+                        ui->addUITexture(name, t);
+                    }
+                }
+            }
+        }
+
+        iter = inObject.FindMember("elements");
+        if (iter != inObject.MemberEnd())
+        {
+            auto& elements = iter->value;
+            for (rapidjson::SizeType i = 0; i < elements.Size(); ++i)
+            {
+                const rapidjson::Value& elem = elements[i];
+                if (elem.IsObject())
+                {
+                    std::string name, type, bind_name;
+                    int updateOrder = 100;
+                    Vector2 pos = Vector2{0.0f, 0.0f};
+                    Vector2 scale = Vector2{0.0f, 0.0f};
+
+                    if (JsonHelper::getString(elem, "name", name) &&
+                        JsonHelper::getString(elem, "type", type) &&
+                        elem.HasMember("properties"))
+                    {
+                        const rapidjson::Value& props = elem["properties"];
+                        if (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
+                            JsonHelper::getVector2(props, "position", pos) &&
+                            JsonHelper::getVector2(props, "scale", scale)
+                        )
+                        {
+                            std::string text;
+                            std::map<std::string, std::string> texs_map;
+                            if (!strcmp(type.c_str(), "button"))
+                            {
+                                SDL_Log("[LevelLoader] load button name: %s", name.c_str());
+
+                                std::string buttonOn, buttonOff;
+                                int event_id = -1;
+                                // String2WString str2Wstr;
+                                const rapidjson::Value& texs = props["bindTexName"];
+                                if (texs.IsObject() &&
+                                    JsonHelper::getString(texs, "off", buttonOff) &&
+                                    JsonHelper::getString(texs, "on", buttonOn) &&
+                                    JsonHelper::getInt(props, "bindEventID", event_id)
+                                )
+                                {
+                                    texs_map.emplace("off", buttonOff);
+                                    texs_map.emplace("on", buttonOn);
+
+                                    if (JsonHelper::getString(props, "bindText", text))
+                                    {
+                                        // std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                                        // std::wstring w_str = converter.from_bytes(text);
+
+                                        wchar_t pwchar[text.length()] = {'\0'};
+                                        for (int i = 0; i < (int)text.length(); ++i)
+                                        {
+                                            memcpy(&pwchar[i], &text[i], sizeof(char));
+                                        }  
+                                        wstring w_str(pwchar, pwchar + (int)text.length());
+
+                                        int font_size = 35;
+                                        Vector3 text_color = Vector3{0.5, 0.25, 0.25};
+                                        
+                                        // 读取文本颜色和字体大小
+                                        JsonHelper::getVector3(props, "textColor", text_color);
+                                        JsonHelper::getInt(props, "fontSize", font_size);
+
+                                        ui->addButton(
+                                            name, type, 
+                                            texs_map, 
+                                            w_str, text_color, font_size,
+                                            pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                                ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                            }, true, scale
+                                        );
+                                    }
+                                    else
+                                    {
+                                        ui->addButton(
+                                            name, type,
+                                            texs_map,
+                                            pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                                ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                            }, true, scale
+                                        );
+                                    }
+
+                                    // SDL_Log("[LevelLoader] wstring: %d string: %d", w_str.length(), text.length());
+                                    // SDL_Log("[LevelLoader] wstring size: %d string size: %d", sizeof(std::wstring), sizeof(std::string));
+                                }
+                            }
+                            else
+                            {
+                                JsonHelper::getString(props, "bindTexName", bind_name);
+                                texs_map.emplace("default", bind_name);
+
+                                if (JsonHelper::getString(props, "bindText", text))
+                                {
+                                    wchar_t pwchar[text.length()] = {'\0'};
+                                    for (int i = 0; i < (int)text.length(); ++i)
+                                    {
+                                        memcpy(&pwchar[i], &text[i], sizeof(char));
+                                    }  
+                                    wstring w_str(pwchar, pwchar + (int)text.length());
+
+                                    int font_size = 35;
+                                    Vector3 text_color = Vector3{0.5, 0.25, 0.25};
+                                    
+                                    // 读取文本颜色和字体大小
+                                    JsonHelper::getVector3(props, "textColor", text_color);
+                                    JsonHelper::getInt(props, "fontSize", font_size);
+
+                                    new EmptySprite(
+                                        ui, 
+                                        name, 
+                                        type,
+                                        texs_map,  
+                                        true,
+                                        pos, 
+                                        scale, 
+                                        updateOrder,
+                                        Vector2{0.0f, 0.0f},
+                                        true, w_str, text_color, font_size 
+                                    );
+                                }
+                                else
+                                {
+                                    new EmptySprite(
+                                        ui, 
+                                        name, 
+                                        type,
+                                        texs_map,  
+                                        true,
+                                        pos, 
+                                        scale, 
+                                        updateOrder
+                                    );
+                                }
+                            }
+
+                            SDL_Log("[LevelLoader] Load HUD element name: %s", name.c_str());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool LevelLoader::saveUIElements(class Game* game, const std::string& fileName)
+{
+    // 保存ui元素信息
+
+    // 创建doc和根对象
+    rapidjson::Document doc;
+    doc.SetObject();
+
+    // 写入版本
+    JsonHelper::addInt(doc.GetAllocator(), doc, "version", 1);
+
+    // 保存hud信息
+    rapidjson::Value hud(rapidjson::kObjectType);
+    saveHUD(doc.GetAllocator(), game, hud, game->getHUD());
+    doc.AddMember("HUD", hud, doc.GetAllocator());
+
+    // 保存pausemenu信息
+    rapidjson::Value pause_menu(rapidjson::kObjectType);
+    saveHUD(doc.GetAllocator(), game, pause_menu, game->getPauseMenu());
+    doc.AddMember("PauseMenu", pause_menu, doc.GetAllocator());
+
+    // 保存dialogbox信息
+    rapidjson::Value dialog_box(rapidjson::kObjectType);
+    saveHUD(doc.GetAllocator(), game, dialog_box, game->getDialogBox());
+    doc.AddMember("DialogBox", dialog_box, doc.GetAllocator());
+
+    // 保存setting信息
+    rapidjson::Value setting(rapidjson::kObjectType);
+    saveHUD(doc.GetAllocator(), game, setting, game->getSetting());
+    doc.AddMember("Setting", setting, doc.GetAllocator());
+
+
+    // 将JSON文本保存到字符串缓存区
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    const char* output = buffer.GetString();
+
+    // 写入文件
+    std::ofstream outFile(fileName);
+    if (outFile.is_open())
+    {
+        SDL_Log("[LevelLoader] Save hud elements...");
+
+        outFile << output;
+    }
+
+    return true;
 }
 
 JsonHelper::JsonHelper(/* args */)
@@ -334,6 +838,34 @@ bool JsonHelper::getVector3(const rapidjson::Value& inObject, const char* inProp
     outVector3.x = property[0].GetDouble();
     outVector3.y = property[1].GetDouble();
     outVector3.z = property[2].GetDouble();
+
+    return true;
+}
+
+bool JsonHelper::getVector2(const rapidjson::Value& inObject, const char* inProperty, Vector2& outVector2)
+{
+    auto iter = inObject.FindMember(inProperty);
+    if (iter == inObject.MemberEnd())
+    {
+        return false;
+    }
+
+    auto& property = (*iter).value;
+    if (property.Size() != 2 || !property.IsArray())
+    {
+        return false;
+    }
+
+    for (rapidjson::SizeType i = 0; i < property.Size(); ++i)
+    {
+        if (!property[i].IsDouble())
+        {
+            return false;
+        }
+    }
+
+    outVector2.x = property[0].GetDouble();
+    outVector2.y = property[1].GetDouble();
 
     return true;
 }
@@ -428,6 +960,8 @@ bool LevelLoader::saveLevel(class Game* game, const std::string& fileName)
     if (outFile.is_open())
     {
         outFile << output;
+
+        SDL_Log("[LevelLoader] Save global level elements...");
     }
 
     return true;
@@ -500,6 +1034,85 @@ bool LevelLoader::saveComponents(rapidjson::Document::AllocatorType& alloc, clas
     return true;
 }   
 
+bool LevelLoader::saveHUD(rapidjson::Document::AllocatorType& alloc, class Game* game, rapidjson::Value& inObject, class UIScreen* ui)
+{
+    rapidjson::Value textures(rapidjson::kArrayType);
+    for (auto iter : ui->getUITextures())
+    {   
+        rapidjson::Value obj(rapidjson::kObjectType);
+        JsonHelper::addString(alloc, obj, "name", iter.first);
+        JsonHelper::addString(alloc, obj, "texturePath", iter.second->getFileName());
+        textures.PushBack(obj, alloc);
+    }
+
+    rapidjson::Value elements(rapidjson::kArrayType);
+    for (auto elem : ui->getUIElements())
+    {
+        rapidjson::Value obj(rapidjson::kObjectType);
+        if (JsonHelper::addString(alloc, obj, "name", elem->getSpriteName()) &&
+            JsonHelper::addString(alloc, obj, "type", elem->getType()))
+        {
+            rapidjson::Value props(rapidjson::kObjectType);
+
+            if (elem->containText())
+            {
+                wstring w_str = elem->getText();
+                char* pschar = new char[w_str.length()];
+                // memset(pschar, '\0', w_str.length());
+                // memcpy(pschar, w_str.c_str(), sizeof(wchar_t) * w_str.length()); 
+                for (auto i = 0; i < (int)w_str.length(); ++i)
+                {
+                    pschar[i] = w_str[i];
+                }
+                string str(pschar, pschar + w_str.length());
+
+                Vector3 color = elem->getTextColor();
+                int size = elem->getFontSize();
+
+                JsonHelper::addString(alloc, props, "bindText", str);
+                JsonHelper::addVector3(alloc, props, "textColor", color);
+                JsonHelper::addInt(alloc, props, "fontSize", size);
+
+                if (pschar)
+                {
+                    delete pschar;
+                    pschar = nullptr;
+                }
+
+                // SDL_Log("[LevelLoader] bindText: wstr size: %d str size: %d", w_str.length(), str.length());
+            }
+
+            if (!strcmp(elem->getType().c_str(), "button"))
+            {
+                Button* b = (Button*)(elem);
+
+                JsonHelper::addInt(alloc, props, "bindEventID", b->getBindEventID());
+
+                rapidjson::Value texs(rapidjson::kObjectType);
+                for (auto tex : b->getBindTexName())
+                {
+                    JsonHelper::addString(alloc, texs, tex.first, tex.second);
+                }
+                props.AddMember("bindTexName", texs, alloc);
+            }
+            else
+            {
+                JsonHelper::addString(alloc, props, "bindTexName", (*elem->getBindTexName().begin()).second);
+            }
+
+            JsonHelper::addInt(alloc, props, "updateOrder", elem->getUpdateOrder());
+            JsonHelper::addVector2(alloc, props, "position", elem->getPosition());
+            JsonHelper::addVector2(alloc, props, "scale", elem->getScale());
+            obj.AddMember("properties", props, alloc);
+            elements.PushBack(obj, alloc);
+        }
+    }
+
+    inObject.AddMember("textures", textures, alloc);
+    inObject.AddMember("elements", elements, alloc);
+    return true;
+}
+
 bool JsonHelper::addInt(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj, const char* name, int value)
 {
     rapidjson::Value v(value);
@@ -519,14 +1132,30 @@ bool JsonHelper::addVector3(rapidjson::Document::AllocatorType& alloc, rapidjson
     return true;
 }
 
+
 bool JsonHelper::addString(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj, const char* name, std::string value)
 {
     rapidjson::Value v(rapidjson::kObjectType);
     v.SetString(value.c_str(), static_cast<rapidjson::SizeType>(value.length()), alloc);
+
+    // printf("pt: %s \n", name);
     inObj.AddMember(rapidjson::StringRef(name), v, alloc);
 
     return true;
 }
+
+bool JsonHelper::addString(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj, const string& name, std::string value)
+{
+    rapidjson::Value n(rapidjson::kObjectType);
+    n.SetString(name.c_str(), static_cast<rapidjson::SizeType>(name.length()), alloc);
+
+    rapidjson::Value v(rapidjson::kObjectType);
+    v.SetString(value.c_str(), static_cast<rapidjson::SizeType>(value.length()), alloc);
+
+    inObj.AddMember(n, v, alloc);
+    return true;
+}
+
 
 bool JsonHelper::addRotation(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj, const char* name, Quaternion value)
 {
@@ -544,6 +1173,17 @@ bool JsonHelper::addScale(rapidjson::Document::AllocatorType& alloc, rapidjson::
 {
     rapidjson::Value v(rapidjson::kObjectType); 
     v.SetFloat(value);
+    inObj.AddMember(rapidjson::StringRef(name), v, alloc);
+
+    return true;
+}
+
+bool JsonHelper::addVector2(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj, const char* name, Vector2 value)
+{
+    rapidjson::Value v(rapidjson::kArrayType);
+    v.PushBack(rapidjson::Value(value.x).Move(), alloc);
+    v.PushBack(rapidjson::Value(value.y).Move(), alloc);
+
     inObj.AddMember(rapidjson::StringRef(name), v, alloc);
 
     return true;

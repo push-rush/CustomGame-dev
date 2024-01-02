@@ -1,0 +1,305 @@
+{
+    "version": 1,
+    "HUD": {
+        "textures": [
+            {
+                "name": "crosschair",
+                "texturePath": "../Assets/Images/Crosshair.png"
+            },
+            {
+                "name": "crosshairEnemy",
+                "texturePath": "../Assets/Images/CrosshairRed.png"
+            },
+            {
+                "name": "radar",
+                "texturePath": "../Assets/Images/Radar.png"
+            },
+            {
+                "name": "blipTex",
+                "texturePath": "../Assets/Images/Blip.png"
+            },
+            {
+                "name": "radarArrow",
+                "texturePath": "../Assets/Images/RadarArrow.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "Crosschair",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "crosschair",
+                    "updateOrder": 80,
+                    "position": [0.0, 0.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "Radar",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "radar",
+                    "updateOrder": 90,
+                    "position": [-390.0, 180.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "Blip",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "blipTex",
+                    "updateOrder": 100,
+                    "position": [0.0, 0.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "RadarArrow",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "radarArrow",
+                    "updateOrder": 100,
+                    "position": [-390.0, 180.0],
+                    "scale": [1.0, 1.0]
+                }
+            }
+        ]
+    },
+    "PauseMenu": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindText": "Cancel",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 110,
+                    "position": [0.0, 120.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 3,
+                    "bindText": "Quit",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 110,
+                    "position": [0.0, 50.0],
+                    "scale": [1.0, 1.0]
+                }
+            }
+        ]
+    },
+    "DialogBox": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "bg",
+                "texturePath": "../Assets/Images/DialogBG.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "background",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "bg",
+                    "updateOrder": 80,
+                    "position": [0.0, 0.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindText": "Cancel",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [0.0, 55.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 1,
+                    "bindText": "Confirm",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [0.0, -35.0],
+                    "scale": [1.0, 1.0]
+                }
+            }
+        ]
+    },
+    "Setting": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "background1",
+                "texturePath": "../Assets/Images/BG1.png"
+            },
+            {
+                "name": "slider1",
+                "texturePath": "../Assets/Images/Slider7.png"
+            },
+            {
+                "name": "slider2",
+                "texturePath": "../Assets/Images/Slider4.png"
+            },
+            {
+                "name": "hook1",
+                "texturePath": "../Assets/Images/Hook0.png"
+            },
+            {
+                "name": "hook2",
+                "texturePath": "../Assets/Images/Hook1.png"
+            },
+            {
+                "name": "cross1",
+                "texturePath": "../Assets/Images/Cross2.png"
+            },
+            {
+                "name": "cross2",
+                "texturePath": "../Assets/Images/Cross3.png"
+            },
+            {
+                "name": "volume1",
+                "texturePath": "../Assets/Images/Volume1.png"
+            },
+            {
+                "name": "volume2",
+                "texturePath": "../Assets/Images/Volume2.png"
+            },
+            {
+                "name": "slider0",
+                "texturePath": "../Assets/Images/Slider2.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "background1",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "background1",
+                    "updateOrder": 80,
+                    "position": [0.0, 0.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "slider0",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "slider0",
+                    "updateOrder": 100,
+                    "position": [60.0, 150.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "volume",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindText": "V",
+                    "bindTexName": {
+                        "off": "volume1",
+                        "on": "volume2"
+                    },
+                    "updateOrder": 100,
+                    "position": [-300.0, 150.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button3",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindText": "S",
+                    "bindTexName": {
+                        "off": "slider1",
+                        "on": "slider2"
+                    },
+                    "updateOrder": 100,
+                    "position": [0.0, 150.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button1",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindText": "Cancel",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [-220.0, -200.0],
+                    "scale": [1.0, 1.0]
+                }
+            },
+            {
+                "name": "button2",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 1,
+                    "bindText": "Confirm",
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
+                    "updateOrder": 100,
+                    "position": [220.0, -200.0],
+                    "scale": [1.0, 1.0]
+                }
+            }
+        ]
+    }
+}

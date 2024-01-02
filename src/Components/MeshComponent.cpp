@@ -1,12 +1,16 @@
 #include "../../include/Components/MeshComponent.h"
+
+#include "../../include/Game.h"
+
 #include "../../include/Renderers/Shader.h"
 #include "../../include/Actors/Actor.h"
 #include "../../include/Renderers/Texture.h"
 #include "../../include/Renderers/Mesh.h"
 #include "../../include/Renderers/VertexArray.h"
-#include "../../include/Game.h"
 #include "../../include/Renderers/Renderer.h"
+
 #include "../../include/General/LevelLoader.h"
+#include "../../include/General/ResourceManager.h"
 
 #include <glew.h>
 #include <glfw3.h>
@@ -17,6 +21,13 @@ MeshComponent::MeshComponent(class Actor* owner, bool isSkeletal)
     this->mMesh = nullptr;
     this->mTextureIndex = 0;
     this->getActor()->getGame()->getRenderer()->addMeshComponent(this);
+
+    ResourceManager::ResourceProperty* rep = new ResourceManager::ResourceProperty{
+        ResourceManager::EMeshObject,
+        ResourceManager::EDisplay,
+        (void*)this
+    };
+    this->getActor()->getGame()->getResourceManager()->addResourceProperty(rep);
 }
 
 MeshComponent::~MeshComponent()
@@ -37,13 +48,22 @@ void MeshComponent::draw(class Shader* shader)
         // 激活纹理
         Texture* tex = this->mMesh->getTexture(this->mTextureIndex);
         if (tex)
-        {
             tex->setActive();
+        else
+        {
+            SDL_Log("[MeshComponent] Texture is null...");
+            return;
         }
 
         // 激活网格顶点数组
         VertexArray* va = this->mMesh->getVertexArray();
-        va->setActive();
+        if (va)
+            va->setActive();
+        else
+        {
+            SDL_Log("[MeshComponent] VertexArray is null...");
+            return;
+        }
 
         glDrawElements(
             GL_TRIANGLES,
@@ -54,7 +74,8 @@ void MeshComponent::draw(class Shader* shader)
     }
     else
     {
-        // SDL_Log("No mesh...");
+        SDL_Log("[MeshComponent] Mesh is null...");
+        return;
     }
 }
 
@@ -82,7 +103,6 @@ size_t MeshComponent::getTextureID() const
 {
     return this->mTextureIndex;
 }
-
 
 Component::EComponentType MeshComponent::getType() const
 {

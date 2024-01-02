@@ -57,7 +57,10 @@
         "ratio": "cpp",
         "cfenv": "cpp",
         "regex": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "PC.C": "cpp",
+        "pc6.C": "cpp",
+        "file.C": "cpp"
     },
 
     "python.analysis.extraPaths": [

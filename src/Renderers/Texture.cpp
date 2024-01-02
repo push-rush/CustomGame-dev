@@ -15,9 +15,9 @@ Texture::~Texture()
 
 }
 
-bool Texture::load(const std::string& fileName)
+bool Texture::load(const std::string& fileName, const std::string& type)
 {
-    this->mFileName = fileName;
+    this->mTexPath = fileName;
     
     int channels = 0;
     uint8_t* image = SOIL_load_image(
@@ -171,7 +171,7 @@ uint32_t Texture::getTextureID() const
 
 const std::string& Texture::getFileName()
 {
-    return this->mFileName;
+    return this->mTexPath;
 }
 
 const Vector2& Texture::getPosOffset()
@@ -207,4 +207,14 @@ void Texture::setScale(const Vector2& scale)
 const Vector2& Texture::getScale()
 {
     return this->mScale;
+}
+
+void Texture::setTexName(const std::string& name)
+{
+    this->mName = name;
+}
+
+const std::string& Texture::getTexName() const
+{
+    return this->mName;
 }

@@ -27,8 +27,10 @@
 #include "../include/Renderers/PauseMenu.h"
 #include "../include/Renderers/HUD.h"
 #include "../include/Renderers/Setting.h"
+#include "../include/Renderers/DialogBox.h"
 
 #include "../include/General/LevelLoader.h"
+#include "../include/General/ResourceManager.h"
 
 #include "fmod.hpp"
 #include "fmod_studio.h"
@@ -38,6 +40,11 @@
 
 #define LOAD_PATH "../Assets/LevelFiles/SaveFile1.gplevel"
 #define SAVE_PATH "../Assets/LevelFiles/SaveFile.gplevel"
+
+#define LOAD_HUD_PATH "../Assets/LevelFiles/HUD_save.gplevel"
+#define SAVE_HUD_PATH "../Assets/LevelFiles/HUD_save1.json"
+
+#define LOAD_UITREE_PATH "../Assets/LevelFiles/UITree_menu1.json"
 
 Game::Game()
 {
@@ -52,6 +59,11 @@ Game::Game()
     this->mGameState = EGamePlay;
     this->mTimeCounter = 0;
     this->mTicksCount = SDL_GetTicks();
+
+    this->mHUD = nullptr;
+    this->mDialogBox = nullptr;
+    this->mPauseMenu = nullptr;
+    this->mSetting = nullptr;
 }
 
 Game::Game(const Game& game)
@@ -148,6 +160,9 @@ void Game::runLoop()
 
     // 保存当前游戏状态
     LevelLoader::saveLevel(this, SAVE_PATH);
+
+    // 保存游戏ui状态
+    LevelLoader::saveUIElements(this, SAVE_HUD_PATH);
 }
 
 void Game::shutdown()
@@ -182,6 +197,7 @@ void Game::processInput()
                     else if (!this->mUIStack.empty())
                     {
                         this->mUIStack.back()->handleKeyPress(event.key.keysym.sym);
+                        // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
                     }
                 }
                 break;
@@ -190,9 +206,18 @@ void Game::processInput()
                 {
                     this->handleKey(event.button.button);
                 }
-                else if (!this->mUIStack.empty())
+                else
                 {
-                    this->mUIStack.back()->handleKeyPress(event.button.button);
+                    if (!this->mUIStack.empty())
+                    {
+                        this->mUIStack.back()->handleKeyPress(event.button.button);
+                        // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
+                    }
+                    // if (this->mHUD)
+                    // {
+                    //     this->mHUD->handleKeyPress(event.button.button);
+                    //     // SDL_Log("[Game] Update hud button...");
+                    // }
                 }
                 std::cout << "[Game] Button down..." << std::endl;
                 break;
@@ -222,9 +247,17 @@ void Game::processInput()
         }
         mUpdatingActors = false;
     }
-    else if (!this->mUIStack.empty())
+    else
     {
-        this->mUIStack.back()->processInput(keyboard_state);
+        if (!this->mUIStack.empty())
+        {
+            this->mUIStack.back()->processInput(keyboard_state);
+        }
+
+        // if (this->mHUD)
+        // {
+        //     this->mHUD->processInput(keyboard_state);
+        // }
     }
     // mShip->processInput(keyboard_state);
 }
@@ -325,16 +358,17 @@ void Game::updateGame(string name)
         if ((*iter)->getState() == UIScreen::EClosing)
         {
             // delete (*iter);
-            auto temp = (*iter);
+            // auto temp = (*iter);
 
             SDL_Log("[UIScreen] Closing...");
             
             iter = this->mUIStack.erase(iter);
-            if (temp)
-            {
-                delete temp;
-                temp = nullptr;
-            }
+
+            // if (temp)
+            // {
+            //     delete temp;
+            //     temp = nullptr;
+            // }
 
             // Sleep(10000);
             // system("pause");
@@ -469,8 +503,15 @@ void Game::loadData()
     // 加载文本
     this->loadText("../Assets/Texts/English.gptext");
 
+    // 加载字体文本
+    this->mFreeTypeFont = new FreeTypeFont(this);
+    this->mFreeTypeFont->load("../Assets/Texts/Deng.ttf");
+
     // 创建物理碰撞检测对象
     this->mPhysWorld = new PhysWorld(this);
+
+    // 创建资源管理类
+    this->mResourceManager = new ResourceManager(this);
 
     // Actor* a = new Actor(this);
     // a->setPosition(Vector3(200.0f, 75.0f, 0.0f));
@@ -567,7 +608,17 @@ void Game::loadData()
 
     // 开启平面显示器
     this->mHUD = new HUD(this);
-    
+    this->pushUI(this->mHUD);
+
+    // 添加日志菜单
+    this->mDialogBox = new DialogBox(this);
+   
+    // 添加暂停菜单
+    this->mPauseMenu = new PauseMenu(this);
+
+    // 添加设置菜单
+    this->mSetting = new Setting(this);
+
     // ui元素
     // a = new Actor(this);
     // a->setPosition(Vector3(-350.0f, -250.0f, 0.0f));
@@ -585,6 +636,11 @@ void Game::loadData()
     // dirLight.mSpecColor = Vector3(0.8f, 0.8f, 0.8f);
 
     LevelLoader::loadLevel(this, LOAD_PATH);
+    LevelLoader::loadUIElements(this, LOAD_HUD_PATH);
+
+    // 添加ui树
+    LevelLoader::loadUITrees(this, LOAD_UITREE_PATH);
+
 
     // 相机角色
     // this->mCameraActor = new CameraActor(this);
@@ -718,12 +774,89 @@ void Game::handleKey(const uint8_t key)
     {
     case SDLK_ESCAPE:
     {
-        new PauseMenu(this);
+        if (this->mGameState == EGamePlay)
+        {
+            // 设置为暂停状态
+            this->setGameState(EPaused);
+
+            // new PauseMenu(this);
+            if (this->mPauseMenu)
+            {
+                // this->mPauseMenu->init();
+                this->mPauseMenu->setUIState(UIScreen::EActive);
+                this->pushUI(this->mPauseMenu);
+
+                SDL_Log("[Game] PauseMenu PUSH...");
+            }
+            else
+            {
+                SDL_Log("[Game] PauseMenu is null...");
+            }
+
+            // 设置鼠标为相对模式
+            this->mPauseMenu->setRelativeMouseMode(false);
+
+            SDL_Log("[Game] Gameplay...");
+        }
+        else if (this->mGameState == EPaused)
+        {
+            for (auto iter = this->mUIStack.begin(); iter != this->mUIStack.end(); ++iter)
+            {
+                if ((*iter)->getUIType() == UIScreen::EPauseMenu)
+                {
+                    iter = this->mUIStack.erase(iter);
+                    break;
+                }
+            }
+
+            // 设置为进行状态
+            this->setGameState(EGamePlay);
+            this->mPauseMenu->setRelativeMouseMode(true);
+
+            SDL_Log("[Game] Epaused...");
+        }
+
         break;
     }
     case SDLK_TAB:
     {
-        new Setting(this);
+        if (this->mGameState == EGamePlay)
+        {
+            // 设置为暂停状态
+            this->setGameState(EPaused);
+
+            if (this->mSetting)
+            {
+                // new Setting(this);
+
+                this->mSetting->init();
+                this->mSetting->setUIState(UIScreen::EActive);
+                this->pushUI(this->mSetting);
+            }
+            // 取消鼠标为相对模式
+            this->mSetting->setRelativeMouseMode(false);
+        }
+        break;
+    }
+    case SDLK_SPACE:
+    {
+        if (this->mGameState == EGamePlay)
+        {
+            // 设置为暂停状态
+            this->setGameState(EPaused);
+
+            // 取消鼠标为相对模式
+            this->mHUD->setRelativeMouseMode(false);
+        }
+        else if (this->mGameState == EPaused)
+        {
+            // 设置为运行态
+            this->setGameState(EGamePlay);
+
+            // 设置鼠标为相对模式
+            this->mHUD->setRelativeMouseMode(true);
+        }
+
         break;
     }
     case SDL_BUTTON_LEFT:
@@ -889,9 +1022,9 @@ Font* Game::getFont(const std::string& name)
     return font;
 }
 
-FreeTypeFont* Game::getFreeTypeFont(const std::string& name)
+FreeTypeFont* Game::getFreeTypeFont()
 {
-    return nullptr;
+    return this->mFreeTypeFont;
 }
 
 void Game::loadText(const std::string& name)
@@ -973,11 +1106,6 @@ void Game::unLoadData()
     
 }
 
-class HUD* Game::getHUD()
-{
-
-    return this->mHUD;
-}
 
 class Skeleton* Game::getSkeleton(const std::string& fileName)
 {
@@ -1038,4 +1166,34 @@ class Animation* Game::getAnimation(const std::string& fileName)
 const std::vector<class Actor*>& Game::getActors() const
 {
     return this->mActors;
+}
+
+class HUD* Game::getHUD()
+{
+    return this->mHUD;
+}
+
+class PauseMenu* Game::getPauseMenu()
+{
+    return this->mPauseMenu;
+}
+
+class Setting* Game::getSetting()
+{
+    return this->mSetting;
+}
+
+class DialogBox* Game::getDialogBox()
+{
+    return this->mDialogBox;
+}
+
+const Game::GameState& Game::getGameState() const
+{
+    return this->mGameState;
+}
+
+class ResourceManager* Game::getResourceManager() const
+{
+    return this->mResourceManager;
 }

@@ -69,6 +69,12 @@ add_executable(${PROJECT_NAME}
     ./src/Renderers/FreeTypeFont.cpp
     ./src/Renderers/Setting.cpp
     ./src/Renderers/EmptySprite.cpp
+    ./src/Renderers/ResourceMenu.cpp
+    ./src/Renderers/Graphics2d.cpp
+    ./src/Renderers/Graphics3d.cpp
+    ./src/Renderers/TextButton.cpp
+    ./src/Renderers/Console.cpp
+    ./src/Renderers/PropertyMenu.cpp
     
     # Actors
     ./src/Actors/Actor.cpp

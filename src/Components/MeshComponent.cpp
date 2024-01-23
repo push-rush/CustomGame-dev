@@ -16,16 +16,16 @@
 #include <glfw3.h>
 
 MeshComponent::MeshComponent(class Actor* owner, bool isSkeletal)
-: Component(owner), mIsSkeletal(isSkeletal)
+: Component(owner), mIsSkeletal(isSkeletal), mMeshName("default")
 {
     this->mMesh = nullptr;
     this->mTextureIndex = 0;
     this->getActor()->getGame()->getRenderer()->addMeshComponent(this);
 
     ResourceManager::ResourceProperty* rep = new ResourceManager::ResourceProperty{
+        mMeshName,
         ResourceManager::EMeshObject,
-        ResourceManager::EDisplay,
-        (void*)this
+        ResourceManager::EUnactivited
     };
     this->getActor()->getGame()->getResourceManager()->addResourceProperty(rep);
 }
@@ -130,3 +130,13 @@ void MeshComponent::saveProperties(rapidjson::Document::AllocatorType& alloc, ra
         JsonHelper::addString(alloc, props, "meshFile", this->mMesh->getFileName());
     }
 }   
+
+void MeshComponent::setMeshName(std::string name)
+{
+    this->mMeshName = name;
+}
+
+std::string MeshComponent::getMeshName() const
+{
+    return this->mMeshName;
+}

@@ -18,14 +18,7 @@ Button::Button(class UIScreen* ui,
         pos, scale, 100, dims),
     mBindEventID(int(bind_event))
 {
-    // this->mButtonType = type;
-
-    // this->mPosition = pos;
-    // this->mDimensions = dims;
-    // this->mScale = scale;
-
     this->mOnClick = onClick;
-
     this->mHighlighted = false;
     this->mIsClickable = true;
     this->mContainText = false;
@@ -44,82 +37,90 @@ Button::Button(class UIScreen* ui,
         pos, scale, 100, dims, true, text, color, fontSize),
     mBindEventID(int(bind_event))
 {
-    // this->mButtonType = type;
-    // this->mFreeTypeFont = freeTypeFont;
-
-    // this->mName = name;
-    // this->mTextColor = color;
-
-    // this->mPosition = pos;
-    // this->mDimensions = dims;
-    // this->mScale = scale;
-    
-    // this->mTextSize = this->setNameTexture(text);
     this->mOnClick = onClick;
-
     this->mHighlighted = false;
     this->mIsClickable = true;
     this->mContainText = true;
 }
 
-// Button::Button(const int& type,
-//     const std::wstring& name, class Font* font, const Vector3& color,
-//     std::function<void()> onClick, const Vector2& pos, const Vector2& dims)
-// {
-//     this->mButtonType = type;
-//     this->mName = name;
-//     this->mFont = font;
-//     this->mTextColor = color;
-//     this->mPosition = pos;
-//     this->mDimensions = dims;
-//     this->mHighlighted = false;
-//     this->mOnClick = onClick;
-    
-//     this->mTextSize = this->setNameTexture(name);
+Button::Button(class UIScreen* ui, 
+    const std::string& name, 
+    const std::string& type, 
+    const std::map<std::string, std::string>& bindTexName,
+    const Vector2& bindTexOffset,
+    const int& bind_event,
+    std::function<void()> onClick, 
+    const Vector2& pos, 
+    const Vector2& dims, 
+    const Vector2& scale,
+    const bool& addIn
+) : EmptySprite(ui, name, type, bindTexName, addIn, 
+        pos, scale, 100, dims),
+    mBindEventID(int(bind_event))
+{
+    this->mOnClick = onClick;
+    this->mHighlighted = false;
+    this->mIsClickable = true;
+    this->mContainText = false;
 
-//     this->mButtonOff = nullptr;
-//     this->mButtonOn = nullptr;
-// }
+    this->setBindTexOffset(bindTexOffset);
+}
+
+Button::Button(class UIScreen* ui, 
+    const std::string& name, 
+    const std::string& type, 
+    const std::map<std::string, std::string>& bindTexName,
+    const Vector2& bindTexOffset,
+    const std::wstring& text, const Vector3& color, const int& fontSize,
+    const Vector2& bindTextOffset,
+    const int& bind_event,
+    std::function<void()> onClick, 
+    const Vector2& pos, 
+    const Vector2& dims, 
+    const Vector2& scale, 
+    const bool& addIn
+) : EmptySprite(ui, name, type, bindTexName, addIn, 
+        pos, scale, 100, dims, true, text, color, fontSize),
+    mBindEventID(int(bind_event))
+{
+    this->mOnClick = onClick;
+    this->mHighlighted = false;
+    this->mIsClickable = true;
+    this->mContainText = true;
+
+    this->setBindTexOffset(bindTexOffset);
+    this->setBindTextOffset(bindTextOffset);
+}
+
+Button::Button(class UIScreen* ui,
+        const std::string& name, const std::string& type,
+        const Vector2& pos, const Vector2& dims, const Vector2& scale, 
+        const Vector3& bgColor, const Vector3& boxColor,
+        const std::wstring& text, const Vector3& color, const int& fontSize, const Vector2& bindTextOffset,
+        const std::map<std::string, std::string>& bindTexName, const Vector2& bindTexOffset,
+        const int& bind_event,
+        std::function<void()> onClick,
+        const bool& addIn
+) : EmptySprite(ui, name, type, bindTexName, addIn, 
+        pos, scale, 100, dims, true, text, color, fontSize),
+    mBindEventID(int(bind_event))
+{
+    this->mOnClick = onClick;
+    this->mHighlighted = false;
+    this->mIsClickable = true;
+    this->mContainText = true;
+
+    this->mBindBgColor = bgColor;
+    this->mBindBoxColor = boxColor;
+
+    this->setBindTexOffset(bindTexOffset);
+    this->setBindTextOffset(bindTextOffset);
+}
 
 Button::~Button()
 {
-    // for (auto tex : this->mNameTextures)
-    // {
-    //     if (tex)
-    //     {
-    //         tex->unLoad();
-    //         delete tex;
-    //         tex = nullptr;
-    //     }
-    // }
-    // this->mNameTextures.clear();
+
 }
-
-// Vector2 Button::setNameTexture(const std::wstring& name)
-// {
-//     this->mText = name;
-//     // std::wcout << "name1: " << name << std::endl;
-
-//     for (auto tex : this->mNameTextures)
-//     {
-//         if (tex)
-//         {
-//             tex->unLoad();
-//             delete tex;
-//             tex = nullptr;
-//         }
-//     }
-//     this->mNameTextures.clear();
-
-//     // std::cout << "set tex..." << std::endl;
-//     // this->mNameTexture = this->mFont->renderText(name);
-//     // wchar_t text[name.length()];
-//     // memcpy(text, name.c_str(), sizeof(char) * name.length());
-
-//     // std::wcout << "name2: " << name << std::endl;
-
-//     return this->getUIScreen()->getGame()->getFreeTypeFont()->renderText(this->mNameTextures, name.c_str(), Color::Red, 35);
-// }
 
 bool Button::containsPoint(const Vector2& ps) const
 {
@@ -272,4 +273,24 @@ const int& Button::getBindEventID() const
 void Button::setBindEventID(const int& event)
 {
     this->mBindEventID = event;
+}
+
+Vector3 Button::setBindBgColor(const Vector3& color)
+{
+    this->mBindBgColor = color;
+}
+
+Vector3 Button::setBindBoxColor(const Vector3& color)
+{
+    this->mBindBoxColor = color;
+}
+
+Vector3 Button::getBindBgColor() const
+{
+    return this->mBindBgColor;
+}
+
+Vector3 Button::getBindBoxColor() const
+{
+    return this->mBindBoxColor;
 }

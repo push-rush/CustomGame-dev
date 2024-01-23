@@ -3,6 +3,7 @@
 #include "../../include/Renderers/DialogBox.h"
 #include "../../include/Renderers/EmptySprite.h"
 
+
 PauseMenu::PauseMenu(class Game* game)
 : UIScreen(game)
 {
@@ -110,9 +111,22 @@ void PauseMenu::bindEvent(const UIBindEvent& event)
     {
         case UIQuit:
         {
-            auto dialog_box = this->getGame()->getDialogBox();
-            dialog_box->setUIState(UIScreen::EActive);
-            this->getGame()->pushUI(dialog_box);
+            // auto dialog_box = this->getGame()->getDialogBox();
+            // dialog_box->setUIState(UIScreen::EActive);
+            // this->getGame()->pushUI(dialog_box);
+
+            auto s = this->getGame()->getUIStack();
+            for (auto ui : s)
+            {
+                if (ui->getUIType() == EDialogBox)
+                {
+                    ui->setUIState(EActiviting);
+                    this->setUIState(EVisible);
+                    // SDL_Log("[PauseMenu] Set Dialogbox active: addr:%d type-%d state-%d", ui, ui->getUIType(), (int)ui->getUIState());
+                    break;
+                }
+            }
+
             break;
         }
         default:
@@ -120,7 +134,21 @@ void PauseMenu::bindEvent(const UIBindEvent& event)
     }
 }
 
-void PauseMenu::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem)
+// void PauseMenu::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem, const Vector2&)
+// {
+//     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
+//     {
+//         return e1->getUpdateOrder() < e2->getUpdateOrder();
+//     });
+
+//     for (auto e : this->getUIElements())
+//     {
+//         // SDL_Log("[PauseMenu] ui elem: %s", e->getSpriteName().c_str());
+//         UIScreen::draw(spriteShader, fontShader, e);
+//     }
+// }
+
+void PauseMenu::draw(class Shader* basicShader, class Shader* spriteShader, class Shader* fontShader, class EmptySprite* elem)
 {
     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
     {
@@ -130,6 +158,6 @@ void PauseMenu::draw(class Shader* spriteShader, class Shader* fontShader, Empty
     for (auto e : this->getUIElements())
     {
         // SDL_Log("[PauseMenu] ui elem: %s", e->getSpriteName().c_str());
-        UIScreen::draw(spriteShader, fontShader, e);
+        UIScreen::draw(basicShader, spriteShader, fontShader, e);
     }
 }

@@ -2,6 +2,14 @@
 #include "../../include/Renderers/Texture.h"
 #include "../../include/Game.h"
 
+FreeTypeFont::FreeTypeFont(const std::string& path)
+{
+    this->mGame = nullptr;
+    this->mFontFace = nullptr;
+
+    this->load(path);
+}
+
 FreeTypeFont::FreeTypeFont(class Game* game)
 {
     this->mGame = game;
@@ -69,21 +77,29 @@ Vector2 FreeTypeFont::renderText(std::vector<Texture*>& textures, const wchar_t*
         {
             ch = this->loadWChar(text[i], pointSize);
         }
+        else
+        {
+            bool exists = false;
+            for (auto tex : textures)
+            {
+                if (tex->getTextureID() == ch->TextureID)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (exists)
+            {
+                width_sum += ch->Size.y;
+                offset.x += (ch->Advance >> 6);
+                continue;
+            }
+        }
         
         // std::cout << "h:" << ch->Size.y << std::endl;
 
-        GLfloat pos_x = offset.x + ch->Bearing.x;
-        GLfloat pos_y = offset.y - (ch->Size.y - ch->Bearing.y);
-
-        GLfloat w = ch->Size.x;
-        GLfloat h = ch->Size.y;
-
-        Texture* tex = new Texture();
-
-        tex->setWidth(w);
-        tex->setHeight(h);
-        tex->setPosOffset(Vector2{pos_x, pos_y});
-        tex->setTextureID(ch->TextureID);
+        Texture* tex = this->getFontTexture(ch, offset);
         textures.emplace_back(tex);
 
         // 更新位置到下一个字形的原点，注意单位是1/64像素
@@ -95,6 +111,54 @@ Vector2 FreeTypeFont::renderText(std::vector<Texture*>& textures, const wchar_t*
 
     // std::cout << "width_sum:" << width_sum / text.size() << std::endl;
     return Vector2{offset.x, width_sum / len_w};
+}
+
+Character* FreeTypeFont::renderFont(const wchar_t& wch, const Vector3& color, const int& size)
+{
+    Character* ch = nullptr;
+    auto iter = this->mCharacters.find(wch);
+    if (iter != this->mCharacters.end())
+    {
+        ch = (*iter).second;
+    }
+
+    if (!ch || ch->Height != static_cast<GLubyte>(size))
+    {
+        ch = this->loadWChar(wch, size);
+    }
+
+    return ch;
+}
+
+Character* FreeTypeFont::loadWChar(const wchar_t& wch, const GLubyte& fontSize)
+{
+    // 设置字体大小
+    FT_Set_Pixel_Sizes(*this->mFontFace, 0, fontSize);
+
+    // 加载字符的字形 
+    if (FT_Load_Char((*this->mFontFace), wch, FT_LOAD_RENDER))
+    {
+        std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+        return nullptr;
+    }
+
+    // 生成纹理
+    GLuint texture_id;
+    FreeTypeFont::createFromSurface(this->mFontFace, texture_id);
+
+    // 储存字符供之后使用
+    Character* ch = new Character{
+        texture_id, 
+        glm::ivec2((*this->mFontFace)->glyph->bitmap.width, (*this->mFontFace)->glyph->bitmap.rows),
+        glm::ivec2((*this->mFontFace)->glyph->bitmap_left, (*this->mFontFace)->glyph->bitmap_top),
+        (*this->mFontFace)->glyph->advance.x,
+        fontSize
+    };
+
+    // 存储字符供后续使用
+    this->mCharacters.insert({wch, ch});
+
+    return ch;
 }
 
 void FreeTypeFont::createFromSurface(FT_Face* surface, GLuint& texture_id)
@@ -127,33 +191,20 @@ void FreeTypeFont::createFromSurface(FT_Face* surface, GLuint& texture_id)
     }
 }
 
-Character* FreeTypeFont::loadWChar(const wchar_t& wch, const GLubyte& fontSize)
+class Texture* FreeTypeFont::getFontTexture(class Character* ch, const Vector2& offset)
 {
-    // 设置字体大小
-    FT_Set_Pixel_Sizes(*this->mFontFace, 0, fontSize);
+    GLfloat pos_x = offset.x + ch->Bearing.x;
+    GLfloat pos_y = offset.y - (ch->Size.y - ch->Bearing.y);
 
-    // 加载字符的字形 
-    if (FT_Load_Char((*this->mFontFace), wch, FT_LOAD_RENDER))
-    {
-        std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-        return nullptr;
-    }
+    GLfloat w = ch->Size.x;
+    GLfloat h = ch->Size.y;
 
-    // 生成纹理
-    GLuint texture_id;
-    FreeTypeFont::createFromSurface(this->mFontFace, texture_id);
+    Texture* tex = new Texture();
 
-    // 储存字符供之后使用
-    Character* ch = new Character{
-        texture_id, 
-        glm::ivec2((*this->mFontFace)->glyph->bitmap.width, (*this->mFontFace)->glyph->bitmap.rows),
-        glm::ivec2((*this->mFontFace)->glyph->bitmap_left, (*this->mFontFace)->glyph->bitmap_top),
-        (*this->mFontFace)->glyph->advance.x,
-        fontSize
-    };
+    tex->setWidth(w);
+    tex->setHeight(h);
+    tex->setPosOffset(Vector2{pos_x, pos_y});
+    tex->setTextureID(ch->TextureID);
 
-    // 存储字符供后续使用
-    this->mCharacters.insert({wch, ch});
-
-    return ch;
+    return tex;
 }

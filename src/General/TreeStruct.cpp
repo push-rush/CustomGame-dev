@@ -1,5 +1,8 @@
 #include "../../include/General/TreeStruct.h"
+
 #include "../../include/Renderers/EmptySprite.h"
+#include "../../include/Renderers/Button.h"
+
 #include "../../include/General/ResourceManager.h"
 
 TreeStruct::TreeStruct()
@@ -190,13 +193,14 @@ bool TreeStruct::updateTreeNode(std::string name, T* value)
     TreeNode* node = this->findTreeNode(name);
     if (node)
     {
-        auto temp = node->mNodeValuePointer;
         node->mNodeValuePointer = value;
-        if (temp)
-        {
-            delete temp;
-            temp = nullptr;
-        }
+        
+        // auto temp = node->mNodeValuePointer;
+        // if (temp)
+        // {
+        //     delete temp;
+        //     temp = nullptr;
+        // }
     }
     else
     {
@@ -247,3 +251,4 @@ int TreeStruct::getTreeSize() const
 
 // template class TreeStruct<EmptySprite>;
 // template class TreeStruct<ResourceManager::ResourceProperty<EmptySprite>>;
+template bool TreeStruct::updateTreeNode<Button>(std::string name, Button* value);

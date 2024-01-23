@@ -49,24 +49,26 @@ void FollowActor::actorInput(const uint8_t* keyboard_state)
     float angularSpeed = 0.0f;
 
     // 更新前向速度
-    if (keyboard_state[SDL_SCANCODE_W])
+    if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDLK_w])
     {
         forwardSpeed += 650.0f;
     }
-    if (keyboard_state[SDL_SCANCODE_S])
+    if (keyboard_state[SDL_SCANCODE_S] || keyboard_state[SDLK_s])
     {
         forwardSpeed -= 350.0f;
     }
 
     // 更新转向速度
-    if (keyboard_state[SDL_SCANCODE_A])
+    if (keyboard_state[SDL_SCANCODE_A] || keyboard_state[SDLK_a])
     {
         angularSpeed -= Math::Pi;
     }
-    if (keyboard_state[SDL_SCANCODE_D])
+    if (keyboard_state[SDL_SCANCODE_D] || keyboard_state[SDLK_d])
     {
         angularSpeed += Math::Pi;
     }
+
+    // SDL_Log("[FollowActor] actor input...");
 
     if (!Math::NearZero(forwardSpeed) && !this->mMoving)
     {

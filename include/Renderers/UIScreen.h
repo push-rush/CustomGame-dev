@@ -10,7 +10,9 @@
 #include <algorithm>
 #include <stack>
 
-#include "./General/Cmath.h"
+#include "../General/Cmath.h"
+
+#include "./VertexArray.h"
 
 // namespace Renderer2D
 // {
@@ -20,50 +22,24 @@
         UIScreen(class Game* game);
         virtual ~UIScreen();
 
-        // struct UIElement
-        // {
-        //     int mUpdateOrder;
-        //     std::vector<class Texture*> mTextures;
-        //     std::wstring* mBindText;
-        //     class Button* mBindButton;
-
-        //     UIElement()
-        //     {
-        //         this->mUpdateOrder = 100;
-        //         this->mBindButton = nullptr;
-        //     }
-
-        //     UIElement(int updateOrder, 
-        //             const std::vector<class Texture*>& tex, 
-        //             class Button* bindBn = nullptr, 
-        //             std::wstring* bindText = nullptr
-        //     )
-        //     {
-        //         this->mUpdateOrder = updateOrder;
-        //         this->mBindButton = bindBn;
-        //         this->mBindText = bindText;
-        //         for (auto t : tex)
-        //         {
-        //             if (t)
-        //             {
-        //                 this->mTextures.emplace_back(t);
-        //             }
-        //         }    
-        //     }
-        // };
-
         enum UIType
         {
             EHUD,
             EPauseMenu,
             EDialogBox,
-            ESetting
+            ESetting,
+            EResourceMenu,
+            EConsole,
+            EPropertyMenu
         };
 
         enum UIState
         {
             EActive,
-            EClosing
+            EClosing,
+            EInvisible,
+            EActiviting,
+            EVisible
         };
 
         enum UIBindEvent
@@ -76,43 +52,53 @@
             OpenMenuLayer1,
             OpenMenuLayer2_1,
             OpenMenuLayer2_2,
-            OpenMenuLayer3_1
+            OpenMenuLayer3_1,
+            OpenChildren
         };
 
-        // enum UIButtonType
-        // {
-        //     RectButtonON,
-        //     RectButtonOFF,
-        //     HookButtonON,
-        //     HookButtonOFF,
-        //     SoundSliderOn,
-        //     SoundSliderOFF,
-        //     CrossOn,
-        //     CrossOFF,
-        //     VolumeOn,
-        //     VolumeOFF,
-        //     SoundSlider,
-        //     NUM_Buttons
-        // };
-
         virtual void update(float dt);
-        virtual void draw(class Shader* spriteShader, class Shader* textShader, class EmptySprite* elem = nullptr);
+        // virtual void draw(
+        //     class Shader* spriteShader, class Shader* textShader, 
+        //     class EmptySprite* elem = nullptr, 
+        //     const Vector2& offset = Vector2{0.0f, 0.0f}
+        // );
+
+        virtual void draw(
+            class Shader* basicShader, 
+            class Shader* spriteShader, 
+            class Shader* fontShader,
+            class EmptySprite* elem
+        );
+
         virtual void processInput(const uint8_t* keys);
         virtual void handleKeyPress(int key);
+        virtual void handleMouseWheel(const int& mouse_wheel);
         virtual void close();
+
+        Vector2 mousePosRemapping(const Vector2& pos);
 
         // setters
         void setFont(class Font* font);
         void setTitlePos(Vector2);
-        void setUIState(UIState);
+        void setUIState(const UIState& state);
         void setBGPos(Vector2);
-        void setNextButtonPos(Vector2);
+        // void setNextButtonPos(Vector2);
         void setRelativeMouseMode(bool relative);
         void setTitleTexture(const std::wstring& text, 
             const Vector3& color = Color::White, int pointSize = 40);
         void setTextColor(const Vector3& color);
-        void setButtonPos(const Vector2& pos);
+        // void setButtonPos(const Vector2& pos);
         void setUIType(UIType type);
+
+        void setBindFrameBuffer(const unsigned int& buffer);
+        void setBindTexture(class Texture* tex);
+        void setUIPosOffset(const Vector2& offset);
+        void setUIViewScale(const Vector2& scale);
+        void setUIBGColor(const Vector3& color);
+        void setUIBufferPos(const Vector2& pos);
+        void setUIBufferViewSize(const Vector2& size);
+        void setUITranslation(const Vector2& trans);
+        void setPosOffsetCoeff(const float& coeff);
 
         // getters
         UIState getState() const;
@@ -121,13 +107,24 @@
         class Font* getFont() const;
         Vector2 getTitlePos() const;
         Vector2 getBGPos() const;
-        Vector2 getNextButtonPos() const;
+        // Vector2 getNextButtonPos() const;
         UIState getUIState() const;
         Vector3 getTextColor() const;
-        Vector2 getButtonPos() const;
+
+        // Vector2 getButtonPos() const;
         std::vector<class EmptySprite*>& getUIElements();
         std::unordered_map<std::string, class Texture*>& getUITextures();
         class VertexArray* getSpriteVerts() const;
+        
+        unsigned int getBindFrameBuffer() const;
+        class Texture* getBindTexture() const;
+        Vector2 getUIPosOffset() const;
+        Vector2 getUIViewScale() const;
+        Vector3 getUIBGColor() const;
+        Vector2 getUIBufferPos() const;
+        Vector2 getUIBufferViewSize() const;
+        Vector2 getUITranslation() const;
+        float getPosOffsetCoeff() const;
 
         // std::vector<class Texture*>& getBackgrounds();
         // std::vector<class Button*>& getButtons();
@@ -137,13 +134,14 @@
         // add or remove
         // void addBackground(class Texture* tex);
         // void addButton(const std::string& type, const Vector2& pos, const Vector2& scale = Vector2{1.0f, 1.0f});
-
-        class Button* addButton(
+        template <typename T>
+        T* addButton(
             const std::string& name, const std::string& type, const std::map<std::string, 
             std::string>& bindTex, const Vector2& pos, const UIBindEvent& bind_event, 
             std::function<void()> onClick, const bool& addIn = true, const Vector2& scale = Vector2{1.0f, 1.0f});
 
-        class Button* addButton(
+        template <typename T>
+        T* addButton(
             const std::string& name, const std::string& type, 
             const std::map<std::string, std::string>& bindTex,
             const std::wstring& text, const Vector3& color, const int& fontSize,
@@ -191,18 +189,6 @@
         Vector2 mTextSize;
         Vector3 mTextColor;
 
-        // class Texture* mButtonOn;
-        // class Texture* mButtonOff;
-        // class Texture* mSoundSlider;
-        // class Texture* mSoundSliderOn;
-        // class Texture* mSoundSliderOff;
-        // class Texture* mHookButtonOff;
-        // class Texture* mHookButtonOn;
-        // class Texture* mCrossOff; 
-        // class Texture* mCrossOn;
-        // class Texture* mVolumeOff;
-        // class Texture* mVolumeOn;
-
         Vector2 mBGPos;
         Vector2 mTitlePos;
         Vector2 mNextButtonPos;
@@ -218,5 +204,16 @@
         // ui纹理集合
         std::unordered_map<std::string, class Texture*> mUITextures;
 
+        // ui绑定的帧缓存序号
+        unsigned int mBindFrameBuffer;
+        class Texture* mBindTexture;
+        Vector2 mUIPosOffset;
+        Vector2 mUIViewScale;
+        Vector3 mUIBGColor;
+        Vector2 mUIBufferPos;
+        Vector2 mUIBufferViewSize;
+        Vector2 mUITranslation;
+        float mPosOffsetCoeff;
     };
+    
 // }

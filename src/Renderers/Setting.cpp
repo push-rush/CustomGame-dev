@@ -18,7 +18,7 @@ Setting::Setting(Game* game)
 
     this->setBGPos(Vector2(0.0f, 0.0f));
     this->setTitlePos(Vector2(0.0f, 200.0f));
-    this->setNextButtonPos(Vector2(0.0f, 0.0f));
+    // this->setNextButtonPos(Vector2(0.0f, 0.0f));
     
     // 设置背景
     // Texture* bg = game->getRenderer()->getTexture("../Assets/Images/BG1.png");
@@ -149,132 +149,134 @@ void Setting::handleKeyPress(int key)
 
 void Setting::setGameVolume()
 {
-    this->setRelativeMouseMode(true);
+    // this->setRelativeMouseMode(true);
 
-    int x = 0, y = 0;
+    // int x = 0, y = 0;
     
-    Button* volume_bn = nullptr;
+    // Button* volume_bn = nullptr;
 
     auto elements = this->getUIElements();
     for (auto elem : elements)
     {
-        if (!strcmp(elem->getType().c_str(), "button") && 
-            !strcmp(elem->getSpriteName().c_str(), "button3"))
-        {
-            volume_bn = (Button*)elem;
-            break;
-        }
-        else if (!strcmp(elem->getSpriteName().c_str(), "slider0"))
+        // if (!strcmp(elem->getType().c_str(), "button") && 
+        //     !strcmp(elem->getSpriteName().c_str(), "button3"))
+        // {
+        //     volume_bn = (Button*)elem;
+        //     break;
+        // }
+        
+        if (!strcmp(elem->getSpriteName().c_str(), "slider0"))
         {
             auto w = (*this->getUITextures().find((*elem->getBindTexName().begin()).second)).second->getWidth();
             this->mSliderCoordMax = this->getBGPos().x + w * 0.5f;
             this->mSliderCoordMin = this->getBGPos().x - w * 0.5f;
-        }
-    }
 
-    auto iter = volume_bn->getBindTexName().find("on");
-    Texture* tex = nullptr;
-    Shader* shader = nullptr;
-    SDL_Window* window = nullptr;
-    VertexArray* spriteVerts = nullptr;
-    if (volume_bn && 
-        iter != volume_bn->getBindTexName().end()
-    )
-    {
-        auto it = this->getUITextures().find((*iter).second);
-        if (it != this->getUITextures().end())
-        {
-            tex = (*it).second;
-            shader = this->getGame()->getRenderer()->getSpriteShader();
-            window = this->getGame()->getRenderer()->getRenderWindow();
-            spriteVerts = this->getGame()->getRenderer()->getSpriteVerts();
-        }
-    }
-    else
-    {
-        return;
-    }
-    
-    shader->setActive();
-    spriteVerts->setActive();
-
-    SDL_Event e;
-    SDL_PollEvent(&e);
-    while (!(e.type == SDL_MOUSEBUTTONUP))
-    {
-        Uint32 buttons = SDL_GetMouseState(&x, &y);
-        Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
-        // mousePos.x = e.button.x;
-        // mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
-        // std::cout << "x1:" << mousePos.x << std::endl;
-
-        // mousePos.x = float(x);
-        // mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
-        mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
-        if (mousePos.x >= this->mSliderCoordMax)
-        {
-            mousePos.x = this->mSliderCoordMax;
-        }
-        else if(mousePos.x <= this->mSliderCoordMin)
-        {
-            mousePos.x = this->mSliderCoordMin;
-        }
-
-        // std::cout << "x2:" << mousePos.x << std::endl;
-        if (volume_bn)
-        {
-            // if (mousePos.x > this->mSliderCoordMax)
-            // {
-            //     mousePos.x = this->mSliderCoordMax;
-            // }
-            // else if (mousePos.x < this->mSliderCoordMin)
-            // {
-            //     mousePos.x = this->mSliderCoordMin;
-            // }
-
-            // std::cout << "Sound db: " << (mousePos.x - this->mSliderCoordMin) <<
-            //     " LIMIT:" << mSliderCoordMax << " " << mSliderCoordMin << std::endl;
-
-            // 设置音量
-            float volume = this->getGame()->getAudioSystem()->getBusVolume("bus:/");
-            volume = (mousePos.x - this->mSliderCoordMin) / (this->mSliderCoordMax - this->mSliderCoordMin);
-            this->getGame()->getAudioSystem()->setBusVolume("bus:/", volume);
-
-            // bn->setButtonPos(Vector2{x, bn->getPosition().y});
-            volume_bn->setButtonPos(Vector2{mousePos.x, volume_bn->getPosition().y});
-            // std::cout << "[Setting] Setted game volume..." << std::endl;
-
-            std::string str = std::to_string(int(volume * 100));
-            std::wstring w_str(str.begin(), str.end());
-            Vector2 size = volume_bn->setNameTexture(w_str);
-            volume_bn->setTextSize(size);
-
-            // std::cout << "[Setting] Text size: {" << size.x << ", " << size.y << std::endl;
-
-            // std::cout << "[Setting] Setted game volume..." << std::endl;
-            
-            this->getGame()->getRenderer()->drawUI(this->getGame()->getRenderer()->getUIBuffer());
-            SDL_GL_SwapWindow(window);
-            // if (tex && shader)
-            // {
-            //     this->drawTexture(shader, tex, bn->getPosition(), bn->getButtonScale().x, bn->getButtonScale().y);
-
-            //     std::cout << "[Setting] flush window..." << std::endl;
-            // }
-            // else
-            // {
-            //     break;
-            // }
-        }
-        else
-        {
             break;
         }
-
-        SDL_PollEvent(&e);
     }
 
-    this->setRelativeMouseMode(false);
+    // auto iter = volume_bn->getBindTexName().find("on");
+    // Texture* tex = nullptr;
+    // Shader* shader = nullptr;
+    // SDL_Window* window = nullptr;
+    // VertexArray* spriteVerts = nullptr;
+    // if (volume_bn && 
+    //     iter != volume_bn->getBindTexName().end()
+    // )
+    // {
+    //     auto it = this->getUITextures().find((*iter).second);
+    //     if (it != this->getUITextures().end())
+    //     {
+    //         tex = (*it).second;
+    //         shader = this->getGame()->getRenderer()->getSpriteShader();
+    //         window = this->getGame()->getRenderer()->getRenderWindow();
+    //         spriteVerts = this->getGame()->getRenderer()->getSpriteVerts();
+    //     }
+    // }
+    
+    // shader->setActive();
+    // spriteVerts->setActive();
+
+    // SDL_Event e;
+    // SDL_PollEvent(&e);
+    // while (!(e.type == SDL_MOUSEBUTTONUP))
+    // {
+    //     Uint32 buttons = SDL_GetMouseState(&x, &y);
+    //     Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
+    //     // mousePos.x = e.button.x;
+    //     // mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+    //     // std::cout << "x1:" << mousePos.x << std::endl;
+
+    //     // mousePos.x = float(x);
+    //     // mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
+    //     mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+    //     if (mousePos.x >= this->mSliderCoordMax)
+    //     {
+    //         mousePos.x = this->mSliderCoordMax;
+    //     }
+    //     else if(mousePos.x <= this->mSliderCoordMin)
+    //     {
+    //         mousePos.x = this->mSliderCoordMin;
+    //     }
+
+    //     // std::cout << "x2:" << mousePos.x << std::endl;
+    //     if (volume_bn)
+    //     {
+    //         // if (mousePos.x > this->mSliderCoordMax)
+    //         // {
+    //         //     mousePos.x = this->mSliderCoordMax;
+    //         // }
+    //         // else if (mousePos.x < this->mSliderCoordMin)
+    //         // {
+    //         //     mousePos.x = this->mSliderCoordMin;
+    //         // }
+
+    //         // std::cout << "Sound db: " << (mousePos.x - this->mSliderCoordMin) <<
+    //         //     " LIMIT:" << mSliderCoordMax << " " << mSliderCoordMin << std::endl;
+
+    //         // 设置音量
+    //         float volume = this->getGame()->getAudioSystem()->getBusVolume("bus:/");
+    //         volume = (mousePos.x - this->mSliderCoordMin) / (this->mSliderCoordMax - this->mSliderCoordMin);
+    //         this->getGame()->getAudioSystem()->setBusVolume("bus:/", volume);
+
+    //         // bn->setButtonPos(Vector2{x, bn->getPosition().y});
+    //         volume_bn->setButtonPos(Vector2{mousePos.x, volume_bn->getPosition().y});
+    //         // std::cout << "[Setting] Setted game volume..." << std::endl;
+
+    //         std::string str = std::to_string(int(volume * 100));
+    //         std::wstring w_str(str.begin(), str.end());
+    //         Vector2 size = volume_bn->setNameTexture(w_str);
+    //         volume_bn->setTextSize(size);
+
+    //         // std::cout << "[Setting] Text size: {" << size.x << ", " << size.y << std::endl;
+
+    //         // std::cout << "[Setting] Setted game volume..." << std::endl;
+    //         auto renderer = this->getGame()->getRenderer();
+    //         renderer->drawUI(this, this->getBindFrameBuffer());
+    //         renderer->draw(this->getBindTexture(), Vector2{0.0f, 0.0f}, Vector2{0.8f, 0.8f});
+            
+    //         SDL_GL_SwapWindow(window);
+            
+    //         // if (tex && shader)
+    //         // {
+    //         //     this->drawTexture(shader, tex, bn->getPosition(), bn->getButtonScale().x, bn->getButtonScale().y);
+
+    //         //     std::cout << "[Setting] flush window..." << std::endl;
+    //         // }
+    //         // else
+    //         // {
+    //         //     break;
+    //         // }
+    //     }
+    //     else
+    //     {
+    //         break;
+    //     }
+
+    //     SDL_PollEvent(&e);
+    // }
+
+    // this->setRelativeMouseMode(false);
 }
 
 void Setting::init()
@@ -300,7 +302,20 @@ void Setting::bindEvent(const UIBindEvent& event)
     }
 }
 
-void Setting::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem)
+// void Setting::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem, const Vector2& offset)
+// {
+//     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
+//     {
+//         return e1->getUpdateOrder() < e2->getUpdateOrder();
+//     });
+
+//     for (auto e : this->getUIElements())
+//     {
+//         UIScreen::draw(spriteShader, fontShader, e);
+//     }
+// }
+
+void Setting::draw(class Shader* basicShader, class Shader* spriteShader, class Shader* fontShader, class EmptySprite* elem)
 {
     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
     {
@@ -309,6 +324,49 @@ void Setting::draw(class Shader* spriteShader, class Shader* fontShader, EmptySp
 
     for (auto e : this->getUIElements())
     {
-        UIScreen::draw(spriteShader, fontShader, e);
+        UIScreen::draw(nullptr, spriteShader, fontShader, e);
+    }
+}
+
+void Setting::update(float dt)
+{
+    UIScreen::update(dt);
+
+    auto elements = this->getUIElements();
+
+    Button* volume_bn = nullptr;
+    for (auto elem : elements)
+    {
+        if (!strcmp(elem->getType().c_str(), "button") && 
+            !strcmp(elem->getSpriteName().c_str(), "button3"))
+        {
+            volume_bn = (Button*)elem;
+            break;
+        }
+    }
+
+    int x = 0, y = 0;
+    Uint32 mouse = SDL_GetMouseState(&x, &y);
+    if ((mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) &&
+        volume_bn->getHighlighted())
+    {
+        Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
+        mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+
+        if (mousePos.x >= this->mSliderCoordMax)
+        {
+            mousePos.x = this->mSliderCoordMax;
+        }
+        else if(mousePos.x <= this->mSliderCoordMin)
+        {
+            mousePos.x = this->mSliderCoordMin;
+        }
+
+        // 设置音量
+        float volume = this->getGame()->getAudioSystem()->getBusVolume("bus:/");
+        volume = (mousePos.x - this->mSliderCoordMin) / (this->mSliderCoordMax - this->mSliderCoordMin);
+        this->getGame()->getAudioSystem()->setBusVolume("bus:/", volume);
+
+        volume_bn->setButtonPos(Vector2{mousePos.x, volume_bn->getPosition().y});
     }
 }

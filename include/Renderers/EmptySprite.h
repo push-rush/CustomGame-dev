@@ -12,6 +12,14 @@
 
 class EmptySprite
 {
+public:
+    enum SpriteState
+    {
+        EDisplay,
+        EUninvisible,
+        EUnselected
+    };
+
 private:
     class UIScreen* mUI;
     int mUpdateOrder;
@@ -21,6 +29,7 @@ private:
     Vector2 mPosition;
     Vector2 mScale;
     Vector2 mDimension;
+    SpriteState mSpriteState;
 
     // ui文本信息
     bool mContainText;
@@ -29,6 +38,9 @@ private:
     Vector3 mTextColor;
     int mFontSize;
     std::vector<class Texture*> mNameTextures;
+
+    Vector2 mBindTexOffset;
+    Vector2 mBindTextOffset;
 
 public:
     EmptySprite(
@@ -46,7 +58,6 @@ public:
         const Vector3& color = Vector3{0.25, 0.25, 0.25},
         const int& fontSize = 35
     );
-    EmptySprite();
     ~EmptySprite();
 
     // getters
@@ -54,7 +65,7 @@ public:
     const std::string& getType() const;
     const std::map<std::string, std::string>& getBindTexName() const;
     const int& getUpdateOrder() const;
-    const class UIScreen* getUIScreen() const;
+    class UIScreen* getUIScreen() const;
     
     const Vector2& getPosition() const;
     const Vector2& getScale() const;
@@ -66,6 +77,11 @@ public:
     std::wstring getText() const;
     int getFontSize() const;
 
+    SpriteState getSpriteState() const;
+
+    Vector2 getBindTexOffset() const;
+    Vector2 getBindTextOffset() const;
+
     // setters
     void setSpriteName(const std::string& name);
     void setType(const std::string& type);
@@ -74,11 +90,16 @@ public:
     void setScale(const Vector2& scale);
     void setDimension(const Vector2& dim);
     void setUpdateOrder(const int& updateOrder);
+
+    void setSpriteState(const SpriteState& state);
     
     void setText(std::wstring text);
     void setTextColor(const Vector3&);
     void setTextSize(const Vector2&);
     Vector2 setNameTexture(const std::wstring& name, const int& font_size = 35);
+
+    void setBindTexOffset(const Vector2& offset);
+    void setBindTextOffset(const Vector2& offset);
 
     bool containText();
 };

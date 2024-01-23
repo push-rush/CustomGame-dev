@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <glew.h>
+#include <glfw3.h>
+
 class VertexArray
 {
 public:
@@ -14,6 +17,19 @@ public:
     };
 
 public:
+    VertexArray();
+    VertexArray(const VertexArray& other);
+    VertexArray operator =(const VertexArray& other)
+    {
+        this->mVertexArray = other.mVertexArray;
+        this->mVertexBuffer = other.mVertexBuffer;
+        this->mIndiceBuffer = other.mIndiceBuffer;
+        this->mNumVerts = other.mNumVerts;
+        this->mNumIndices = other.mNumIndices;
+        
+        return *this;
+    }
+
     VertexArray(const Layout layout, const void* verts, uint32_t numVerts,
         const uint32_t* indices, uint32_t numIndices);
     ~VertexArray();
@@ -23,6 +39,9 @@ public:
 
     uint32_t getNumIndices() const;
     uint32_t getNumVerts() const;
+    uint32_t getVertexBuffer() const;
+    uint32_t getIndiceBuffer() const;
+    uint32_t getVertexArray() const;
 
 private:
     uint32_t mNumVerts;

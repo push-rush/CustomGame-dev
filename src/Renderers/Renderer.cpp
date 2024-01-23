@@ -1,17 +1,22 @@
 #include "../../include/Renderers/Renderer.h"
+
 #include "../../include/Renderers/VertexArray.h"
 #include "../../include/Renderers/Shader.h"
 #include "../../include/Renderers/Texture.h"
 #include "../../include/Components/SpriteComponent.h"
-#include "../../include/Game.h"
-#include "../../include/Renderers/Mesh.h"
 #include "../../include/Renderers/VertexArray.h"
-// #include "../../include/MeshComponent.h"
-// #include "../../include/Collision.h"
 #include "../../include/Renderers/UIScreen.h"
-#include "../../include/Components/SkeletalMeshComponent.h"
 #include "../../include/Renderers/GBuffer.h"
+#include "../../include/Renderers/Mesh.h"
+#include "../../include/Renderers/Button.h"
+#include "../../include/Renderers/HUD.h"
+
+// #include "../../include/Collision.h"
+// #include "../../include/MeshComponent.h"
+#include "../../include/Components/SkeletalMeshComponent.h"
 #include "../../include/Components/PointLightComponent.h"
+
+#include "../../include/Game.h"
 
 Renderer::Renderer(Game* game)
 {
@@ -24,6 +29,8 @@ Renderer::Renderer(Game* game)
     this->mDir = 1;
     this->mColorCount = 0;
     this->mTicksCount = 0;
+
+    // this->mUITexture = nullptr;
 }
 
 Renderer::~Renderer()
@@ -79,6 +86,19 @@ Texture* Renderer::getTexture(const char* fileName)
 
 bool Renderer::loadShaders()
 {
+    Matrix4 viewProj = Matrix4::CreateSimpleViewProj(this->mScreenWidth, this->mScreenHeight);
+
+    /********* 设置基础颜色着色器 *********/
+    this->mBasicShader = new Shader();
+    if (!this->mBasicShader->Load("../Shaders/Basic.vert", "../Shaders/Basic.frag"))
+    {
+        SDL_Log("[Renderer] Load basic shader failed...");
+        return false;
+    }
+    this->mBasicShader->setActive();
+    this->mBasicShader->setMatrixUniform("uViewProj", viewProj);
+    this->mBasicShader->setVectorUniform("uColor", Vector3{0.8f, 0.35f, 0.35f});
+
     /********* 设置ui字体着色器 *********/
     this->mFontShader = new Shader();
     if (!this->mFontShader->Load("../Shaders/Font.vert", "../Shaders/Font.frag"))
@@ -87,8 +107,6 @@ bool Renderer::loadShaders()
         return false;
     }
     this->mFontShader->setActive();
-
-    Matrix4 viewProj = Matrix4::CreateSimpleViewProj(this->mScreenWidth, this->mScreenHeight);
     this->mFontShader->setVectorUniform("uColor", Vector3{0.8f, 0.35f, 0.35f});
     this->mFontShader->setMatrixUniform("uViewProj", viewProj);
 
@@ -239,28 +257,77 @@ void Renderer::removeSpriteComponent(SpriteComponent* sprite)
 
 void Renderer::draw()
 {
-    this->draw3DScene(this->mMirrorBuffer, this->mMirrorView, this->mProjection, 0.25f);
+    this->draw3DScene(this->mMirrorBuffer, this->mMirrorView, this->mProjection, 0.20f);
     this->draw3DScene(this->mGBuffer->getBufferID(), this->mView, this->mProjection, 1.0f, false);
 
+    auto hud = this->getGame()->getHUD();
+    glBindFramebuffer(GL_FRAMEBUFFER, hud->getBindFrameBuffer());
+    glClearColor(hud->getUIBGColor().x, hud->getUIBGColor().y, hud->getUIBGColor().z, 1.0f);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // glBindFramebuffer(GL_FRAMEBUFFER, hud->getBindFrameBuffer());
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
     // 从G缓存区绘制
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->drawFromGBuffer();
+    this->drawFromGBuffer(hud->getBindFrameBuffer());
 
     // 绘制HUD元素
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->drawUI();
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // this->drawUI();
+    for (auto ui : this->getGame()->getUIStack())
+    {
+        if ((ui->getUIState() == UIScreen::EActive || ui->getUIState() == UIScreen::EVisible))
+        {
+            if (ui->getUIType() == UIScreen::EHUD)
+                this->drawUI(ui, ui->getBindFrameBuffer(), ui->getUIBGColor(), 1.0f, false);
+            else
+                this->drawUI(ui, ui->getBindFrameBuffer(), ui->getUIBGColor());
+
+            this->draw(ui->getBindTexture(), ui->getUIViewScale(), ui->getUIPosOffset());
+        }
+    }
 
     // 绘制菜单ui元素
-    this->drawUI(this->mUIBuffer, 1.0f);
+    // this->drawUI(this->mUIBuffer, 1.0f);
 
     // 前后台缓存区互换
     SDL_GL_SwapWindow(mWindow);
 }
 
-bool Renderer::drawUI(unsigned int frameBuffer, float viewportScale)
+void Renderer::draw(class Texture* tex, const Vector2& viewportScale, const Vector2& offset, const Vector2& trans)
 {
-    // 设置帧缓存区索引为0
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    GLint w = static_cast<int>(this->mScreenWidth * viewportScale.x);
+    GLint h = static_cast<int>(this->mScreenHeight * viewportScale.y);
+    glViewport(offset.x + (mScreenWidth - w) * 0.5, offset.y + (mScreenHeight - h) * 0.5, w, h);
+
+    this->mSpriteShader->setActive();
+    this->mSpriteVerts->setActive();
+
+    // 判断是否需要翻转y坐标
+    Matrix4 scaleMat = Matrix4::CreateScale(((float)tex->getWidth() * (1.0f / viewportScale.x)), -(float)tex->getHeight() * (1.0f / viewportScale.y), 1.0f);
+    Matrix4 transMat = Matrix4::CreateTranslation(Vector3{(trans.x - offset.x) * (1.0f / viewportScale.x), (trans.y - offset.y) * (1.0f / viewportScale.y), 0.0f});
+    Matrix4 world = scaleMat * transMat;
+    
+    tex->setActive();
+    this->mSpriteShader->setMatrixUniform("uWorldTransform", world);
+    // this->mSpriteShader->setMatrixUniform("uViewProj", mView * mProjection);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+bool Renderer::drawUI(class UIScreen* ui, const unsigned int& frameBuffer, const Vector3& color, const float& viewportScale, bool clear_buffer)
+{
+    // 设置帧缓存区索引
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+    // 清空颜色缓存区
+    if (clear_buffer)
+    {
+        glClearColor(color.x, color.y, color.z, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 
     // 基于比例设置视窗大小
     GLint w = static_cast<int>(this->mScreenWidth * viewportScale);
@@ -272,99 +339,130 @@ bool Renderer::drawUI(unsigned int frameBuffer, float viewportScale)
 
     // 开启Alpha混合渲染
     glEnable(GL_BLEND);
-
-    // 清空颜色缓存区
-    float r = float(16.0f / 255.0f);
-    float g = float(135.0f / 255.0f);
-    float b = float(122.0f / 255.0f);
-    float alpha = 1.0f;
-    glClearColor(r, g, b, alpha);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // 绘制ui元素
-    this->mSpriteShader->setActive();
-    this->mSpriteVerts->setActive();
-    // this->mSpriteShader->setMatrixUniform("uViewProj", mView * mProjection);
-
-    bool paused = false;
-    for (auto ui : this->getGame()->getUIStack())
-    {
-        if (ui->getUIType() != UIScreen::EHUD)
-        {
-            // ui->setBGPos(Vector2{128.0f, 70.0f});
-            ui->draw(this->mSpriteShader, this->mFontShader);
-            paused = true;
-        }
-    }
-
-    if (paused)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        GLint w = static_cast<int>(this->mScreenWidth * 0.80);
-        GLint h = static_cast<int>(this->mScreenHeight * 0.80);
-        glViewport((mScreenWidth - w) * 0.5, (mScreenHeight - h) * 0.5, w, h);
-
-        // 禁用深度缓存区
-        glDisable(GL_DEPTH_TEST);
-        
-        // 开启Alpha混合渲染
-        glEnable(GL_BLEND);
-        // glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-        // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-        this->mSpriteShader->setActive();
-        this->mSpriteVerts->setActive();
-        Texture* texture = this->mUITexture;
-        if (texture)
-        {
-            // 判断是否需要翻转y坐标
-            Matrix4 scaleMat = Matrix4::CreateScale(((float)texture->getWidth() * 1.25f), -(float)texture->getHeight() * 1.25f, 1.0f);
-            Matrix4 transMat = Matrix4::CreateTranslation(Vector3(0.0, 0.0, 0.0f));
-            Matrix4 world = scaleMat * transMat;
-            
-            texture->setActive();
-            this->mSpriteShader->setMatrixUniform("uWorldTransform", world);
-            // this->mSpriteShader->setMatrixUniform("uViewProj", mView * mProjection);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        }
-    }
-
-    return paused;
-}
-
-void Renderer::drawUI(float viewportScale)
-{
-    /********* 绘制ui精灵 ***********/
-
-    // 禁用深度缓存区
-    glDisable(GL_DEPTH_TEST);
-    // 开启Alpha混合渲染
-    glEnable(GL_BLEND);
     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
-    this->mSpriteShader->setActive();
-    this->mSpriteVerts->setActive();
-    for (auto sprite : this->mSprites)
-    {
-        if (sprite != nullptr)
-        {
-            sprite->draw(this->mSpriteShader);
-        }
-    }
-    // SDL_Log("SC size: %d", this->mSprites.size());
-
-    // 绘制ui元素
-    for (auto ui : this->getGame()->getUIStack())
-    {
-        if (ui->getUIType() == UIScreen::EHUD)
-        {
-            ui->draw(this->mSpriteShader, this->mFontShader);
-            break;
-        }
-    }
+    ui->draw(this->mBasicShader, this->mSpriteShader, this->mFontShader, nullptr);
+    return true;
 }
+
+// bool Renderer::drawUI(class UIScreen* ui, const unsigned int& frameBuffer, const Vector3& color, const float& viewportScale)
+// {
+//     // 设置帧缓存区索引为0
+//     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+//     // 基于比例设置视窗大小
+//     GLint w = static_cast<int>(this->mScreenWidth * viewportScale);
+//     GLint h = static_cast<int>(this->mScreenHeight * viewportScale);
+//     glViewport((mScreenWidth - w) * 0.5, (mScreenHeight - h) * 0.5, w, h);
+
+//     // 禁用深度缓存区
+//     glDisable(GL_DEPTH_TEST);
+
+//     // 开启Alpha混合渲染
+//     glEnable(GL_BLEND);
+
+//     // 清空颜色缓存区
+//     float r = float(16.0f / 255.0f);
+//     float g = float(135.0f / 255.0f);
+//     float b = float(122.0f / 255.0f);
+//     float alpha = 1.0f;
+//     glClearColor(r, g, b, alpha);
+//     glClear(GL_COLOR_BUFFER_BIT);
+
+//     // 绘制ui元素
+//     this->mSpriteShader->setActive();
+//     this->mSpriteVerts->setActive();
+//     // this->mSpriteShader->setMatrixUniform("uViewProj", mView * mProjection);
+
+//     bool paused = false;
+//     for (auto ui : this->getGame()->getUIStack())
+//     {
+//         if (ui->getUIType() != UIScreen::EHUD && ui->getUIType() != UIScreen::EResourceMenu &&
+//             (ui->getUIState() == UIScreen::EActive || ui->getUIState() == UIScreen::EVisible)
+//         )
+//         {
+//             // ui->setBGPos(Vector2{128.0f, 70.0f});
+//             ui->draw(this->mSpriteShader, this->mFontShader);
+//             paused = true;
+
+//             // SDL_Log("[Renderer] Active ui type: %d", ui->getUIType());
+//         }
+//         // else if (ui->getUIType() == UIScreen::EDialogBox)
+//         // {
+//         //     SDL_Log("[Renderer] Dialogbox state: %d", ui->getUIState());
+//         // }
+//     }
+
+//     if (paused)
+//     {
+//         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+//         GLint w = static_cast<int>(this->mScreenWidth * 0.80);
+//         GLint h = static_cast<int>(this->mScreenHeight * 0.80);
+//         glViewport((mScreenWidth - w) * 0.5, (mScreenHeight - h) * 0.5, w, h);
+
+//         // 禁用深度缓存区
+//         glDisable(GL_DEPTH_TEST);
+        
+//         // 开启Alpha混合渲染
+//         glEnable(GL_BLEND);
+//         // glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+//         // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+//         this->mSpriteShader->setActive();
+//         this->mSpriteVerts->setActive();
+//         Texture* texture = this->mUITexture;
+//         if (texture)
+//         {
+//             // 判断是否需要翻转y坐标
+//             Matrix4 scaleMat = Matrix4::CreateScale(((float)texture->getWidth() * 1.25f), -(float)texture->getHeight() * 1.25f, 1.0f);
+//             Matrix4 transMat = Matrix4::CreateTranslation(Vector3(0.0, 0.0, 0.0f));
+//             Matrix4 world = scaleMat * transMat;
+            
+//             texture->setActive();
+//             this->mSpriteShader->setMatrixUniform("uWorldTransform", world);
+//             // this->mSpriteShader->setMatrixUniform("uViewProj", mView * mProjection);
+//             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+//         }
+//     }
+
+//     return paused;
+// }
+
+// void Renderer::drawUI(float viewportScale)
+// {
+//     /********* 绘制ui精灵 ***********/
+
+//     // 禁用深度缓存区
+//     glDisable(GL_DEPTH_TEST);
+//     // 开启Alpha混合渲染
+//     glEnable(GL_BLEND);
+//     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+//     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+//     this->mSpriteShader->setActive();
+//     this->mSpriteVerts->setActive();
+//     for (auto sprite : this->mSprites)
+//     {
+//         if (sprite != nullptr)
+//         {
+//             sprite->draw(this->mSpriteShader);
+//         }
+//     }
+//     // SDL_Log("SC size: %d", this->mSprites.size());
+
+//     // 绘制ui元素
+//     for (auto ui : this->getGame()->getUIStack())
+//     {
+//         if ((ui->getUIType() == UIScreen::EHUD || ui->getUIType() == UIScreen::EResourceMenu) &&
+//             (ui->getUIState() == UIScreen::EActive || ui->getUIState() == UIScreen::EVisible)
+//         )
+//         {
+//             ui->draw(this->mSpriteShader, this->mFontShader);
+//         }
+//     }
+// }
 
 bool Renderer::init(int x, int y, int width, int height)
 {
@@ -452,11 +550,11 @@ bool Renderer::init(int x, int y, int width, int height)
     }
 
     // 创建ui缓存区对象
-    if (!this->createUIFrameBuffer())
-    {
-        SDL_Log("[Renderer] Create ui buffer failed...");
-        return false;
-    }
+    // if (!this->createUIFrameBuffer(this->mUIBuffer, this->mUITexture))
+    // {
+    //     SDL_Log("[Renderer] Create ui buffer failed...");
+    //     return false;
+    // }
 
     // 创建GBuffer对象
     this->mGBuffer = new GBuffer();
@@ -640,8 +738,8 @@ void Renderer::unLoadData()
 
 bool Renderer::createMirrorTarget()
 {
-    int width = static_cast<int>(this->mScreenWidth / 4.f);
-    int height = static_cast<int>(this->mScreenHeight / 4.f);
+    int width = static_cast<int>(this->mScreenWidth / 5.f);
+    int height = static_cast<int>(this->mScreenHeight / 5.f);
 
     // 为后视镜纹理生成帧缓存区
     glGenFramebuffers(1, &this->mMirrorBuffer);
@@ -689,27 +787,6 @@ void Renderer::draw3DScene(unsigned int frameBuffer, const Matrix4& view, const 
 
     // 基于比例设置视窗大小
     glViewport(0, 0, static_cast<int>(this->mScreenWidth * viewportScale), static_cast<int>(this->mScreenHeight * viewportScale));
-
-    // float dt = (SDL_GetTicks() - this->mTicksCount) / 1000.0f;
-    // this->mTicksCount = SDL_GetTicks();
-    // if (dt > 0.1)
-    // {
-    //     dt = 0.1;
-    // }
-
-    // if (mColorCount >= 1.0f)
-    // {
-    //     mColorCount = 1.0f;
-    //     mDir = -1;
-    // }
-    // else if (mColorCount < 0.0f)
-    // {
-    //     mColorCount = 0.0;
-    //     mDir = 1;
-    // }
-    // mColorCount += mDir * dt * 2.5;
-
-    // glClearColor(mColorCount, 1.0 - mColorCount, mColorCount, 1.0f);
 
     // 清空颜色/深度缓存区
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -771,8 +848,10 @@ void Renderer::setMirrorView(Matrix4 view)
     this->mMirrorView = view;
 }
 
-void Renderer::drawFromGBuffer()
+void Renderer::drawFromGBuffer(const unsigned& buffer_id)
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, buffer_id);
+    
     glDisable(GL_DEPTH_TEST);
 
     this->mGGlobalShader->setActive();
@@ -790,9 +869,10 @@ void Renderer::drawFromGBuffer()
         nullptr
     );
 
-    /******** 绘制点光源 *******/
-    // 将G缓存区中的深度缓存区绘制到默认帧缓冲区的深度缓存区中
+    // /******** 绘制点光源 *******/
+    // // 将G缓存区中的深度缓存区绘制到默认帧缓冲区的深度缓存区中
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mGBuffer->getBufferID());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_id);
     int width = static_cast<int>(this->mScreenWidth);
     int height = static_cast<int>(this->mScreenHeight);
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
@@ -869,29 +949,39 @@ VertexArray* Renderer::getSpriteVerts() const
     return this->mSpriteVerts;
 }
 
-bool Renderer::createUIFrameBuffer()
+bool Renderer::createUIFrameBuffer(unsigned int& buffer, class Texture*& tex, bool enable_depth)
 {
     int width = static_cast<int>(this->mScreenWidth * 1.0f);
     int height = static_cast<int>(this->mScreenHeight * 1.0f);
 
-    // 为后视镜纹理生成帧缓存区
-    glGenFramebuffers(1, &this->mUIBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->mUIBuffer);
+    // 生成帧缓存区
+    glGenFramebuffers(1, &buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, buffer);
 
     // 创建渲染的纹理
-    this->mUITexture = new Texture();
-    this->mUITexture->createForRendering(width, height, GL_RGB);
+    if (!tex)
+    {
+        tex = new Texture();
+        tex->createForRendering(width, height, GL_RGB);
+    }
+    else
+    {
+        SDL_Log("[Renderer] Texture is not null...");
+        return false;
+    }
 
     // 添加深度缓存区
-    // GLuint depthBuffer;
-    // glGenRenderbuffers(1, &depthBuffer);
-    // glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-    // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+    if (enable_depth)
+    {
+        GLuint depthBuffer;
+        glGenRenderbuffers(1, &depthBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+    }
 
-    // 将后视镜纹理作为帧缓存区的输出对象
-
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->mUITexture->getTextureID(), 0);
+    // 将纹理作为帧缓存区的输出对象
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex->getTextureID(), 0);
 
     // 设置帧缓存区绘制的列表
     GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
@@ -901,25 +991,30 @@ bool Renderer::createUIFrameBuffer()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         // 如果任务未正常执行，删除帧缓存区
-        glDeleteFramebuffers(1, &this->mUIBuffer);
+        glDeleteFramebuffers(1, &buffer);
 
-        if (this->mUITexture)
+        if (tex)
         {
-            this->mUITexture->unLoad();
-            delete this->mUITexture;
-            this->mUITexture = nullptr;
+            tex->unLoad();
+            delete tex;
+            tex = nullptr;
         }        
         return false;
     }
     return true;
 }
 
-Texture* Renderer::getUITexture() const
-{
-    return this->mUITexture;
-}
+// Texture* Renderer::getUITexture() const
+// {
+//     return this->mUITexture;
+// }
 
-unsigned int Renderer::getUIBuffer() const
+// unsigned int Renderer::getUIBuffer() const
+// {
+//     return this->mUIBuffer;
+// }
+
+class Shader* Renderer::getBasicShader() const
 {
-    return this->mUIBuffer;
+    return this->mBasicShader;
 }

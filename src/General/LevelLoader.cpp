@@ -10,6 +10,7 @@
 #include "../../include/Renderers/EmptySprite.h"
 #include "../../include/Renderers/DialogBox.h"
 #include "../../include/Renderers/Button.h"
+#include "../../include/Renderers/ResourceMenu.h"
 
 #include "../../include/Actors/Actor.h"
 #include "../../include/Actors/TargetActor.h"
@@ -173,12 +174,20 @@ bool LevelLoader::loadUIElements(class Game* game, const std::string& fileName)
         loadHUD(game, setting, game->getSetting());
     }
 
+    // 加载ResourceMenu信息
+    const rapidjson::Value& resource_menu = doc["ResourceMenu"];
+    if (resource_menu.IsObject())
+    {
+        // loadSetting(game, setting);
+        loadHUD(game, resource_menu, game->getResourceMenu());
+    }
+
     SDL_Log("[LevelLoader] Load ui element over...");
 
     return true;
 }
 
-bool LevelLoader::loadUITrees(class Game* game, const std::string& fileName)
+bool LevelLoader::loadUITrees(class Game* game, const std::string& fileName, UIScreen* ui)
 {
     SDL_Log("[LevelLoader] Load ui tree...");
 
@@ -201,7 +210,27 @@ bool LevelLoader::loadUITrees(class Game* game, const std::string& fileName)
     const rapidjson::Value& tree = doc["tree"];
     if (tree.IsArray())
     {
-        loadUITree(game, tree, game->getHUD());
+        if (ui->getUIType() == UIScreen::EHUD)
+        {
+            loadUITree(game, tree, ui, ((HUD*)ui)->getUIMenuTree());
+            ((HUD*)ui)->nodeAddToStack(((HUD*)ui)->getUIMenuTree()->findTreeNode("root"));
+        }   
+        else if (ui->getUIType() == UIScreen::EResourceMenu)
+        {
+            loadUITree(game, tree, ui, ((ResourceMenu*)ui)->getResourceMenuTree());
+            ((ResourceMenu*)ui)->nodeAddToStack(((ResourceMenu*)ui)->getResourceMenuTree()->findTreeNode("root"));
+
+            const rapidjson::Value& event_tree = doc["eventTree"];
+            if (event_tree.IsArray())
+            {
+                bool over = loadUITree(game, event_tree, ui, ((ResourceMenu*)ui)->getResourceEventTree());
+                if (!over)
+                {
+                    SDL_Log("[LevelLoader] load resource event tree failed...");
+                }
+                SDL_Log("[LevelLoader] load resource event tree...");
+            }
+        }
     }
     else
     {
@@ -387,12 +416,10 @@ void LevelLoader::loadComponents(class Actor* actor, const rapidjson::Value& inA
     }
 }
 
-bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, class UIScreen* ui)
+bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, class UIScreen* ui, class TreeStruct* tree)
 {
-    if (ui && inArray.IsArray())
+    if (ui && tree)
     {
-        auto hud = (HUD*)ui;
-        auto tree = hud->getUIMenuTree();
         for (rapidjson::SizeType i = 0; i < inArray.Size(); ++i)
         {
             const rapidjson::Value& node = inArray[i];
@@ -404,42 +431,48 @@ bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, 
                 )
                 {
                     auto iter = node.FindMember("value");
-                    if (iter != node.MemberEnd())
+                    if (iter != node.MemberEnd() && node.HasMember("value"))
                     {
                         auto& v = iter->value;
 
-                        std::string name, type, bind_name;
+                        int event_id = -1;
                         int updateOrder = 100;
                         Vector2 pos = Vector2{0.0f, 0.0f};
+                        Vector2 size = Vector2{50.0f, 30.0f};
                         Vector2 scale = Vector2{0.0f, 0.0f};
+                        
+                        std::string name, type, bind_name;
                         if (JsonHelper::getString(v, "name", name) &&
                             JsonHelper::getString(v, "type", type) &&
                             v.HasMember("properties")
                         )
                         {
                             const rapidjson::Value& props = v["properties"];
-                            if (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
+                            bool flag = (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
                                 JsonHelper::getVector2(props, "position", pos) &&
-                                JsonHelper::getVector2(props, "scale", scale)
-                            )
+                                JsonHelper::getVector2(props, "size", size) &&
+                                JsonHelper::getVector2(props, "scale", scale) &&
+                                JsonHelper::getInt(props, "bindEventID", event_id)
+                            );
+
+                            if (flag || true)
                             {
                                 std::string text;
                                 std::map<std::string, std::string> texs_map;
                                 if (!strcmp(type.c_str(), "button"))
                                 {
                                     std::string buttonOn, buttonOff;
-                                    int event_id = -1;
                                     // String2WString str2Wstr;
                                     const rapidjson::Value& texs = props["bindTexName"];
-                                    if (texs.IsObject() &&
-                                        JsonHelper::getString(texs, "off", buttonOff) &&
-                                        JsonHelper::getString(texs, "on", buttonOn) &&
-                                        JsonHelper::getInt(props, "bindEventID", event_id)
-                                    )
+                                    if (texs.IsObject())
                                     {
-                                        texs_map.emplace("off", buttonOff);
-                                        texs_map.emplace("on", buttonOn);
-                                        
+                                        flag = (JsonHelper::getString(texs, "off", buttonOff) && JsonHelper::getString(texs, "on", buttonOn));
+                                        if (flag)
+                                        {
+                                            texs_map.emplace("off", buttonOff);
+                                            texs_map.emplace("on", buttonOn);
+                                        }
+
                                         Button* b = nullptr;
                                         if (JsonHelper::getString(props, "bindText", text))
                                         {
@@ -459,23 +492,46 @@ bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, 
                                             JsonHelper::getVector3(props, "textColor", text_color);
                                             JsonHelper::getInt(props, "fontSize", font_size);
 
-                                            b = ui->addButton(
+                                            // b = ui->addButton<Button>(
+                                            //     name, type, 
+                                            //     texs_map, 
+                                            //     w_str, text_color, font_size,
+                                            //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                            //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                            //     }, false, scale
+                                            // );
+
+                                            b = new Button(
+                                                ui,
                                                 name, type, 
                                                 texs_map, 
                                                 w_str, text_color, font_size,
-                                                pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                                event_id, [ui, event_id](){
                                                     ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                                }, false, scale
+                                                },
+                                                pos, size, scale,
+                                                false
                                             );
                                         }
                                         else
                                         {
-                                            b = ui->addButton(
-                                                name, type,
-                                                texs_map,
-                                                pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                            // b = ui->addButton<Button>(
+                                            //     name, type,
+                                            //     texs_map,
+                                            //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                            //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                            //     }, false, scale
+                                            // );
+
+                                            b = new Button(
+                                                ui,
+                                                name, type, 
+                                                texs_map, 
+                                                event_id, [ui, event_id](){
                                                     ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                                }, false, scale
+                                                },
+                                                pos, size, scale,
+                                                false
                                             );
                                         }
 
@@ -549,17 +605,46 @@ bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, 
                                     }
                                 }
                             }
+                            else
+                            {
+                                SDL_Log("[LevelLoader] Properties load failed...");
+                            }
+                        }
+                        else
+                        {
+                            SDL_Log("[LevelLoader] Value load failed...");
                         }
                     }
+                    else if (!strcmp(node_name.c_str(), "root"))
+                    {
+                        SDL_Log("[LevelLoader] load null root...");
+
+                        tree->addTreeNode(new TreeNode{
+                            node_name,
+                            parent_name,
+                            nullptr
+                        });
+                    }
+                    else
+                    {
+                        SDL_Log("[LevelLoader] load null value...");
+                    }
+                }
+                else
+                {
+                    SDL_Log("[LevelLoader] node name or parent is null...");
                 }
             }
+            else
+            {
+                SDL_Log("[LevelLoader] node is not object...");
+            }
         }
-
-        // 将树的根节点入栈
-        hud->nodeAddToStack(tree->findTreeNode("root"));
     }
     else
     {
+        SDL_Log("[Leveloader] ui or tree is null...");
+
         return false;
     }
 
@@ -591,6 +676,11 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
             }
         }
 
+        // for (auto tex : ui->getUITextures())
+        // {
+        //     std::cout << "[LevelLoader] tex name:" << tex.first << std::endl;
+        // }
+
         iter = inObject.FindMember("elements");
         if (iter != inObject.MemberEnd())
         {
@@ -600,20 +690,27 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                 const rapidjson::Value& elem = elements[i];
                 if (elem.IsObject())
                 {
-                    std::string name, type, bind_name;
+                    int event_id = -1;
                     int updateOrder = 100;
                     Vector2 pos = Vector2{0.0f, 0.0f};
+                    Vector2 size = Vector2{0.0f, 0.0f};
                     Vector2 scale = Vector2{0.0f, 0.0f};
 
+                    std::string name, type, bind_name;
                     if (JsonHelper::getString(elem, "name", name) &&
                         JsonHelper::getString(elem, "type", type) &&
                         elem.HasMember("properties"))
                     {
                         const rapidjson::Value& props = elem["properties"];
-                        if (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
+
+                        bool flag = (JsonHelper::getInt(props, "updateOrder", updateOrder) &&
                             JsonHelper::getVector2(props, "position", pos) &&
-                            JsonHelper::getVector2(props, "scale", scale)
-                        )
+                            JsonHelper::getVector2(props, "size", size) &&
+                            JsonHelper::getVector2(props, "scale", scale) &&
+                            JsonHelper::getInt(props, "bindEventID", event_id)
+                        );
+
+                        if (flag || true)
                         {
                             std::string text;
                             std::map<std::string, std::string> texs_map;
@@ -622,17 +719,17 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                 SDL_Log("[LevelLoader] load button name: %s", name.c_str());
 
                                 std::string buttonOn, buttonOff;
-                                int event_id = -1;
                                 // String2WString str2Wstr;
                                 const rapidjson::Value& texs = props["bindTexName"];
-                                if (texs.IsObject() &&
-                                    JsonHelper::getString(texs, "off", buttonOff) &&
-                                    JsonHelper::getString(texs, "on", buttonOn) &&
-                                    JsonHelper::getInt(props, "bindEventID", event_id)
-                                )
+                                if (texs.IsObject())
                                 {
-                                    texs_map.emplace("off", buttonOff);
-                                    texs_map.emplace("on", buttonOn);
+                                    flag = (JsonHelper::getString(texs, "on", buttonOn) && JsonHelper::getString(texs, "off", buttonOff));
+
+                                    if (flag)
+                                    {
+                                        texs_map.emplace("off", buttonOff);
+                                        texs_map.emplace("on", buttonOn);
+                                    }
 
                                     if (JsonHelper::getString(props, "bindText", text))
                                     {
@@ -653,23 +750,46 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         JsonHelper::getVector3(props, "textColor", text_color);
                                         JsonHelper::getInt(props, "fontSize", font_size);
 
-                                        ui->addButton(
+                                        // ui->addButton<Button>(
+                                        //     name, type, 
+                                        //     texs_map, 
+                                        //     w_str, text_color, font_size,
+                                        //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                        //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                        //     }, true, scale
+                                        // );
+
+                                        new Button(
+                                            ui,
                                             name, type, 
                                             texs_map, 
                                             w_str, text_color, font_size,
-                                            pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                            event_id, [ui, event_id](){
                                                 ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                            }, true, scale
+                                            },
+                                            pos, size, scale,
+                                            true
                                         );
                                     }
                                     else
                                     {
-                                        ui->addButton(
-                                            name, type,
-                                            texs_map,
-                                            pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                        // ui->addButton<Button>(
+                                        //     name, type,
+                                        //     texs_map,
+                                        //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
+                                        //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
+                                        //     }, true, scale
+                                        // );
+
+                                        new Button(
+                                            ui,
+                                            name, type, 
+                                            texs_map, 
+                                            event_id, [ui, event_id](){
                                                 ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                            }, true, scale
+                                            },
+                                            pos, size, scale,
+                                            true
                                         );
                                     }
 

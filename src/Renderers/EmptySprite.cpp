@@ -5,11 +5,6 @@
 #include "../../include/Renderers/UIScreen.h"
 #include "../../include/Renderers/Texture.h"
 
-EmptySprite::EmptySprite()
-{
-    SDL_Log("[EmptySprite] Default constructor...");
-}
-
 EmptySprite::EmptySprite(
     class UIScreen* ui,
     const std::string& name, 
@@ -26,7 +21,8 @@ EmptySprite::EmptySprite(
     const int& fontSize
 ) : mUI(ui), mName(name), mType(type), mBindTexName(bindTexName), 
     mPosition(pos), mDimension(dimension), mScale(scale), mUpdateOrder(updateOrder),
-    mContainText(contain_text), mText(text), mTextColor(color), mFontSize(fontSize)
+    mContainText(contain_text), mText(text), mTextColor(color), mFontSize(fontSize),
+    mSpriteState(EDisplay)
 {
     if (addIn)
         ui->addUIElement(this);
@@ -35,6 +31,9 @@ EmptySprite::EmptySprite(
     {
         this->mTextSize = this->setNameTexture(text, fontSize);
     }
+
+    this->mBindTexOffset = Vector2{0.0f, 0.0f};
+    this->mBindTextOffset = Vector2{0.0f, 0.0f};
 }
 
 EmptySprite::~EmptySprite()
@@ -121,7 +120,7 @@ const std::string& EmptySprite::getType() const
     return this->mType;
 }
 
-const class UIScreen* EmptySprite::getUIScreen() const
+class UIScreen* EmptySprite::getUIScreen() const
 {
     return this->mUI;
 }
@@ -186,4 +185,34 @@ bool EmptySprite::containText()
 int EmptySprite::getFontSize() const
 {
     return this->mFontSize;
+}
+
+EmptySprite::SpriteState EmptySprite::getSpriteState() const
+{   
+    return this->mSpriteState;
+}
+
+void EmptySprite::setSpriteState(const SpriteState& state)
+{
+    this->mSpriteState = state;
+}
+
+Vector2 EmptySprite::getBindTexOffset() const
+{
+    return this->mBindTexOffset;
+}
+
+Vector2 EmptySprite::getBindTextOffset() const
+{
+    return this->mBindTextOffset;
+}
+
+void EmptySprite::setBindTexOffset(const Vector2& offset)
+{
+    this->mBindTexOffset = offset;
+}
+
+void EmptySprite::setBindTextOffset(const Vector2& offset)
+{
+    this->mBindTextOffset = offset;
 }

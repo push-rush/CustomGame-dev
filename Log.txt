@@ -1,0 +1,8 @@
+State:GamePaused
+State:GamePlay
+State:GamePlay
+State:GamePlay
+State:GamePlay
+State:GamePaused
+[LevelLoader] Actors size:252
+Quit game...

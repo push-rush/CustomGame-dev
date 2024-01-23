@@ -5,23 +5,23 @@
             "node_name": "root",
             "parent_name": "-1",
             "value": {
-                "name": "MenuButton1",
+                "name": "ResourceMenuTitle",
                 "type": "button",
                 "properties": {
-                    "bindText": "File",
+                    "bindText": "ResourceMenu",
                     "textColor": [
-                        0.90, 0.90, 0.90
+                        0.75, 0.75, 0.75
                     ],
-                    "fontSize": 22,
-                    "bindEventID": 5,
-                    "bindTexName": {},
+                    "fontSize": 26,
+                    "bindEventID": 1,
+                    "bindTexName": {
+                        "off": "menuTitleBG1",
+                        "on": "menuTitleBG2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -700.0,
-                        370.0
-                    ],
-                    "size": [
-                        50.0, 30.0
+                        540.0,
+                        340.0
                     ],
                     "scale": [
                         1.0,
@@ -29,6 +29,12 @@
                     ]
                 }
             }
+        }
+    ],
+    "eventTree": [
+        {
+            "node_name": "root",
+            "parent_name": "-1"
         },
         {
             "node_name": "MenuLayer1_1",
@@ -40,8 +46,8 @@
                     "bindTexName": "menu_bg1",
                     "updateOrder": 100,
                     "position": [
-                        -592.0,
-                        150.0
+                        0.0,
+                        0.0
                     ],
                     "scale": [
                         1.0,
@@ -63,14 +69,14 @@
                     ],
                     "fontSize": 26,
                     "bindEventID": 6,
-                    "bindTexName": {},
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -592.0,
-                        220.0
-                    ],
-                    "size": [
-                        170.0, 30.0
+                        0.0,
+                        -50.0
                     ],
                     "scale": [
                         1.0,
@@ -92,14 +98,14 @@
                     ],
                     "fontSize": 26,
                     "bindEventID": 6,
-                    "bindTexName": {},
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -592.0,
-                        170.0
-                    ],
-                    "size": [
-                        150.0, 30.0
+                        0.0,
+                        -100.0
                     ],
                     "scale": [
                         1.0,
@@ -121,14 +127,14 @@
                     ],
                     "fontSize": 26,
                     "bindEventID": 6,
-                    "bindTexName": {},
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -592.0,
-                        120.0
-                    ],
-                    "size": [
-                        170.0, 30.0
+                        0.0,
+                        -150.0
                     ],
                     "scale": [
                         1.0,
@@ -150,14 +156,14 @@
                     ],
                     "fontSize": 26,
                     "bindEventID": 6,
-                    "bindTexName": {},
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -592.0,
-                        70.0
-                    ],
-                    "size": [
-                        170.0, 30.0
+                        0.0,
+                        -200.0
                     ],
                     "scale": [
                         1.0,
@@ -176,8 +182,8 @@
                     "bindTexName": "menu_bg1",
                     "updateOrder": 100,
                     "position": [
-                        -392.0,
-                        120.0
+                        -192.0,
+                        20.0
                     ],
                     "scale": [
                         1.0,
@@ -194,14 +200,14 @@
                 "type": "button",
                 "properties": {
                     "bindEventID": -1,
-                    "bindTexName": {},
+                    "bindTexName": {
+                        "off": "button1",
+                        "on": "button2"
+                    },
                     "updateOrder": 100,
                     "position": [
-                        -392.0,
+                        -192.0,
                         170.0
-                    ],
-                    "size": [
-                        170.0, 30.0
                     ],
                     "scale": [
                         1.0,

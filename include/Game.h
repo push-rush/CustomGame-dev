@@ -46,7 +46,6 @@ public:
     std::vector<class PlaneActor*>& getPlanes();
     class Actor* getPlayer() const;
     class Font* getFont(const std::string& name);
-    class FreeTypeFont* getFreeTypeFont();
     const GameState& getGameState() const;
 
     std::string getText(const std::string& key);
@@ -58,6 +57,9 @@ public:
     class PauseMenu* getPauseMenu();
     class Setting* getSetting();
     class DialogBox* getDialogBox();
+    class ResourceMenu* getResourceMenu();
+    class PropertyMenu* getPropertyMenu();
+    class Console* getConsole();
 
     class ResourceManager* getResourceManager() const;
 
@@ -113,6 +115,9 @@ private:
     class PauseMenu* mPauseMenu;
     class Setting* mSetting;
     class DialogBox* mDialogBox;
+    class ResourceMenu* mResourceMenu;
+    class Console* mConsole;
+    class PropertyMenu* mPropertyMenu;
 
     // 游戏状态
     GameState mGameState;
@@ -129,9 +134,14 @@ private:
     class SplineActor* mSplineActor;
     class PhysWorld* mPhysWorld;
 
-    // 字体类
-    class FreeTypeFont* mFreeTypeFont;
-
     // 资源管理类
     class ResourceManager* mResourceManager;
+    
+public:
+    // 字体类
+    // static class FreeTypeFont* mFreeTypeFont;
+    // static class FreeTypeFont* getFreeTypeFont();
+
+    class FreeTypeFont* mFreeTypeFont;
+    class FreeTypeFont* getFreeTypeFont();
 };

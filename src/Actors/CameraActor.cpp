@@ -50,19 +50,19 @@ void CameraActor::actorInput(const uint8_t* keyboard_states)
     float angularSpeed = 0.0;
 
     // W(前) S(后) A(逆时针旋转) D(顺时针旋转)
-	if (keyboard_states[SDL_SCANCODE_W])
+	if (keyboard_states[SDL_SCANCODE_W] || keyboard_states[SDLK_w])
 	{
 		forwardSpeed += 350.0f;
 	}
-	if (keyboard_states[SDL_SCANCODE_S])
+	if (keyboard_states[SDL_SCANCODE_S] || keyboard_states[SDLK_s])
 	{
 		forwardSpeed -= 250.0f;
 	}
-	if (keyboard_states[SDL_SCANCODE_A])
+	if (keyboard_states[SDL_SCANCODE_A] || keyboard_states[SDLK_a])
 	{
 		angularSpeed -= Math::Pi * 1.5f;
 	}
-	if (keyboard_states[SDL_SCANCODE_D])
+	if (keyboard_states[SDL_SCANCODE_D] || keyboard_states[SDLK_d])
 	{
 		angularSpeed += Math::Pi * 1.5f;
 	}

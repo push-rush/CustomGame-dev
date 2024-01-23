@@ -1,8 +1,18 @@
 #version 330
 
-in vec3 inPosition;
+uniform vec3 uColor;
+uniform mat4 uWorldTransform;
+uniform mat4 uViewProj;
+
+layout(location=0) in vec3 inPosition;
+layout(location=1) in vec3 inNormal;
+layout(location=2) in vec2 inTexCoord;
+
+out vec3 fragColor;
 
 void main()
 {
-    gl_Position = vec4(inPosition, 1.0);
+    vec4 pos = vec4(inPosition, 1.0);
+    gl_Position = pos * uWorldTransform * uViewProj;
+    fragColor = uColor;
 }

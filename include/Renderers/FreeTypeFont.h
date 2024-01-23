@@ -37,12 +37,15 @@ private:
 
 public:
     FreeTypeFont(class Game* game);
+    FreeTypeFont(const std::string& path);
     ~FreeTypeFont();
 
     void unLoad();
     void load(const std::string& fontFile);
 
-    Character* loadWChar(const wchar_t& wch, const GLubyte& fontSize = 30);
     static void createFromSurface(FT_Face* surface, GLuint& texture_id);
+    Character* loadWChar(const wchar_t& wch, const GLubyte& fontSize = 30);
+    Character* renderFont(const wchar_t& wch, const Vector3& color = Color::White, const int& size = 30);
+    class Texture* getFontTexture(class Character* ch, const Vector2& offset);
     Vector2 renderText(std::vector<class Texture*>& textures, const wchar_t* text, Vector3 color = Color::Red, int pointSize = 30);
 };

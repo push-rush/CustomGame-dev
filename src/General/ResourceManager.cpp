@@ -5,7 +5,19 @@ ResourceManager::ResourceManager(Game* game) :
     mGame(game), mCurSelectMenu("root"), 
     mMeshSeq(0), mImageSeq(0), mSkeletonSeq(0), mDefaultSeq(0)
 {
+    ResourceProperty* rep = new ResourceProperty{
+        "Collection",
+        ECollection,
+        EUnactivited
+    };
 
+    TreeNode* node = new TreeNode{
+        "root",
+        "-1",
+        (void*)(rep)
+    };
+
+    this->mResourceTree.addTreeNode(node);
 }
 
 ResourceManager::~ResourceManager()
@@ -15,33 +27,59 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::update()
 {
-    auto r = this->mResourceTree.findTreeNode("root");
+    // auto r = this->mResourceTree.findTreeNode("root");
 
-    std::queue<TreeNode*> q;
-    q.push(r);
+    // std::queue<TreeNode*> q;
+    // q.push(r);
 
-    while (!q.empty())
+    // while (!q.empty())
+    // {
+    //     int size = q.size();
+    //     while (size--)
+    //     {
+    //         auto n = q.front();
+    //         q.pop();
+    //         if (n->mNodeValuePointer)
+    //         {
+    //             auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(n->mNodeValuePointer);
+    //             if (rep->mState == ResourceManager::EDeleted)
+    //             {
+    //                 this->mResourceTree.deleteTreeNode(n->mNodeName);
+    //             }
+    //         }
+
+    //         for (auto iter = n->mChildren.begin(); iter != n->mChildren.end(); ++iter)
+    //         {
+    //             if ((*iter))
+    //             {
+    //                 q.push((*iter));
+    //             }
+    //         }
+    //     }
+    // }
+
+    for (auto rep_name : this->mSelectedResources)
     {
-        int size = q.size();
-        while (size--)
+        auto n = this->mResourceTree.findTreeNode(rep_name);
+        if (n && n->mNodeValuePointer)
         {
-            auto n = q.front();
-            q.pop();
-            if (n->mNodeValuePointer)
-            {
-                auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(n->mNodeValuePointer);
-                if (rep->mState == ResourceManager::EDeleted)
-                {
-                    this->mResourceTree.deleteTreeNode(n->mNodeName);
-                }
-            }
+            auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(n->mNodeValuePointer);
 
-            for (auto iter = n->mChildren.begin(); iter != n->mChildren.end(); ++iter)
+            switch (rep->mState)
             {
-                if ((*iter))
-                {
-                    q.push((*iter));
-                }
+            case ResourceManager::EDeleted:
+            {
+                this->mResourceTree.deleteTreeNode(n->mNodeName);
+                break;
+            }
+            case ResourceManager::ERename:
+            {
+                
+
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -52,13 +90,22 @@ void ResourceManager::update()
 */
 void ResourceManager::addResourceProperty(ResourceProperty* rep)
 {
-    // 创建节点
-    TreeNode* node = new TreeNode{
-        this->allocDefaultName(rep->mType),
-        this->mCurSelectMenu,
-        reinterpret_cast<void*>(rep)
-    };
-    this->mResourceTree.addTreeNode(node);
+    if (!strcmp(rep->mName.c_str(), "default"))
+    {
+        rep->mName = rep->mName + std::to_string(this->mDefaultSeq);
+        this->mDefaultSeq++;
+    }
+
+    if (this->mResourceTree.getTreeSize() < 10)
+    {
+        // 创建节点
+        TreeNode* node = new TreeNode{
+            this->allocDefaultName(rep->mType),
+            this->mCurSelectMenu,
+            (void*)(rep)
+        };
+        this->mResourceTree.addTreeNode(node);
+    }
 }
 
 std::string ResourceManager::allocDefaultName(const ResourceType& type)
@@ -91,4 +138,16 @@ std::string ResourceManager::allocDefaultName(const ResourceType& type)
             break;
         }
     }
+
+    return name;
+}
+
+TreeStruct& ResourceManager::getResourceTree()
+{
+    return this->mResourceTree;
+}
+
+void ResourceManager::addObjectResource(std::string name)
+{
+    this->mSelectedResources.emplace_back(name);
 }

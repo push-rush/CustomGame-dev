@@ -50,7 +50,7 @@ public:
     static bool loadUIElements(class Game* game, const std::string& fileName);
     static bool saveUIElements(class Game* game, const std::string& fileName);
 
-    static bool loadUITrees(class Game* game, const std::string& fileName);
+    static bool loadUITrees(class Game* game, const std::string& fileName, class UIScreen* ui);
 
     static std::unordered_map<std::string, ActorFunc> sActorFactoryMap;
     static std::unordered_map<std::string, ComponentFunc> sComponentFactoryMap;
@@ -71,7 +71,7 @@ private:
 
     static bool saveHUD(rapidjson::Document::AllocatorType& alloc, class Game* game, rapidjson::Value& inArray, class UIScreen* ui);
 
-    static bool loadUITree(class Game* game, const rapidjson::Value& inObject, class UIScreen* ui);
+    static bool loadUITree(class Game* game, const rapidjson::Value& inObject, class UIScreen* ui, class TreeStruct* tree);
 };
 
 class JsonHelper

@@ -1,6 +1,18 @@
 #include "../../include/Renderers/VertexArray.h"
-#include <glew.h>
-#include <glfw3.h>
+
+VertexArray::VertexArray()
+{
+
+}
+
+VertexArray::VertexArray(const VertexArray& other)
+{
+    this->mVertexArray = other.getVertexArray();
+    this->mVertexBuffer = other.getVertexBuffer();
+    this->mIndiceBuffer = other.getIndiceBuffer();
+    this->mNumVerts = other.getNumVerts();
+    this->mNumIndices = other.getNumIndices();
+}
 
 VertexArray::VertexArray(const Layout layout, const void* verts, uint32_t numVerts, 
     const uint32_t* indices, uint32_t numIndices)
@@ -169,4 +181,19 @@ uint32_t VertexArray::getNumIndices() const
 uint32_t VertexArray::getNumVerts() const
 {
     return this->mNumVerts;
+}
+
+uint32_t VertexArray::getVertexBuffer() const
+{
+    return this->mVertexBuffer;
+}
+
+uint32_t VertexArray::getIndiceBuffer() const
+{
+    return this->mIndiceBuffer;
+}
+
+uint32_t VertexArray::getVertexArray() const
+{
+    return this->mVertexArray;
 }

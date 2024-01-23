@@ -13,6 +13,7 @@ class ResourceManager
 public:
     enum ResourceType
     {
+        ECollection,
         EMeshObject,
         ESkeleton,
         EImage,
@@ -26,14 +27,16 @@ public:
         EDisplay,
         EUnSelected,
         EDeleted,
-        EChosen
+        EChosen,
+        EUnactivited,
+        ERename
     };
 
     struct ResourceProperty
     {
+        std::string mName;
         ResourceType mType;
         ResourceState mState;
-        void* mObject;
     };
 
     ResourceManager(class Game* game);
@@ -43,10 +46,17 @@ public:
     void addResourceProperty(ResourceProperty* rep);
     std::string allocDefaultName(const ResourceType& type);
 
+    void addObjectResource(std::string name);
+
+    // getters
+    TreeStruct& getResourceTree();
+
 private:
     class Game* mGame;
     TreeStruct mResourceTree;
     std::string mCurSelectMenu;
+
+    std::vector<std::string> mSelectedResources;
 
     int mMeshSeq;
     int mImageSeq;

@@ -49,6 +49,9 @@ private:
     class Shader* mSpriteShader;
     class VertexArray* mSpriteVerts;
     std::vector<class SpriteComponent*> mSprites;
+
+    // 基础颜色着色器
+    class Shader* mBasicShader;
     
     // 网格类型
     class Shader*  mMeshShader;
@@ -77,8 +80,8 @@ private:
     class Shader* mGGlobalShader;
 
     // ui缓存区对象
-    unsigned int mUIBuffer;
-    class Texture* mUITexture;
+    // unsigned int mUIBuffer;
+    // class Texture* mUITexture;
 
     // 点光源
     std::vector<class PointLightComponent*> mPointLightComps;
@@ -92,6 +95,9 @@ public:
     ~Renderer();
 
     void draw();
+    void draw(class Texture* tex, const Vector2& viewportScale = Vector2{1.0f, 1.0f}, 
+        const Vector2& offset = Vector2{0.0f, 0.0f}, const Vector2& trans = Vector2{0.0f, 0.0f}
+    );
 
     bool loadShaders();
     void createSpriteVerts();
@@ -110,8 +116,10 @@ public:
     class Shader* getFontShader() const;
     class SDL_Window* getRenderWindow() const;
     class VertexArray* getSpriteVerts() const;
-    class Texture* getUITexture() const;
-    unsigned int getUIBuffer() const;
+    class Shader* getBasicShader() const;
+
+    // class Texture* getUITexture() const;
+    // unsigned int getUIBuffer() const;
 
     // setters
     void setViewMatrix(Matrix4 view);
@@ -145,15 +153,17 @@ public:
     bool createMirrorTarget();
 
     // 创建配置ui帧缓存区
-    bool createUIFrameBuffer();
+    bool createUIFrameBuffer(unsigned int& buffer, class Texture*& tex, bool enable_depth = false);
 
     // 绘制3D场景
     void draw3DScene(unsigned int frameBuffer, const Matrix4& view, const Matrix4& proj, 
                         float viewportScale = 1.0f, bool limit = true);
 
     // 绘制G缓冲区四边形
-    void drawFromGBuffer();
+    void drawFromGBuffer(const unsigned& buffer_id);
     
-    bool drawUI(unsigned int frameBuffer, float viewportScale = 1.0f);
-    void drawUI(float viewportScale = 1.0f);
+    // 绘制ui
+    bool drawUI(class UIScreen* ui, const unsigned int& frameBuffer, 
+        const Vector3& color = Vector3{0.0f, 0.0f, 0.0f}, const float& viewportScale = 1.0f, bool clear_buffer = true
+    );
 };

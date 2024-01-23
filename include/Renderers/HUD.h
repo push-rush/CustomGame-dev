@@ -37,7 +37,16 @@ public:
     // 更新瞄准十字线
     void updateCrosshair(float dt);
 
-    void draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem = nullptr) override;
+    // void draw(class Shader* spriteShader, 
+    //     class Shader* fontShader, EmptySprite* elem = nullptr, 
+    //     const Vector2& = Vector2{0.0f, 0.0f}) override;
+
+    void draw(
+        class Shader* basicShader, 
+        class Shader* spriteShader, 
+        class Shader* fontShader,
+        class EmptySprite* elem
+    ) override;
 
     // 更新雷达
     void updateRadar(float dt);

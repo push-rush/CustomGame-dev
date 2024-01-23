@@ -67,7 +67,7 @@
                     "bindTexName": "menu2",
                     "updateOrder": 100,
                     "position": [
-                        -495.0,
+                        -710.0,
                         0.0
                     ],
                     "scale": [
@@ -84,7 +84,7 @@
                     "updateOrder": 100,
                     "position": [
                         0.0,
-                        265.0
+                        365.0
                     ],
                     "scale": [
                         1.0,
@@ -115,8 +115,8 @@
                     "bindTexName": "radar",
                     "updateOrder": 90,
                     "position": [
-                        -350.0,
-                        120.0
+                        -560.0,
+                        220.0
                     ],
                     "scale": [
                         1.0,
@@ -147,8 +147,8 @@
                     "bindTexName": "radarArrow",
                     "updateOrder": 100,
                     "position": [
-                        -390.0,
-                        180.0
+                        -560.0,
+                        220.0
                     ],
                     "scale": [
                         1.0,
@@ -185,6 +185,9 @@
                         0.0,
                         120.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
@@ -205,6 +208,9 @@
                     "position": [
                         0.0,
                         50.0
+                    ],
+                    "size": [
+                        100.0, 40.0
                     ],
                     "scale": [
                         1.0,
@@ -261,6 +267,9 @@
                         0.0,
                         55.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
@@ -281,6 +290,9 @@
                     "position": [
                         0.0,
                         -35.0
+                    ],
+                    "size": [
+                        100.0, 40.0
                     ],
                     "scale": [
                         1.0,
@@ -388,6 +400,9 @@
                         330.0,
                         210.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
@@ -408,6 +423,9 @@
                         -300.0,
                         150.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
@@ -427,6 +445,9 @@
                     "position": [
                         0.0,
                         150.0
+                    ],
+                    "size": [
+                        100.0, 40.0
                     ],
                     "scale": [
                         1.0,
@@ -449,6 +470,9 @@
                         -220.0,
                         -200.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
@@ -470,11 +494,78 @@
                         220.0,
                         -200.0
                     ],
+                    "size": [
+                        100.0, 40.0
+                    ],
                     "scale": [
                         1.0,
                         1.0
                     ]
                 }
+            }
+        ]
+    },
+    "ResourceMenu": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "menu1",
+                "texturePath": "../Assets/Images/Menu1.png"
+            },
+            {
+                "name": "menu2",
+                "texturePath": "../Assets/Images/Menu2.png"
+            },
+            {
+                "name": "menu_button1",
+                "texturePath": "../Assets/Images/MenuButton1.png"
+            },
+            {
+                "name": "menu_button2",
+                "texturePath": "../Assets/Images/MenuButton2.png"
+            },
+            {
+                "name": "menu_bg1",
+                "texturePath": "../Assets/Images/MenuChild1.png"
+            },
+            {
+                "name": "menu_bg2",
+                "texturePath": "../Assets/Images/MenuChild2.png"
+            },
+            {
+                "name": "menu_root1",
+                "texturePath": "../Assets/Images/MenuRoot1.png"
+            },
+            {
+                "name": "menu_root2",
+                "texturePath": "../Assets/Images/MenuRoot2.png"
+            },
+            {
+                "name": "meshIcon",
+                "texturePath": "../Assets/Images/MeshIcon.png"
+            },
+            {
+                "name": "collectionIcon",
+                "texturePath": "../Assets/Images/CollectionIcon.png"
+            },
+            {
+                "name": "menuTitleBG1",
+                "texturePath": "../Assets/Images/MenuTitleBG1.png"
+            },
+            {
+                "name": "menuTitleBG2",
+                "texturePath": "../Assets/Images/MenuTitleBG2.png"
+            }
+        ],
+        "elements": [
+            {
             }
         ]
     }

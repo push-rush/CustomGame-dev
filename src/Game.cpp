@@ -28,6 +28,10 @@
 #include "../include/Renderers/HUD.h"
 #include "../include/Renderers/Setting.h"
 #include "../include/Renderers/DialogBox.h"
+#include "../include/Renderers/ResourceMenu.h"
+#include "../../include/Renderers/Console.h"
+#include "../../include/Renderers/Button.h"
+#include "../../include/Renderers/PropertyMenu.h"
 
 #include "../include/General/LevelLoader.h"
 #include "../include/General/ResourceManager.h"
@@ -45,6 +49,11 @@
 #define SAVE_HUD_PATH "../Assets/LevelFiles/HUD_save1.json"
 
 #define LOAD_UITREE_PATH "../Assets/LevelFiles/UITree_menu1.json"
+
+#define LOAD_RESOURCE_TREE "../Assets/LevelFiles/ResourceTree.json"
+
+// 加载字体文本
+// FreeTypeFont* Game::mFreeTypeFont = new FreeTypeFont("../Assets/Texts/Deng.ttf");
 
 Game::Game()
 {
@@ -64,6 +73,7 @@ Game::Game()
     this->mDialogBox = nullptr;
     this->mPauseMenu = nullptr;
     this->mSetting = nullptr;
+    this->mConsole = nullptr;
 }
 
 Game::Game(const Game& game)
@@ -91,6 +101,11 @@ Game::~Game()
     {
         delete mPendingActors.back();
     }
+
+    // while (!mUIStack.empty())
+    // {
+    //     delete mUIStack.back();
+    // }
 }   
 
 Game& Game::getInstance()
@@ -118,7 +133,7 @@ bool Game::init()
     }
 
     mRenderer = new Renderer(this);
-	if (!mRenderer->init())
+	if (!mRenderer->init(200, 130, 1440, 768))
 	{
 		SDL_Log("Failed to initialize renderer...");
 		delete this->mRenderer;
@@ -167,6 +182,8 @@ void Game::runLoop()
 
 void Game::shutdown()
 {
+    std::cout << "Quit game..." << std::endl;
+
     while (!mActors.empty())
     {
         delete mActors.back();    
@@ -178,16 +195,29 @@ void Game::shutdown()
 
 void Game::processInput()
 {
+    for (auto ui : this->mUIStack)
+    {
+        if (ui->getUIState() == UIScreen::EActiviting)
+        {
+            ui->setUIState(UIScreen::EActive);
+        }
+    }
+
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
         switch (event.type)
         {
+            SDL_Log("[Game] key num: %d", (int)(event.key.keysym.sym));
+
             case SDL_QUIT:
+            {
                 mIsRunning = false;
                 // this->mGameState = EQuit;
                 break;
+            }
             case SDL_KEYDOWN:
+            {
                 if (!event.key.repeat)
                 {
                     if (this->mGameState == EGamePlay)
@@ -196,12 +226,21 @@ void Game::processInput()
                     }
                     else if (!this->mUIStack.empty())
                     {
-                        this->mUIStack.back()->handleKeyPress(event.key.keysym.sym);
+                        for (auto ui : this->mUIStack)
+                        {
+                            if (ui->getUIState() == UIScreen::EActive)
+                            {
+                                ui->handleKeyPress(event.key.keysym.sym);
+                            }
+                        }
                         // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
                     }
                 }
+                SDL_Log("[UIScreen] key num: %d", (int)(event.key.keysym.sym));
                 break;
+            }
             case SDL_MOUSEBUTTONDOWN:
+            {
                 if (this->mGameState == EGamePlay)
                 {
                     this->handleKey(event.button.button);
@@ -210,7 +249,15 @@ void Game::processInput()
                 {
                     if (!this->mUIStack.empty())
                     {
-                        this->mUIStack.back()->handleKeyPress(event.button.button);
+                        for (auto ui : this->mUIStack)
+                        {
+                            if (ui->getUIState() == UIScreen::EActive)
+                            {
+                                ui->handleKeyPress(event.button.button);
+                                // SDL_Log("[Game] Active ui type: %d STATE-%d addr:%d", ui->getUIType(), ui->getUIState(), (int)ui);
+                            }
+                        }
+                        // this->mUIStack.back()->handleKeyPress(event.button.button);
                         // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
                     }
                     // if (this->mHUD)
@@ -220,14 +267,49 @@ void Game::processInput()
                     // }
                 }
                 std::cout << "[Game] Button down..." << std::endl;
+
+                std::cout << "x: " << event.button.x << " y:" << event.button.y << std::endl;
                 break;
+            }
+            case SDL_MOUSEWHEEL:
+            {
+                SDL_MouseWheelEvent mouse = event.wheel;
+
+                if (!this->mUIStack.empty())
+                {
+                    for (auto ui : this->mUIStack)
+                    {
+                        if (ui->getUIState() == UIScreen::EActive)
+                        {
+                            ui->handleMouseWheel(mouse.y);
+                            // SDL_Log("[Game] Active ui type: %d STATE-%d addr:%d", ui->getUIType(), ui->getUIState(), (int)ui);
+                        }
+                    }
+                    // this->mUIStack.back()->handleKeyPress(event.button.button);
+                    // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
+                }
+
+                // SDL_Log("[Game] Mouse wheel is scrolling: x: %d y: %d dir: %d preciseX: %.2f preciseY: %.2f", 
+                //     mouse.x, mouse.y, mouse.direction, mouse.preciseX, mouse.preciseY
+                // );
+
+                // SDL_Log("[Game] Mouse wheel is scrolling: y: %d", mouse.y);
+
+                break;
+            }
             default:
+            {
+
                 break;
+            }
         }
     }
 
     // 获取键盘状态
     const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
+    
+    // Uint32 mouse_state = SDL_GetMouseState(nullptr, nullptr);
+
     // 如果按下Esc键则退出
     // if (keyboard_state[SDL_SCANCODE_ESCAPE])
     // {
@@ -251,7 +333,15 @@ void Game::processInput()
     {
         if (!this->mUIStack.empty())
         {
-            this->mUIStack.back()->processInput(keyboard_state);
+            for (auto ui : this->mUIStack)
+            {
+                if (ui->getUIState() == UIScreen::EActive)
+                {
+                    ui->processInput(keyboard_state);
+                }
+            }
+
+            // this->mUIStack.back()->processInput(keyboard_state);
         }
 
         // if (this->mHUD)
@@ -606,18 +696,210 @@ void Game::loadData()
     //     a->setRotation(q);
     // }
 
+    unsigned buffer = -1;
+    class Texture* tex = nullptr;
+
+    float w = this->getRenderer()->getScreenWidth();
+    float h = this->getRenderer()->getScreenHeight();
+
     // 开启平面显示器
     this->mHUD = new HUD(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex, true))
+    {
+        this->mHUD->setBindFrameBuffer(buffer);
+        this->mHUD->setBindTexture(tex);
+
+        this->mHUD->setUIViewScale(Vector2{1.0f, 1.0f});
+        this->mHUD->setUIPosOffset(Vector2{
+            -this->mHUD->getUIBufferPos().x, 
+            h - this->mHUD->getUIBufferPos().y - this->mHUD->getUIBufferViewSize().y
+        });
+        this->mHUD->setUIBGColor(Vector3{0.1f, 0.25f, 0.25f});
+    }
+    this->mHUD->setUIState(UIScreen::EActive);
     this->pushUI(this->mHUD);
+
+    buffer = -1;
+    tex = nullptr;
+
+    // 添加资源管理菜单
+    this->mResourceMenu = new ResourceMenu(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mResourceMenu->setBindFrameBuffer(buffer);
+        this->mResourceMenu->setBindTexture(tex);
+
+        // auto scale = this->mHUD->getUIViewScale();
+        this->mResourceMenu->setUIViewScale(Vector2{0.25f, 0.50f});
+        this->mResourceMenu->setUIPosOffset(Vector2{
+            w - this->mResourceMenu->getUIBufferPos().x - this->mResourceMenu->getUIBufferViewSize().x, 
+            h - this->mResourceMenu->getUIBufferPos().y - this->mResourceMenu->getUIBufferViewSize().y
+        });
+        this->mResourceMenu->setUIBGColor(Vector3{0.1f, 0.5f, 0.5f});
+
+        Button* left = new Button(
+            this->mResourceMenu,
+            "left_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Resource menu left border button...");
+            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f, 
+                mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f + this->mResourceMenu->getUIBufferViewSize().y * 0.5f
+            }, Vector2{20.0f, this->mResourceMenu->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            true
+        );
+
+        Button* bottom = new Button(
+            this->mResourceMenu,
+            "bottom_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Resource menu bottom border button...");
+            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x * 0.5f, 
+                mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f
+            }, Vector2{this->mResourceMenu->getUIBufferViewSize().x, 20.0f}, Vector2{1.0f, 1.0f},
+            true
+        );
+
+        Button* right = new Button(
+            this->mResourceMenu,
+            "right_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Resource menu right border button...");
+            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x, 
+                mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f + this->mResourceMenu->getUIBufferViewSize().y - this->mResourceMenu->getUIBufferViewSize().y * 0.25f
+            }, Vector2{20.0f, this->mResourceMenu->getUIBufferViewSize().y * 0.5f}, Vector2{1.0f, 1.0f}, 
+            true
+        );
+        
+        this->mResourceMenu->setUIBorderPos(left->getPosition(), bottom->getPosition(), right->getPosition());
+    }
+    this->mResourceMenu->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mResourceMenu);
+
+    buffer = -1;
+    tex = nullptr;
+
+    // 添加属性菜单
+    this->mPropertyMenu = new PropertyMenu(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mPropertyMenu->setBindFrameBuffer(buffer);
+        this->mPropertyMenu->setBindTexture(tex);
+
+        // auto scale = this->mHUD->getUIViewScale();
+        auto scale = this->mResourceMenu->getUIViewScale();
+        this->mPropertyMenu->setUIViewScale(Vector2{scale.x, 1.0f - scale.y});
+        this->mPropertyMenu->setUIPosOffset(Vector2{
+            w - this->mPropertyMenu->getUIBufferPos().x - this->mPropertyMenu->getUIBufferViewSize().x, 
+            -this->mPropertyMenu->getUIBufferPos().y}
+        );
+        this->mPropertyMenu->setUIBGColor(Vector3{0.20f, 0.20f, 0.20f});
+
+        Button* right = new Button(
+            this->mPropertyMenu,
+            "right_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Console right border button...");
+            }, Vector2{this->mPropertyMenu->getUIBufferPos().x + this->mPropertyMenu->getUIPosOffset().x - w * 0.5f + this->mPropertyMenu->getUIBufferViewSize().x, 
+                this->mPropertyMenu->getUIBufferPos().y + this->mPropertyMenu->getUIPosOffset().y - h * 0.5f + this->mPropertyMenu->getUIBufferViewSize().y * 0.5f
+            }, Vector2{20.0f, this->mPropertyMenu->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            true
+        );
+    }
+    this->mPropertyMenu->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mPropertyMenu);
+
+    buffer = -1;
+    tex = nullptr;
+    
+    // 添加控制台
+    this->mConsole = new Console(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mConsole->setBindFrameBuffer(buffer);
+        this->mConsole->setBindTexture(tex);
+
+        auto scale = this->mResourceMenu->getUIViewScale();
+        // auto scale = this->mHUD->getUIViewScale();
+        this->mConsole->setUIViewScale(Vector2{scale.x, 0.30f});
+        this->mConsole->setUIPosOffset(Vector2{
+            -this->mConsole->getUIBufferPos().x,
+            -this->mConsole->getUIBufferPos().y
+        });
+        this->mConsole->setUIBGColor(Vector3{0.30f, 0.30f, 0.30f});
+
+        Button* up = new Button(
+            this->mConsole,
+            "up_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Console up border button...");
+            }, Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x * 0.5f, 
+                this->mConsole->getUIBufferPos().y + this->mConsole->getUIPosOffset().y - h * 0.5f + this->mConsole->getUIBufferViewSize().y
+            }, Vector2{this->mConsole->getUIBufferViewSize().x, 20.0f}, Vector2{1.0f, 1.0f},
+            true
+        );
+
+        Button* right = new Button(
+            this->mConsole,
+            "right_border", "button",
+            {}, -1, [this](){
+                SDL_Log("[Game] Console right border button...");
+            }, Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x, 
+                this->mConsole->getUIBufferPos().y + this->mConsole->getUIPosOffset().y - h * 0.5f + this->mConsole->getUIBufferViewSize().y * 0.5f
+            }, Vector2{20.0f, this->mConsole->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            true
+        );
+    }
+    this->mConsole->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mConsole);
+
+    buffer = -1;
+    tex = nullptr;
+
+    // 添加暂停菜单
+    this->mPauseMenu = new PauseMenu(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mPauseMenu->setBindFrameBuffer(buffer);
+        this->mPauseMenu->setBindTexture(tex);
+
+        this->mPauseMenu->setUIViewScale(Vector2{0.75f, 0.75f});
+        this->mPauseMenu->setUIBGColor(Vector3{0.1f, 0.5f, 0.5f});
+    }
+    this->mPauseMenu->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mPauseMenu);
+
+    buffer = -1;
+    tex = nullptr;
 
     // 添加日志菜单
     this->mDialogBox = new DialogBox(this);
-   
-    // 添加暂停菜单
-    this->mPauseMenu = new PauseMenu(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mDialogBox->setBindFrameBuffer(buffer);
+        this->mDialogBox->setBindTexture(tex);
+
+        this->mDialogBox->setUIViewScale(Vector2{0.75f, 0.75f});
+        this->mDialogBox->setUIBGColor(Vector3{0.30f, 0.30f, 0.30f});
+    }
+    this->mDialogBox->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mDialogBox);
+
+    buffer = -1;
+    tex = nullptr;
 
     // 添加设置菜单
     this->mSetting = new Setting(this);
+    if (this->mRenderer->createUIFrameBuffer(buffer, tex))
+    {
+        this->mSetting->setBindFrameBuffer(buffer);
+        this->mSetting->setBindTexture(tex);
+
+        this->mSetting->setUIViewScale(Vector2{0.75f, 0.75f});
+        this->mSetting->setUIBGColor(Vector3{0.1f, 0.5f, 0.5f});
+    }
+    this->mSetting->setUIState(UIScreen::EInvisible);
+    this->pushUI(this->mSetting);
+
 
     // ui元素
     // a = new Actor(this);
@@ -639,8 +921,10 @@ void Game::loadData()
     LevelLoader::loadUIElements(this, LOAD_HUD_PATH);
 
     // 添加ui树
-    LevelLoader::loadUITrees(this, LOAD_UITREE_PATH);
+    LevelLoader::loadUITrees(this, LOAD_UITREE_PATH, mHUD);
 
+    // 添加资源菜单树
+    LevelLoader::loadUITrees(this, LOAD_RESOURCE_TREE, mResourceMenu);
 
     // 相机角色
     // this->mCameraActor = new CameraActor(this);
@@ -772,162 +1056,245 @@ void Game::handleKey(const uint8_t key)
 {
     switch (key)
     {
-    case SDLK_ESCAPE:
-    {
-        if (this->mGameState == EGamePlay)
+        case SDLK_ESCAPE:
         {
-            // 设置为暂停状态
-            this->setGameState(EPaused);
-
-            // new PauseMenu(this);
-            if (this->mPauseMenu)
+            if (this->mGameState == EGamePlay)
             {
-                // this->mPauseMenu->init();
-                this->mPauseMenu->setUIState(UIScreen::EActive);
-                this->pushUI(this->mPauseMenu);
+                // 设置为暂停状态
+                this->setGameState(EPaused);
 
-                SDL_Log("[Game] PauseMenu PUSH...");
+                // new PauseMenu(this);
+                if (this->mPauseMenu)
+                {
+                    // this->mPauseMenu->init();
+                    this->mPauseMenu->setUIState(UIScreen::EActive);
+                    // this->pushUI(this->mPauseMenu);
+
+                    SDL_Log("[Game] PauseMenu PUSH...");
+                }
+                else
+                {
+                    SDL_Log("[Game] PauseMenu is null...");
+                }
+
+                // 设置鼠标为相对模式
+                this->mPauseMenu->setRelativeMouseMode(false);
+
+                SDL_Log("[Game] Gameplay...");
+            }
+            else if (this->mGameState == EPaused)
+            {
+                // for (auto iter = this->mUIStack.begin(); iter != this->mUIStack.end(); ++iter)
+                // {
+                //     if ((*iter)->getUIType() == UIScreen::EPauseMenu)
+                //     {
+                //         (*iter)->setUIState(UIScreen::EInvisible);
+                //         // iter = this->mUIStack.erase(iter);
+                //         break;
+                //     }
+                // }
+
+                if (this->mPauseMenu)
+                {
+                    this->mPauseMenu->setUIState(UIScreen::EInvisible);
+                }
+
+                // 设置为进行状态
+                this->setGameState(EGamePlay);
+                this->mPauseMenu->setRelativeMouseMode(true);
+
+                SDL_Log("[Game] Epaused...");
+            }
+
+            break;
+        }
+        case SDLK_TAB:
+        {
+            if (this->mGameState == EGamePlay)
+            {
+                // 设置为暂停状态
+                this->setGameState(EPaused);
+
+                if (this->mSetting)
+                {
+                    // new Setting(this);
+
+                    // this->mSetting->init();
+                    this->mSetting->setUIState(UIScreen::EActive);
+                    // this->pushUI(this->mSetting);
+                }
+                // 取消鼠标为相对模式
+                this->mSetting->setRelativeMouseMode(false);
+            }
+            break;
+        }
+        case SDLK_SPACE:
+        {
+            if (this->mGameState == EGamePlay)
+            {
+                // 设置为暂停状态
+                this->setGameState(EPaused);
+
+                if (this->mResourceMenu)
+                {
+                    this->mResourceMenu->setUIState(UIScreen::EActive);
+                    // this->pushUI(this->mResourceMenu);
+                }
+
+                if (this->mPropertyMenu)
+                {
+                    this->mPropertyMenu->setUIState(UIScreen::EActive);
+                }
+
+                if (this->mConsole)
+                {
+                    this->mConsole->setUIState(UIScreen::EActive);
+                }
+
+                // 取消鼠标为相对模式
+                this->mHUD->setRelativeMouseMode(false);
+            }
+            else if (this->mGameState == EPaused)
+            {
+                // for (auto iter = this->mUIStack.begin(); iter != this->mUIStack.end(); ++iter)
+                // {
+                //     if ((*iter)->getUIType() == UIScreen::EResourceMenu)
+                //     {
+                //         iter = this->mUIStack.erase(iter);
+                //         break;
+                //     }
+                // }
+
+                if (this->mResourceMenu)
+                {
+                    this->mResourceMenu->setUIState(UIScreen::EInvisible);
+                    // this->pushUI(this->mResourceMenu);
+                }
+
+                if (this->mPropertyMenu)
+                {
+                    this->mPropertyMenu->setUIState(UIScreen::EInvisible);
+                }
+
+                if (this->mConsole)
+                {
+                    this->mConsole->setUIState(UIScreen::EInvisible);
+                }
+
+                // 设置为运行态
+                this->setGameState(EGamePlay);
+
+                // 设置鼠标为相对模式
+                this->mHUD->setRelativeMouseMode(true);
+            }
+
+            break;
+        }
+        // case SDL_SCANCODE_C:
+        // case SDLK_c:
+        // {
+        //     // 设置为暂停状态
+        //     this->setGameState(EPaused);
+
+        //     if (this->mConsole)
+        //     {
+        //         this->mConsole->setUIState(UIScreen::EActive);
+        //     }
+
+        //     // 取消鼠标为相对模式
+        //     this->mConsole->setRelativeMouseMode(false);
+
+        //     break;
+        // }
+        case SDLK_RETURN:
+        {
+            SDL_Log("[Game] Enter...");
+
+            break;
+        }
+        case SDLK_BACKSPACE:
+        {
+            SDL_Log("[Game] Backspace...");
+
+            break;
+        }
+        case SDLK_w:
+        {
+            SDL_Log("[Game] press w...");
+
+            break;
+        }
+        case SDL_BUTTON_LEFT:
+        {
+            // this->mFPSActor->shoot();
+            break;
+        }
+        case '-':
+        {
+            float volume = this->mAudioSystem->getBusVolume("bus:/");
+            volume = Math::Max(0.0f, volume - 0.1f);
+            this->mAudioSystem->setBusVolume("bus:/", volume);
+            SDL_Log("Volume is decreasing: %.3f", volume);
+            break;
+        }
+        case '=':
+        {
+            float volume = this->mAudioSystem->getBusVolume("bus:/");
+            volume = Math::Min(1.0f, volume + 0.1f);
+            this->mAudioSystem->setBusVolume("bus:/", volume);
+            SDL_Log("Volume is increasing: %.3f", volume);
+            break;
+        }
+        case 'e':
+        {
+            // 播放爆破声
+            this->mAudioSystem->playEvent("event:/Explosion2D");
+            SDL_Log("Play explosion2D music...");
+            break;
+        }
+        case 'm':
+        {
+            // 触发音乐暂停暂停
+            this->mMusicEvent.setPaused(!this->mMusicEvent.getPaused());
+            SDL_Log("Stop music...");
+            break;
+        }
+        case 'r':
+        {
+            // 停止/重启混响快照
+            if (!this->mReverbSnap.isValid())
+            {
+                this->mReverbSnap = this->mAudioSystem->playEvent("snapshot:/WithReverb");
             }
             else
             {
-                SDL_Log("[Game] PauseMenu is null...");
+                this->mReverbSnap.stop();
             }
-
-            // 设置鼠标为相对模式
-            this->mPauseMenu->setRelativeMouseMode(false);
-
-            SDL_Log("[Game] Gameplay...");
+            SDL_Log("Stop or restart reverb snap...");
+            break;
         }
-        else if (this->mGameState == EPaused)
+        case '1':
         {
-            for (auto iter = this->mUIStack.begin(); iter != this->mUIStack.end(); ++iter)
-            {
-                if ((*iter)->getUIType() == UIScreen::EPauseMenu)
-                {
-                    iter = this->mUIStack.erase(iter);
-                    break;
-                }
-            }
-
-            // 设置为进行状态
-            this->setGameState(EGamePlay);
-            this->mPauseMenu->setRelativeMouseMode(true);
-
-            SDL_Log("[Game] Epaused...");
+            // 设置默认脚步表面
+            // this->mCameraActor->setFootstepSurface(0.0);
+            // this->mFPSActor->setFootstepSurface(0.0);
+            this->mFollowActor->setFootstepSurface(0.0f);
+            SDL_Log("Set default footstep surface...");
+            break;
         }
-
-        break;
-    }
-    case SDLK_TAB:
-    {
-        if (this->mGameState == EGamePlay)
+        case '2':
         {
-            // 设置为暂停状态
-            this->setGameState(EPaused);
-
-            if (this->mSetting)
-            {
-                // new Setting(this);
-
-                this->mSetting->init();
-                this->mSetting->setUIState(UIScreen::EActive);
-                this->pushUI(this->mSetting);
-            }
-            // 取消鼠标为相对模式
-            this->mSetting->setRelativeMouseMode(false);
+            // 设置草地的脚步表面
+            // this->mCameraActor->setFootstepSurface(0.5);
+            // this->mFPSActor->setFootstepSurface(0.5);
+            this->mFollowActor->setFootstepSurface(0.5f);
+            SDL_Log("Set grass footstep surface...");
+            break;
         }
-        break;
-    }
-    case SDLK_SPACE:
-    {
-        if (this->mGameState == EGamePlay)
+        default:
         {
-            // 设置为暂停状态
-            this->setGameState(EPaused);
-
-            // 取消鼠标为相对模式
-            this->mHUD->setRelativeMouseMode(false);
+            break;
         }
-        else if (this->mGameState == EPaused)
-        {
-            // 设置为运行态
-            this->setGameState(EGamePlay);
-
-            // 设置鼠标为相对模式
-            this->mHUD->setRelativeMouseMode(true);
-        }
-
-        break;
-    }
-    case SDL_BUTTON_LEFT:
-    {
-        // this->mFPSActor->shoot();
-        break;
-    }
-    case '-':
-    {
-        float volume = this->mAudioSystem->getBusVolume("bus:/");
-        volume = Math::Max(0.0f, volume - 0.1f);
-        this->mAudioSystem->setBusVolume("bus:/", volume);
-        SDL_Log("Volume is decreasing: %.3f", volume);
-        break;
-    }
-    case '=':
-    {
-        float volume = this->mAudioSystem->getBusVolume("bus:/");
-        volume = Math::Min(1.0f, volume + 0.1f);
-        this->mAudioSystem->setBusVolume("bus:/", volume);
-        SDL_Log("Volume is increasing: %.3f", volume);
-        break;
-    }
-    case 'e':
-    {
-        // 播放爆破声
-        this->mAudioSystem->playEvent("event:/Explosion2D");
-        SDL_Log("Play explosion2D music...");
-        break;
-    }
-    case 'm':
-    {
-        // 触发音乐暂停暂停
-        this->mMusicEvent.setPaused(!this->mMusicEvent.getPaused());
-        SDL_Log("Stop music...");
-        break;
-    }
-    case 'r':
-    {
-        // 停止/重启混响快照
-        if (!this->mReverbSnap.isValid())
-        {
-            this->mReverbSnap = this->mAudioSystem->playEvent("snapshot:/WithReverb");
-        }
-        else
-        {
-            this->mReverbSnap.stop();
-        }
-        SDL_Log("Stop or restart reverb snap...");
-        break;
-    }
-    case '1':
-    {
-        // 设置默认脚步表面
-        // this->mCameraActor->setFootstepSurface(0.0);
-        // this->mFPSActor->setFootstepSurface(0.0);
-        this->mFollowActor->setFootstepSurface(0.0f);
-        SDL_Log("Set default footstep surface...");
-        break;
-    }
-    case '2':
-    {
-        // 设置草地的脚步表面
-        // this->mCameraActor->setFootstepSurface(0.5);
-        // this->mFPSActor->setFootstepSurface(0.5);
-        this->mFollowActor->setFootstepSurface(0.5f);
-        SDL_Log("Set grass footstep surface...");
-        break;
-    }
-    default:
-        break;
     }
 }
 
@@ -1024,7 +1391,7 @@ Font* Game::getFont(const std::string& name)
 
 FreeTypeFont* Game::getFreeTypeFont()
 {
-    return this->mFreeTypeFont;
+    return Game::mFreeTypeFont;
 }
 
 void Game::loadText(const std::string& name)
@@ -1196,4 +1563,19 @@ const Game::GameState& Game::getGameState() const
 class ResourceManager* Game::getResourceManager() const
 {
     return this->mResourceManager;
+}
+
+ResourceMenu* Game::getResourceMenu()
+{
+    return this->mResourceMenu;
+}
+
+class Console* Game::getConsole()
+{
+    return this->mConsole;
+}
+
+class PropertyMenu* Game::getPropertyMenu()
+{
+    return this->mPropertyMenu;
 }

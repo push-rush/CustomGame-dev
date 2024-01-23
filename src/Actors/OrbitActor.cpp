@@ -29,22 +29,22 @@ void OrbitActor::actorInput(const uint8_t* keyboard_state)
     float angularSpeed = 0.0;
     
     // 更新前向速度
-    if (keyboard_state[SDL_SCANCODE_W])
+    if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDLK_w])
     {
         forwardSpeed += 550.0f;
     }
-    if (keyboard_state[SDL_SCANCODE_S])
+    if (keyboard_state[SDL_SCANCODE_S] || keyboard_state[SDLK_s])
     {
         forwardSpeed -= 450.0f;
     }
 
     // 更新侧向速度
-    if (keyboard_state[SDL_SCANCODE_A])
+    if (keyboard_state[SDL_SCANCODE_A] || keyboard_state[SDLK_a])
     {
         // strafeSpeed -= 320.0f;
         angularSpeed -= Math::Pi;
     }
-    if (keyboard_state[SDL_SCANCODE_D])
+    if (keyboard_state[SDL_SCANCODE_D] || keyboard_state[SDLK_d])
     {
         // strafeSpeed += 320.0f;
         angularSpeed += Math::Pi;

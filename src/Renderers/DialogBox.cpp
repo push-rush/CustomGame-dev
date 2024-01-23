@@ -17,7 +17,8 @@ DialogBox::DialogBox(Game* game, const std::wstring& text, std::function<void()>
 
     this->setBGPos(Vector2(0.0f, 0.0f));
     this->setTitlePos(Vector2(0.0f, 100.0f));
-    this->setNextButtonPos(Vector2(0.0f, 0.0f));
+    
+    // this->setNextButtonPos(Vector2(0.0f, 0.0f));
 
     // 设置背景
     // this->addBackground(game->getRenderer()->getTexture("../Assets/Images/DialogBG.png"));
@@ -45,10 +46,34 @@ DialogBox::~DialogBox()
 
 void DialogBox::close()
 {
-    this->setUIState(EClosing);
+    // this->setUIState(EClosing);
+    this->setUIState(EInvisible);
+
+    auto s = this->getGame()->getUIStack();
+    for (auto ui : s)
+    {
+        if (ui->getUIType() == EPauseMenu)
+        {
+            ui->setUIState(EActiviting);
+        }
+    }
 }
 
-void DialogBox::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem)
+// void DialogBox::draw(class Shader* spriteShader, class Shader* fontShader, EmptySprite* elem, const Vector2&)
+// {
+//     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
+//     {
+//         return e1->getUpdateOrder() < e2->getUpdateOrder();
+//     });
+
+//     for (auto e : this->getUIElements())
+//     {
+//         // SDL_Log("[PauseMenu] ui elem: %s", e->getSpriteName().c_str());
+//         UIScreen::draw(spriteShader, fontShader, e);
+//     }
+// }
+
+void DialogBox::draw(class Shader* basicShader, class Shader* spriteShader, class Shader* fontShader, class EmptySprite* elem)
 {
     std::sort(this->getUIElements().begin(), this->getUIElements().end(), [](EmptySprite* e1, EmptySprite* e2)
     {
@@ -57,7 +82,13 @@ void DialogBox::draw(class Shader* spriteShader, class Shader* fontShader, Empty
 
     for (auto e : this->getUIElements())
     {
-        // SDL_Log("[PauseMenu] ui elem: %s", e->getSpriteName().c_str());
-        UIScreen::draw(spriteShader, fontShader, e);
+        UIScreen::draw(basicShader, spriteShader, fontShader, e);
     }
+}
+
+void DialogBox::handleKeyPress(int key)
+{
+    UIScreen::handleKeyPress(key);
+
+
 }

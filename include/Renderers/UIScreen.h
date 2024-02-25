@@ -53,7 +53,9 @@
             OpenMenuLayer2_1,
             OpenMenuLayer2_2,
             OpenMenuLayer3_1,
-            OpenChildren
+            OpenChildren,
+            UIRename,
+            UICreateCollection
         };
 
         virtual void update(float dt);
@@ -175,7 +177,7 @@
         class VertexArray* createFontVerts(bool draw_font, const Vector2& pos, const float& w, const float& h);
 
         // 事件绑定
-        virtual void bindEvent(const UIBindEvent& event);
+        virtual void bindEvent(const UIBindEvent& event, class Button* b);
 
     private:
         UIState mState;

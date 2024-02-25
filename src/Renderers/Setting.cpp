@@ -284,10 +284,10 @@ void Setting::init()
 
 }
 
-void Setting::bindEvent(const UIBindEvent& event)
+void Setting::bindEvent(const UIBindEvent& event, Button* b)
 {
     SDL_Log("[Setting] Bind event...");
-    UIScreen::bindEvent(event);
+    UIScreen::bindEvent(event, b);
 
     switch (event)
     {

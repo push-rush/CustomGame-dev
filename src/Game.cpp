@@ -350,10 +350,14 @@ void Game::processInput()
         // }
     }
     // mShip->processInput(keyboard_state);
+
+    // SDL_Log("[Game] process input...");
 }
 
 void Game::updateGame(string name)
 {
+    // SDL_Log("[Game] Update game st...");
+
     float dt = (SDL_GetTicks() - this->mTicksCount) / 1000.0f;
     this->mTicksCount = SDL_GetTicks();
     if (dt > 0.1f)
@@ -391,6 +395,8 @@ void Game::updateGame(string name)
         // 清空当前挂起的角色对象容器
         mPendingActors.clear();
 
+        // SDL_Log("[Game] Update game mid1...");
+
         std::vector<Actor*> deadActors;
         for (auto actor : mActors)
         {
@@ -415,6 +421,8 @@ void Game::updateGame(string name)
                 actor = nullptr;
             }
         }
+
+        // SDL_Log("[Game] Update game mid2...");
     }
     else if (this->mGameState == EPaused)
     {
@@ -434,6 +442,7 @@ void Game::updateGame(string name)
     // 更新音频系统
     this->mAudioSystem->update(dt);
     
+    // SDL_Log("[Game] Update game mid3...");
     // 更新ui对象
     for (auto ui : this->mUIStack)
     {
@@ -442,6 +451,7 @@ void Game::updateGame(string name)
             ui->update(dt);
         }
     }
+    // SDL_Log("[Game] Update game mid4...");
 
     for (auto iter = this->mUIStack.begin(); iter != this->mUIStack.end();)
     {
@@ -468,6 +478,8 @@ void Game::updateGame(string name)
             ++iter;
         }
     }
+
+    // SDL_Log("[Game] Update game over...");
 }
 
 void Game::generateOutput()
@@ -730,43 +742,49 @@ void Game::loadData()
         this->mResourceMenu->setBindTexture(tex);
 
         // auto scale = this->mHUD->getUIViewScale();
-        this->mResourceMenu->setUIViewScale(Vector2{0.25f, 0.50f});
+        this->mResourceMenu->setUIViewScale(Vector2{0.30f, 0.50f});
         this->mResourceMenu->setUIPosOffset(Vector2{
             w - this->mResourceMenu->getUIBufferPos().x - this->mResourceMenu->getUIBufferViewSize().x, 
             h - this->mResourceMenu->getUIBufferPos().y - this->mResourceMenu->getUIBufferViewSize().y
         });
-        this->mResourceMenu->setUIBGColor(Vector3{0.1f, 0.5f, 0.5f});
+        this->mResourceMenu->setUIBGColor(Vector3{0.25f, 0.35f, 0.35f});
 
         Button* left = new Button(
             this->mResourceMenu,
             "left_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Resource menu left border button...");
-            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f, 
+            Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f, 
                 mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f + this->mResourceMenu->getUIBufferViewSize().y * 0.5f
-            }, Vector2{20.0f, this->mResourceMenu->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            }, Vector2{20.0f, this->mResourceMenu->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f},
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Resource menu left border button...");
+            },
             true
         );
 
         Button* bottom = new Button(
             this->mResourceMenu,
             "bottom_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Resource menu bottom border button...");
-            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x * 0.5f, 
+            Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x * 0.5f, 
                 mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f
             }, Vector2{this->mResourceMenu->getUIBufferViewSize().x, 20.0f}, Vector2{1.0f, 1.0f},
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Resource menu bottom border button...");
+            }, 
             true
         );
 
         Button* right = new Button(
             this->mResourceMenu,
             "right_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Resource menu right border button...");
-            }, Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x, 
+            Vector2{mResourceMenu->getUIBufferPos().x + mResourceMenu->getUIPosOffset().x - mRenderer->getScreenWidth() * 0.5f + this->mResourceMenu->getUIBufferViewSize().x, 
                 mResourceMenu->getUIBufferPos().y + mResourceMenu->getUIPosOffset().y - mRenderer->getScreenHeight() * 0.5f + this->mResourceMenu->getUIBufferViewSize().y - this->mResourceMenu->getUIBufferViewSize().y * 0.25f
             }, Vector2{20.0f, this->mResourceMenu->getUIBufferViewSize().y * 0.5f}, Vector2{1.0f, 1.0f}, 
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Resource menu right border button...");
+            },
             true
         );
         
@@ -797,11 +815,13 @@ void Game::loadData()
         Button* right = new Button(
             this->mPropertyMenu,
             "right_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Console right border button...");
-            }, Vector2{this->mPropertyMenu->getUIBufferPos().x + this->mPropertyMenu->getUIPosOffset().x - w * 0.5f + this->mPropertyMenu->getUIBufferViewSize().x, 
+            Vector2{this->mPropertyMenu->getUIBufferPos().x + this->mPropertyMenu->getUIPosOffset().x - w * 0.5f + this->mPropertyMenu->getUIBufferViewSize().x, 
                 this->mPropertyMenu->getUIBufferPos().y + this->mPropertyMenu->getUIPosOffset().y - h * 0.5f + this->mPropertyMenu->getUIBufferViewSize().y * 0.5f
             }, Vector2{20.0f, this->mPropertyMenu->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Console right border button...");
+            }, 
             true
         );
     }
@@ -825,27 +845,31 @@ void Game::loadData()
             -this->mConsole->getUIBufferPos().x,
             -this->mConsole->getUIBufferPos().y
         });
-        this->mConsole->setUIBGColor(Vector3{0.30f, 0.30f, 0.30f});
+        this->mConsole->setUIBGColor(Vector3{0.15f, 0.15f, 0.15f});
 
         Button* up = new Button(
             this->mConsole,
             "up_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Console up border button...");
-            }, Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x * 0.5f, 
+            Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x * 0.5f, 
                 this->mConsole->getUIBufferPos().y + this->mConsole->getUIPosOffset().y - h * 0.5f + this->mConsole->getUIBufferViewSize().y
             }, Vector2{this->mConsole->getUIBufferViewSize().x, 20.0f}, Vector2{1.0f, 1.0f},
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Console up border button...");
+            }, 
             true
         );
 
         Button* right = new Button(
             this->mConsole,
             "right_border", "button",
-            {}, -1, [this](){
-                SDL_Log("[Game] Console right border button...");
-            }, Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x, 
+            Vector2{this->mConsole->getUIBufferPos().x + this->mConsole->getUIPosOffset().x - w * 0.5f + this->mConsole->getUIBufferViewSize().x, 
                 this->mConsole->getUIBufferPos().y + this->mConsole->getUIPosOffset().y - h * 0.5f + this->mConsole->getUIBufferViewSize().y * 0.5f
-            }, Vector2{20.0f, this->mConsole->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f}, 
+            }, Vector2{20.0f, this->mConsole->getUIBufferViewSize().y}, Vector2{1.0f, 1.0f},
+            Vector3{0.45f, 0.45f, 0.45f}, Color::White,
+            {}, Vector2{0.0f, 0.0f}, -1, [this](){
+                SDL_Log("[Game] Console right border button...");
+            }, 
             true
         );
     }
@@ -999,6 +1023,15 @@ void Game::loadData()
 
     // auto acts = this->getActors();
     // std::cout << "[Game] Actors Size:" << acts.size() << std::endl;
+
+    for (auto act : this->mActors)
+    {
+        if (act->getType() == Actor::EFPSActor)
+        {
+            this->mFPSActor = (FPSActor*)act;
+            break;
+        }
+    }
 }
 
 void Game::processInput(const uint8_t* keyboard_state)
@@ -1226,7 +1259,7 @@ void Game::handleKey(const uint8_t key)
         }
         case SDL_BUTTON_LEFT:
         {
-            // this->mFPSActor->shoot();
+            this->mFPSActor->shoot();
             break;
         }
         case '-':
@@ -1277,8 +1310,8 @@ void Game::handleKey(const uint8_t key)
         {
             // 设置默认脚步表面
             // this->mCameraActor->setFootstepSurface(0.0);
-            // this->mFPSActor->setFootstepSurface(0.0);
-            this->mFollowActor->setFootstepSurface(0.0f);
+            this->mFPSActor->setFootstepSurface(0.0);
+            // this->mFollowActor->setFootstepSurface(0.0f);
             SDL_Log("Set default footstep surface...");
             break;
         }
@@ -1286,8 +1319,8 @@ void Game::handleKey(const uint8_t key)
         {
             // 设置草地的脚步表面
             // this->mCameraActor->setFootstepSurface(0.5);
-            // this->mFPSActor->setFootstepSurface(0.5);
-            this->mFollowActor->setFootstepSurface(0.5f);
+            this->mFPSActor->setFootstepSurface(0.5);
+            // this->mFollowActor->setFootstepSurface(0.5f);
             SDL_Log("Set grass footstep surface...");
             break;
         }
@@ -1348,18 +1381,18 @@ void Game::setGameState(GameState state)
 
 Actor* Game::getPlayer() const
 {
-    Actor* a = nullptr;
-    for (auto act : this->mActors)
-    {
-        if (act->getType() == Actor::EFollowActor)
-        {
-            a = act;
-            break;
-        }
-    }
+    // Actor* a = nullptr;
+    // for (auto act : this->mActors)
+    // {
+    //     if (act->getType() == Actor::EFollowActor)
+    //     {
+    //         a = act;
+    //         break;
+    //     }
+    // }
 
-    // return this->mFPSActor;
-    return a;
+    return this->mFPSActor;
+    // return a;
 }
 
 Font* Game::getFont(const std::string& name)

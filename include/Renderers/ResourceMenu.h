@@ -46,7 +46,7 @@ public:
     void update(float dt) override;
 
     // 事件绑定
-    void bindEvent(const UIBindEvent& event) override;
+    void bindEvent(const UIBindEvent& event, class Button* b) override;
 
     // 外部输入处理
     void processInput(const uint8_t* keys) override;
@@ -61,6 +61,7 @@ public:
     void nodeAddToStack(TreeNode* node);
 
     TreeStruct* getResourceEventTree();
+    void updateResourceEventStack();
 
     std::map<std::string, std::string> allocTex(const ResourceManager::ResourceType& type);
 

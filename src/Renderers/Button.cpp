@@ -93,14 +93,14 @@ Button::Button(class UIScreen* ui,
 }
 
 Button::Button(class UIScreen* ui,
-        const std::string& name, const std::string& type,
-        const Vector2& pos, const Vector2& dims, const Vector2& scale, 
-        const Vector3& bgColor, const Vector3& boxColor,
-        const std::wstring& text, const Vector3& color, const int& fontSize, const Vector2& bindTextOffset,
-        const std::map<std::string, std::string>& bindTexName, const Vector2& bindTexOffset,
-        const int& bind_event,
-        std::function<void()> onClick,
-        const bool& addIn
+    const std::string& name, const std::string& type,
+    const Vector2& pos, const Vector2& dims, const Vector2& scale, 
+    const Vector3& bgColor, const Vector3& boxColor,
+    const std::wstring& text, const Vector3& color, const int& fontSize, const Vector2& bindTextOffset,
+    const std::map<std::string, std::string>& bindTexName, const Vector2& bindTexOffset,
+    const int& bind_event,
+    std::function<void()> onClick,
+    const bool& addIn
 ) : EmptySprite(ui, name, type, bindTexName, addIn, 
         pos, scale, 100, dims, true, text, color, fontSize),
     mBindEventID(int(bind_event))
@@ -115,6 +115,29 @@ Button::Button(class UIScreen* ui,
 
     this->setBindTexOffset(bindTexOffset);
     this->setBindTextOffset(bindTextOffset);
+}
+
+Button::Button(class UIScreen* ui,
+    const std::string& name, const std::string& type,
+    const Vector2& pos, const Vector2& dims, const Vector2& scale, 
+    const Vector3& bgColor, const Vector3& boxColor,
+    const std::map<std::string, std::string>& bindTexName, const Vector2& bindTexOffset,
+    const int& bind_event,
+    std::function<void()> onClick,
+    const bool& addIn
+) : EmptySprite(ui, name, type, bindTexName, addIn, 
+        pos, scale, 100, dims),
+    mBindEventID(int(bind_event))
+{
+    this->mOnClick = onClick;
+    this->mHighlighted = false;
+    this->mIsClickable = true;
+    this->mContainText = true;
+
+    this->mBindBgColor = bgColor;
+    this->mBindBoxColor = boxColor;
+
+    this->setBindTexOffset(bindTexOffset);
 }
 
 Button::~Button()
@@ -293,4 +316,10 @@ Vector3 Button::getBindBgColor() const
 Vector3 Button::getBindBoxColor() const
 {
     return this->mBindBoxColor;
+}
+
+void Button::setClickCallback(const std::function<void()>& callback)
+{
+    SDL_Log("[Button] Set click callback...");
+    this->mOnClick = callback;
 }

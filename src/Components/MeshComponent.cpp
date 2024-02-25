@@ -74,7 +74,7 @@ void MeshComponent::draw(class Shader* shader)
     }
     else
     {
-        SDL_Log("[MeshComponent] Mesh is null...");
+        SDL_Log("[MeshComponent] Mesh: %s is null...", this->mMeshName.c_str());
         return;
     }
 }

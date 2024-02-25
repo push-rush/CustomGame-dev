@@ -6,8 +6,12 @@ using namespace std;
 
 int WinMain(int argc, char** argv)
 {
-    ofstream fout("../Log.txt");
-    auto old_cout = cout.rdbuf(fout.rdbuf());
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+
+    // ofstream fout("../Log.txt");
+    // auto old_cout = cout.rdbuf(fout.rdbuf());
 
     Game game;
 

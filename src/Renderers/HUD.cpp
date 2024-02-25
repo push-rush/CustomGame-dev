@@ -75,7 +75,6 @@ void HUD::removeTargetComp(class TargetComponent* targetComp)
 
 void HUD::updateCrosshair(float dt)
 {
-
     this->mTargetEnemy = false;
     const float cAimDist = 5000.0f;
 
@@ -107,8 +106,12 @@ void HUD::draw(class Shader* basicShader, class Shader* spriteShader, class Shad
     // 绘制后视镜
     class Texture* mirror = this->getGame()->getRenderer()->getMirrorTexture();
     this->getSpriteVerts()->setActive();
-    this->drawTexture(spriteShader, mirror, this->getUIBufferPos() + this->getUIPosOffset() - 
-        Vector2{w * 0.5f, h * 0.5f} + Vector2{(float)(mirror->getWidth()) * 0.60f, (float)(mirror->getHeight()) * 0.55f}, 
+    auto buffer_pos = this->getUIBufferPos() + this->getUIPosOffset() - Vector2{w * 0.5f, h * 0.5f};
+    auto mir_offset = Vector2{(float)(mirror->getWidth()) * 0.60f, (float)(mirror->getHeight()) * 0.55f};
+    this->drawTexture(
+        spriteShader, 
+        mirror, 
+        buffer_pos + mir_offset, 
         1.0f, 1.0f, true
     );
 
@@ -340,6 +343,8 @@ void HUD::updateRadar(float dt)
 
 void HUD::update(float dt)
 {
+    // SDL_Log("[HUD] Update st...");
+
     UIScreen::update(dt);
 
     if (this->getGame()->getResourceMenu()->getState() == EActive || 
@@ -356,17 +361,22 @@ void HUD::update(float dt)
         });
     }
     
+    // SDL_Log("[HUD] Update mid1...");
+
     this->updateCrosshair(dt);
+
+    // SDL_Log("[HUD] Update mid2...");
+
     this->updateRadar(dt);
 
-    // SDL_Log("[HUD] Update...");
+    // SDL_Log("[HUD] Update over...");
 }
 
-void HUD::bindEvent(const UIBindEvent& event)
+void HUD::bindEvent(const UIBindEvent& event, class Button* b)
 {
     SDL_Log("[HUD] Bind event id: %d", (int)(event));
 
-    UIScreen::bindEvent(event);
+    UIScreen::bindEvent(event, b);
 
     switch (event)
     {

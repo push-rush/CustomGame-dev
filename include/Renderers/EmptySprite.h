@@ -17,7 +17,9 @@ public:
     {
         EDisplay,
         EUninvisible,
-        EUnselected
+        EUnselected,
+        ESelected,
+        EActivited
     };
 
 private:
@@ -97,6 +99,7 @@ public:
     void setTextColor(const Vector3&);
     void setTextSize(const Vector2&);
     Vector2 setNameTexture(const std::wstring& name, const int& font_size = 35);
+    void updateTextTexture(const std::vector<class Texture*>& texs);
 
     void setBindTexOffset(const Vector2& offset);
     void setBindTextOffset(const Vector2& offset);

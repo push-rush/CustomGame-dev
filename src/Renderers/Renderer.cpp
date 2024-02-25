@@ -133,16 +133,16 @@ bool Renderer::loadShaders()
     this->mView = Matrix4::CreateLookAt(
         Vector3::Zero,   // 相机位置
         Vector3::UnitX,  // 目标位置
-        Vector3::UnitZ  // 上 
+        Vector3::UnitZ   // 上 
     );
 
     // 设置投影矩阵
     this->mProjection = Matrix4::CreatePerspectiveFOV(
-        Math::ToRadians(70.0),  // 水平视场角
-        this->mScreenWidth, // 视野宽度
-        this->mScreenHeight, // 视野高度
+        Math::ToRadians(70.0f), // 水平视场角
+        this->mScreenWidth,     // 视野宽度
+        this->mScreenHeight,    // 视野高度
         10.0f,                  //近平面距离
-        10000.0            //远平面距离
+        10000.0                 //远平面距离
     );
     this->mMeshShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
 
@@ -155,9 +155,8 @@ bool Renderer::loadShaders()
     }
 
     this->mSkeletalShader->setActive();
-    this->mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
-    this->mProjection = Matrix4::CreatePerspectiveFOV(Math::ToRadians(70.0f), this->mScreenWidth, this->mScreenHeight, 10.0f, 10000.0f);
-
+    // this->mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
+    // this->mProjection = Matrix4::CreatePerspectiveFOV(Math::ToRadians(70.0f), this->mScreenWidth, this->mScreenHeight, 10.0f, 10000.0f);
     this->mSkeletalShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
 
     /********** 设置GBuffer全局光照着色器 **************/

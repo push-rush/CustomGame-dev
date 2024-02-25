@@ -12,7 +12,7 @@ BallActor::BallActor(class Game* game)
     this->mLifeSpan = 2.0f;
 
     MeshComponent* mc = new MeshComponent(this);
-    mc->setMesh(game->getRenderer()->getMesh("../../Assets/Meshes/Sphere.gpmesh"));
+    mc->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/Sphere.gpmesh"));
 
     this->mBallMoveComponent = new BallMove(this);
     this->mBallMoveComponent->setForwardSpeed(1500.0f);

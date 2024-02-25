@@ -93,22 +93,6 @@
                 }
             },
             {
-                "name": "Crosschair",
-                "type": "default",
-                "properties": {
-                    "bindTexName": "crosschair",
-                    "updateOrder": 80,
-                    "position": [
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0
-                    ]
-                }
-            },
-            {
                 "name": "Radar",
                 "type": "default",
                 "properties": {
@@ -117,22 +101,6 @@
                     "position": [
                         -560.0,
                         220.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0
-                    ]
-                }
-            },
-            {
-                "name": "Blip",
-                "type": "default",
-                "properties": {
-                    "bindTexName": "blipTex",
-                    "updateOrder": 100,
-                    "position": [
-                        0.0,
-                        0.0
                     ],
                     "scale": [
                         1.0,
@@ -153,6 +121,20 @@
                     "scale": [
                         1.0,
                         1.0
+                    ]
+                }
+            },
+            {
+                "name": "Crosschair",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "crosshairEnemy",
+                    "updateOrder": 100,
+                    "position": [
+                        0.0, 0.0
+                    ],
+                    "scale": [
+                        1.0, 1.0
                     ]
                 }
             }
@@ -562,6 +544,14 @@
             {
                 "name": "menuTitleBG2",
                 "texturePath": "../Assets/Images/MenuTitleBG2.png"
+            },
+            {
+                "name": "menuArrowFold",
+                "texturePath": "../Assets/Images/MenuArrowFold.png"
+            },
+            {
+                "name": "menuArrowUnfold",
+                "texturePath": "../Assets/Images/MenuArrowUnfold.png"
             }
         ],
         "elements": [

@@ -27,7 +27,7 @@ public:
     
     void update(float dt) override;
     void handleKeyPress(int key) override;
-    void bindEvent(const UIBindEvent& event) override;
+    void bindEvent(const UIBindEvent& event, class Button* b) override;
     void draw(
         class Shader* basicShader, 
         class Shader* spriteShader, 

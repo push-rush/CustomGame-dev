@@ -224,6 +224,7 @@ bool LevelLoader::loadUITrees(class Game* game, const std::string& fileName, UIS
             if (event_tree.IsArray())
             {
                 bool over = loadUITree(game, event_tree, ui, ((ResourceMenu*)ui)->getResourceEventTree());
+                ((ResourceMenu*)(ui))->updateResourceEventStack();
                 if (!over)
                 {
                     SDL_Log("[LevelLoader] load resource event tree failed...");
@@ -506,12 +507,14 @@ bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, 
                                                 name, type, 
                                                 texs_map, 
                                                 w_str, text_color, font_size,
-                                                event_id, [ui, event_id](){
-                                                    ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                                },
+                                                event_id, [](){},
                                                 pos, size, scale,
                                                 false
                                             );
+
+                                            b->setClickCallback([ui, event_id, b](){
+                                                ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
+                                            });
                                         }
                                         else
                                         {
@@ -527,12 +530,14 @@ bool LevelLoader::loadUITree(class Game* game, const rapidjson::Value& inArray, 
                                                 ui,
                                                 name, type, 
                                                 texs_map, 
-                                                event_id, [ui, event_id](){
-                                                    ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                                },
+                                                event_id, [](){},
                                                 pos, size, scale,
                                                 false
                                             );
+
+                                            b->setClickCallback([ui, event_id, b](){
+                                                ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
+                                            });
                                         }
 
                                         // 添加到ui树中
@@ -759,17 +764,19 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         //     }, true, scale
                                         // );
 
-                                        new Button(
+                                        Button* b = new Button(
                                             ui,
                                             name, type, 
                                             texs_map, 
                                             w_str, text_color, font_size,
-                                            event_id, [ui, event_id](){
-                                                ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                            },
+                                            event_id, [](){},
                                             pos, size, scale,
                                             true
                                         );
+
+                                        b->setClickCallback([ui, event_id, b](){
+                                            ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
+                                        });
                                     }
                                     else
                                     {
@@ -781,16 +788,18 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         //     }, true, scale
                                         // );
 
-                                        new Button(
+                                        Button* b = new Button(
                                             ui,
                                             name, type, 
                                             texs_map, 
-                                            event_id, [ui, event_id](){
-                                                ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                            },
+                                            event_id, [](){},
                                             pos, size, scale,
                                             true
                                         );
+
+                                        b->setClickCallback([ui, event_id, b](){
+                                            ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
+                                        });
                                     }
 
                                     // SDL_Log("[LevelLoader] wstring: %d string: %d", w_str.length(), text.length());

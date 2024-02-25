@@ -8587,20 +8587,20 @@
             ]
         },
         {
-            "type": "FollowActor",
+            "type": "FPSActor",
             "properties": {
                 "state": "active",
                 "scale": 1.0,
                 "position": [
-                    226.33963012695313,
-                    -437.8744201660156,
-                    -100.0
+                    -286.7995300292969,
+                    -203.51995849609376,
+                    0.0
                 ],
                 "rotation": [
                     0.0,
                     0.0,
-                    -0.24412252008914948,
-                    -0.9697456955909729
+                    0.0,
+                    1.0
                 ]
             },
             "components": [
@@ -8611,13 +8611,13 @@
                     }
                 },
                 {
-                    "type": "SkeletalMeshComponent",
+                    "type": "FPSCamera",
                     "properties": {
                         "updateOrder": 100
                     }
                 },
                 {
-                    "type": "FollowCamera",
+                    "type": "BoxComponent",
                     "properties": {
                         "updateOrder": 100
                     }

@@ -74,6 +74,9 @@ void FPSActor::actorInput(const uint8_t* keyboard_state)
     // TODO: 启用相对鼠标模式
     int x = 0, y = 0;
     Uint32 buttons = SDL_GetRelativeMouseState(&x, &y);
+    float angularSpeed = 0.0;
+    float pitchSpeed = 0.0;
+
     if (buttons & SDL_BUTTON(SDL_BUTTON_RIGHT))
     {
         // 设定鼠标左右的最大移动速度
@@ -81,28 +84,27 @@ void FPSActor::actorInput(const uint8_t* keyboard_state)
         // 设定最大偏航角速度
         const float maxAngularSpeed = Math::Pi * 24.0;
 
-        float angularSpeed = 0.0;
         if (x != 0)
         {
             // 将鼠标x轴相对坐标转化到[-1.0, 1.0]
             angularSpeed = (float)(x) / maxMouseSpeed;
             angularSpeed *= maxAngularSpeed;
         }
-        this->mMoveComponent->setAngularSpeed(angularSpeed);
 
         // 设定最大俯仰角速度
         const float maxPitchSpeed = Math::Pi * 20.0;
-        float pitchSpeed = 0.0;
         if (y != 0)
         {
             // 将鼠标y轴相对坐标转到[-1.0, 1.0]
             pitchSpeed = (float)(y) / maxMouseSpeed;
             pitchSpeed *= maxPitchSpeed;
         }
-        this->mMoveComponent->setPitchSpeed(pitchSpeed);
-        this->mCameraComponent->setPitchSpeed(pitchSpeed);
         // SDL_Log("angular: %f pitch_speed: %f", angularSpeed, pitchSpeed);
     }
+    
+    this->mMoveComponent->setAngularSpeed(angularSpeed);
+    this->mMoveComponent->setPitchSpeed(pitchSpeed);
+    this->mCameraComponent->setPitchSpeed(pitchSpeed);
 }
 
 void FPSActor::updateActor(float dt)

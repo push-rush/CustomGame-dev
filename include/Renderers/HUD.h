@@ -55,7 +55,7 @@ public:
     void update(float dt) override;
 
     // 事件绑定
-    void bindEvent(const UIBindEvent& event) override;
+    void bindEvent(const UIBindEvent& event, class Button* b) override;
 
     void processInput(const uint8_t* keys) override;
 

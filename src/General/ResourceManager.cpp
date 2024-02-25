@@ -67,19 +67,19 @@ void ResourceManager::update()
 
             switch (rep->mState)
             {
-            case ResourceManager::EDeleted:
-            {
-                this->mResourceTree.deleteTreeNode(n->mNodeName);
-                break;
-            }
-            case ResourceManager::ERename:
-            {
-                
+                case ResourceManager::EDeleted:
+                {
+                    this->mResourceTree.deleteTreeNode(n->mNodeName);
+                    break;
+                }
+                case ResourceManager::ERename:
+                {
+                    
 
-                break;
-            }
-            default:
-                break;
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
@@ -96,7 +96,7 @@ void ResourceManager::addResourceProperty(ResourceProperty* rep)
         this->mDefaultSeq++;
     }
 
-    if (this->mResourceTree.getTreeSize() < 10)
+    if (this->mResourceTree.getTreeSize() < 1000)
     {
         // 创建节点
         TreeNode* node = new TreeNode{
@@ -142,12 +142,17 @@ std::string ResourceManager::allocDefaultName(const ResourceType& type)
     return name;
 }
 
-TreeStruct& ResourceManager::getResourceTree()
+TreeStruct* ResourceManager::getResourceTree()
 {
-    return this->mResourceTree;
+    return &this->mResourceTree;
 }
 
 void ResourceManager::addObjectResource(std::string name)
 {
     this->mSelectedResources.emplace_back(name);
+}
+
+void ResourceManager::setCurSelectMenu(const std::string& menu)
+{
+    this->mCurSelectMenu = menu;
 }

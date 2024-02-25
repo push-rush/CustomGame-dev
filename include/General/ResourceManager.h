@@ -23,13 +23,22 @@ public:
 
     enum ResourceState 
     {
-        EHidden,
-        EDisplay,
-        EUnSelected,
         EDeleted,
-        EChosen,
+        ERename,
+        EUnSelected,
+        EHidden,
+        EActivited,
+        EDisplay,
         EUnactivited,
-        ERename
+        EChosen,
+        EFold,
+        EUnfold,
+        EComp_HideFold = EHidden + EFold,
+        EComp_HideUnfold = EHidden + EUnfold,
+        EComp_DisplayFold = EDisplay + EFold,
+        EComp_DisplayUnfold = EDisplay + EUnfold,
+        EComp_ChooseFold = EChosen + EFold,
+        EComp_ChooseUnfold = EChosen + EUnfold,
     };
 
     struct ResourceProperty
@@ -48,8 +57,10 @@ public:
 
     void addObjectResource(std::string name);
 
+    void setCurSelectMenu(const std::string& menu);
+
     // getters
-    TreeStruct& getResourceTree();
+    TreeStruct* getResourceTree();
 
 private:
     class Game* mGame;

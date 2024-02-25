@@ -16,6 +16,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H 
 
+#define DefaultTextureName "Texture"
+
 class Texture
 {
 private:
@@ -28,7 +30,8 @@ private:
     uint32_t mTextureID; // 纹理ID
 
 public:
-    Texture(/* args */);
+    Texture();
+    Texture(const std::string& tex_name);
     ~Texture();
 
     // 加载纹理

@@ -93,22 +93,6 @@
                 }
             },
             {
-                "name": "Crosschair",
-                "type": "default",
-                "properties": {
-                    "bindTexName": "crosschair",
-                    "updateOrder": 80,
-                    "position": [
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        0.0,
-                        0.0
-                    ]
-                }
-            },
-            {
                 "name": "Radar",
                 "type": "default",
                 "properties": {
@@ -125,22 +109,6 @@
                 }
             },
             {
-                "name": "Blip",
-                "type": "default",
-                "properties": {
-                    "bindTexName": "blipTex",
-                    "updateOrder": 100,
-                    "position": [
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        0.0,
-                        0.0
-                    ]
-                }
-            },
-            {
                 "name": "RadarArrow",
                 "type": "default",
                 "properties": {
@@ -149,6 +117,22 @@
                     "position": [
                         -560.0,
                         220.0
+                    ],
+                    "scale": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            },
+            {
+                "name": "Crosschair",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "crosshairEnemy",
+                    "updateOrder": 100,
+                    "position": [
+                        0.0,
+                        0.0
                     ],
                     "scale": [
                         0.0,

@@ -88,7 +88,7 @@ void UIScreen::draw(
     {
         Button* b = (Button*)(elem);
         
-        if (b->getHighlighted())
+        if (b->getHighlighted() || b->getSpriteState() == EmptySprite::ESelected)
         {
             Renderers::Graphics2d::drawRectangle(
                 basicShader, 
@@ -106,9 +106,8 @@ void UIScreen::draw(
                     Vector2{b->getPosition().x - b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y - b->getDimension().y * 0.5f + pos_offset.y}
                 },
                 b->getBindBoxColor(),
-                3
+                2
             );
-
         }
     }
 
@@ -1038,22 +1037,23 @@ std::unordered_map<std::string, class Texture*>& UIScreen::getUITextures()
     return this->mUITextures;
 }
 
-void UIScreen::bindEvent(const UIBindEvent& event)
+void UIScreen::bindEvent(const UIBindEvent& event, Button* b)
 {
+    SDL_Log("[UIScreen] bind event id: %d", (int)event);
     switch (event)
     {
-    case UICancel:
-    {
-        this->close();
-        break;
-    }
-    case UIConfirm:
-    {
-        this->close();
-        break;
-    }
-    default:
-        break;
+        case UICancel:
+        {
+            this->close();
+            break;
+        }
+        case UIConfirm:
+        {
+            this->close();
+            break;
+        }
+        default:
+            break;
     }
 }
 

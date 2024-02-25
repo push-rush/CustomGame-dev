@@ -177,6 +177,52 @@ Vector2 EmptySprite::setNameTexture(const std::wstring& name, const int& font_si
     return this->getUIScreen()->getGame()->getFreeTypeFont()->renderText(this->mNameTextures, name.c_str(), mTextColor, font_size);
 }
 
+void EmptySprite::updateTextTexture(const std::vector<class Texture*>& texs)
+{
+    int i = 0;
+    bool flag = false;
+    for (i; i < texs.size(); i++)
+    {
+        if (i < this->mNameTextures.size())
+        {
+            if (!strcmp(texs[i]->getTexName().c_str(), this->mNameTextures[i]->getTexName().c_str()))
+            {
+                continue;
+            }
+            else
+            {
+                auto temp = this->mNameTextures[i];
+                this->mNameTextures[i] = texs[i];
+
+                if (temp)
+                {
+                    delete temp;
+                    temp = nullptr;
+                }
+            }
+        }
+        else
+        {
+            flag = true;
+            this->mNameTextures.emplace_back(texs[i]);
+        }
+    }
+
+    if (!flag)
+    {
+        for (i; i < this->mNameTextures.size(); i++)
+        {
+            auto temp = this->mNameTextures[i];
+            if (temp)
+            {
+                delete temp;
+                temp = nullptr;
+            }
+        }
+        this->mNameTextures.resize(texs.size());
+    }
+}
+
 bool EmptySprite::containText()
 {
     return mContainText;

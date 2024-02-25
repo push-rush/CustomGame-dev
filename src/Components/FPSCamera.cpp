@@ -21,7 +21,7 @@ void FPSCamera::update(float dt)
 {
     // 更新父类组件
     CameraComponent::update(dt);
-    Vector3 cameraPos = this->getActor()->getPosition();
+    Vector3 cameraPos = this->getActor()->getPosition() + Vector3{0.0f, -250.0f, 100.0f};
 
     // 更新相机位置
     // 更新相机俯仰角度
@@ -36,6 +36,7 @@ void FPSCamera::update(float dt)
 
     // 计算得到视角前向位置前100单元的位置
     Vector3 target = cameraPos + viewForward * 100.0f;
+
     // 得到相机视角下的向上向量
     Vector3 up = Vector3::Transform(Vector3::UnitZ, quat);
     

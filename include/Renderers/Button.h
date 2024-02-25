@@ -70,6 +70,16 @@ public:
         const bool& addIn = true
     );
 
+    Button(class UIScreen* ui,
+        const std::string& name, const std::string& type,
+        const Vector2& pos, const Vector2& dims, const Vector2& scale, 
+        const Vector3& bgColor, const Vector3& boxColor,
+        const std::map<std::string, std::string>& bindTexName, const Vector2& bindTexOffset,
+        const int& bind_event,
+        std::function<void()> onClick,
+        const bool& addIn
+    );
+
     ~Button();
 
     // setters
@@ -97,6 +107,8 @@ public:
 
     // 判断点击点在按钮范围内
     bool containsPoint(const Vector2& ps) const;
+
+    void setClickCallback(const std::function<void()>& callback);
 
     // 按钮被点击时回调函数
     void onClick();

@@ -103,9 +103,9 @@ void PauseMenu::init()
     }
 }
 
-void PauseMenu::bindEvent(const UIBindEvent& event)
+void PauseMenu::bindEvent(const UIBindEvent& event, class Button* b)
 {
-    UIScreen::bindEvent(event);
+    UIScreen::bindEvent(event, b);
 
     switch (event)
     {

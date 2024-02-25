@@ -2,12 +2,28 @@
 
 #include <SDL.h>
 
-Texture::Texture(/* args */)
+static int TextureNum = 0;
+
+Texture::Texture()
 {
     this->mTextureID = 0;
     this->mHeight = 0;
     this->mWidth = 0;
     this->mScale = Vector2{1.0f, 1.0f};
+
+    this->mName = DefaultTextureName + std::to_string(TextureNum);
+    TextureNum++;
+}
+
+Texture::Texture(const std::string& tex_name)
+{
+    this->mTextureID = 0;
+    this->mHeight = 0;
+    this->mWidth = 0;
+    this->mScale = Vector2{1.0f, 1.0f};
+
+    // TODO:考虑重名
+    this->mName = tex_name;
 }
 
 Texture::~Texture()

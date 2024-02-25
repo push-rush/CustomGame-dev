@@ -20,7 +20,7 @@ public:
         class EmptySprite* elem
     ) override;
 
-    void bindEvent(const UIBindEvent& event) override;
+    void bindEvent(const UIBindEvent& event, class Button* b) override;
 
 private:
     bool mUpdated = false;

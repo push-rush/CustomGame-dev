@@ -289,6 +289,19 @@ void Game::processInput()
                     // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
                 }
 
+                if (this->mGameState == EGamePlay)
+                {
+                    mUpdatingActors = true;
+                    for (auto actor : mActors)
+                    {
+                        if (actor != nullptr)
+                        {
+                            actor->handleMouseWheel(mouse.y);
+                        }
+                    }
+                    mUpdatingActors = false;
+                }
+
                 // SDL_Log("[Game] Mouse wheel is scrolling: x: %d y: %d dir: %d preciseX: %.2f preciseY: %.2f", 
                 //     mouse.x, mouse.y, mouse.direction, mouse.preciseX, mouse.preciseY
                 // );
@@ -299,7 +312,6 @@ void Game::processInput()
             }
             default:
             {
-
                 break;
             }
         }

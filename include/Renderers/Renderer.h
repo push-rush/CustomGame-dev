@@ -54,6 +54,9 @@ private:
 
     // 基础颜色着色器
     class Shader* mBasicShader;
+
+    // 基础网格着色器
+    class Shader* mBasicMeshShader;
     
     // 网格类型
     class Shader*  mMeshShader;
@@ -119,6 +122,7 @@ public:
     class SDL_Window* getRenderWindow() const;
     class VertexArray* getSpriteVerts() const;
     class Shader* getBasicShader() const;
+    class Shader* getBasicMeshShader() const;
 
     // class Texture* getUITexture() const;
     // unsigned int getUIBuffer() const;

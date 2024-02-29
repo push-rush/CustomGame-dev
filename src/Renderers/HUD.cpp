@@ -12,10 +12,14 @@
 #include "../../include/Renderers/Console.h"
 
 #include "../../include/Actors/Actor.h"
+#include "../../include/Actors/FPSActor.h"
+
 #include "../../include/Renderers/Collision.h"
 #include "../../include/Renderers/PhysWorld.h"
+#include "../../include/Renderers/Graphics3d.h"
 
 #include "../../include/Components/TargetComponent.h"
+#include "../../include/Components/FPSCamera.h"
 
 #include "../../include/General/ResourceManager.h"
 
@@ -43,6 +47,9 @@ HUD::HUD(class Game* game)
     // this->mCrosshairEnemy = r->getTexture("../Assets/Images/CrosshairRed.png");
     // this->mBlipTex = r->getTexture("../Assets/Images/Blip.png");
     // this->mRadarArrow = r->getTexture("../Assets/Images/RadarArrow.png");
+
+    this->mStartPoint = Vector3{0.0f, 0.0f, 0.0f};
+    this->mEndPoint = Vector3{0.0f, 0.0f, 0.0f};
 }
 
 HUD::~HUD()
@@ -149,6 +156,20 @@ void HUD::draw(class Shader* basicShader, class Shader* spriteShader, class Shad
         {
             UIScreen::draw(basicShader, spriteShader, fontShader, reinterpret_cast<EmptySprite*>(node->mNodeValuePointer));
         }
+    }
+
+    Shader* mesh_shader = this->getGame()->getRenderer()->getBasicMeshShader();
+
+    auto vec = this->mStartPoint - this->mEndPoint;
+    if (!Math::NearZero(vec.LengthSq()))
+    {
+        auto center = this->mStartPoint + this->mEndPoint;
+        center.x *= 0.5f;
+        center.y *= 0.5f;
+        center.z *= 0.5f;
+        Renderers::Graphics3d::drawCylinder(mesh_shader, center, 10.0f, 36.0f, Vector3{0.15f, 0.15f, 0.55f}, 32);
+
+        // SDL_Log("[HUD] Unprojection...");
     }
 }
 
@@ -564,54 +585,75 @@ void HUD::nodeAddToStack(TreeNode* node)
 
 void HUD::processInput(const uint8_t* keys)
 {
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
+    mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
+    mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
+
     if (!this->getUIElements().empty())
     {
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-        Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
-        mousePos.x -= (this->getGame()->getRenderer()->getScreenWidth() * 0.5f);
-        mousePos.y = this->getGame()->getRenderer()->getScreenHeight() * 0.5f - mousePos.y;
-
         for (auto elem : this->getUIElements())
         {
             if (!strcmp(elem->getType().c_str(), "button"))
             {
                 Button* b = reinterpret_cast<Button*>(elem);
                 if (b->containsPoint(mousePos))
-                {
                     b->setHighlighted(true);
-                    // SDL_Log("[UIScreen] button: %s is highlighted...", b->getSpriteName().c_str());
-                }
                 else
-                {
                     b->setHighlighted(false);
-                }
 
                 // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
                     // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
             }
         }
+    }
 
-        if (!this->mNodeStack.empty())
+    if (!this->mNodeStack.empty())
+    {
+        for (auto n : this->mNodeStack)
         {
-            for (auto n : this->mNodeStack)
+            if (!strcmp((reinterpret_cast<EmptySprite*>(n->mNodeValuePointer))->getType().c_str(), "button"))
             {
-                if (!strcmp((reinterpret_cast<EmptySprite*>(n->mNodeValuePointer))->getType().c_str(), "button"))
-                {
-                    Button* b = reinterpret_cast<Button*>(n->mNodeValuePointer);
-                    if (b->containsPoint(mousePos))
-                    {
-                        b->setHighlighted(true);
-                        // SDL_Log("[UIScreen] button: %s is highlighted...", b->getSpriteName().c_str());
-                    }
-                    else
-                    {
-                        b->setHighlighted(false);
-                    }
-                    // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
-                        // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
-                }
+                Button* b = reinterpret_cast<Button*>(n->mNodeValuePointer);
+                if (b->containsPoint(mousePos))
+                    b->setHighlighted(true);
+                else
+                    b->setHighlighted(false);
+                // SDL_Log("[UIScreen] button STATE: %d MOUSE pos: (%d, %d) button pos: (%.2f, %.2f)", 
+                    // (int)b->getHighlighted(), x, y, b->getPosition().x, b->getPosition().y);
             }
         }
     }
+
+    // 获取当前选中目标的位置信息
+    // auto player = (FPSActor*)(this->getGame()->getPlayer());
+    // auto pos = player->getPosition();
+    // auto pos_offset = player->getFPSCamera()->getPosOffset();
+    // pos += pos_offset;
+
+    // 由鼠标点击位置计算反投影三维点
+    // Vector3 stPoint = Vector3(mousePos.x, mousePos.y, -0.9f);
+    // Vector3 start = this->getGame()->getRenderer()->unProject(stPoint);
+    // stPoint.z = 0.9f;
+    // Vector3 end = this->getGame()->getRenderer()->unProject(stPoint);
+    // Vector3 dir = end - start;
+    // dir.Normalize();
+
+    // SDL_Log("[HUD] Unproj st pos: (%.2f, %.2f, %.2f) \
+    //     end pos: (%.2f, %.2f, %.2f) \
+    //     act pos: (%.2f, %.2f, %.2f)", 
+    //     start.x, start.y, start.z,
+    //     end.x, end.y, end.z,
+    //     pos.x, pos.y, pos.z
+    // );
+
+    this->mStartPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 0.0f});
+    this->mEndPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 0.9f});
+}
+
+Vector3 HUD::getClickPoint()
+{
+    auto vec = this->mEndPoint + this->mStartPoint; 
+    return Vector3{vec.x * 0.5f, vec.y * 0.5f, vec.z * 0.5f};
 }

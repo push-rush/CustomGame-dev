@@ -185,7 +185,8 @@ void ResourceMenu::update(float dt)
     int x = 0, y = 0;
     Uint32 mouse = SDL_GetMouseState(&x, &y);
     Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));
-    Vector2 relative_pos = Vector2{mousePos.x - (this->getGame()->getRenderer()->getScreenWidth() * 0.5f),
+    Vector2 relative_pos = Vector2{
+        mousePos.x - (this->getGame()->getRenderer()->getScreenWidth() * 0.5f),
         -mousePos.y + (this->getGame()->getRenderer()->getScreenHeight() * 0.5f)
     };
 

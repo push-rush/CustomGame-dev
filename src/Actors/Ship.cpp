@@ -74,6 +74,11 @@ void Ship::actorInput(const uint8_t* keyboard_state)
     // TODO:处理键盘控制的移动输入按键
 }
 
+void Ship::actorHandleMouse(const int& mouse_wheel)
+{
+
+}
+
 class SpriteComponent* Ship::getSpriteComponent() const
 {
     return mSpriteComponent;    

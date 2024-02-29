@@ -31,9 +31,11 @@ FPSActor::FPSActor(class Game* game)
     this->mMeshComponent->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/Rifle.gpmesh"));
 
     this->mBoxComponent = new BoxComponent(this);
-    AABB myBox(Vector3(-25.0f, -25.0f, -87.5f),
+    AABB myBox(
+        Vector3(-25.0f, -25.0f, -87.5f),
         Vector3(25.0f, 25.0f, 87.5f)  
     );
+    
     this->mBoxComponent->setObjectBox(myBox);
     this->mBoxComponent->setShouldRotate(false);
 }
@@ -105,6 +107,11 @@ void FPSActor::actorInput(const uint8_t* keyboard_state)
     this->mMoveComponent->setAngularSpeed(angularSpeed);
     this->mMoveComponent->setPitchSpeed(pitchSpeed);
     this->mCameraComponent->setPitchSpeed(pitchSpeed);
+}
+
+void FPSActor::actorHandleMouse(const int& mouse_wheel)
+{
+
 }
 
 void FPSActor::updateActor(float dt)
@@ -214,6 +221,11 @@ void FPSActor::shoot()
 Actor::EActorType FPSActor::getType() const
 {
     return EFPSActor;
+}
+
+FPSCamera* FPSActor::getFPSCamera() const
+{
+    return this->mCameraComponent;
 }
 
 void FPSActor::loadProperties(const rapidjson::Value& inObj)

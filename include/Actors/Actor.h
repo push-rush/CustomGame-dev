@@ -79,7 +79,9 @@ public:
 
     // 外部输入处理
     void processInput(const uint8_t* keyboard_state);
+    void handleMouseWheel(const int& mouse_wheel);
     virtual void actorInput(const uint8_t* keyboard_state);
+    virtual void actorHandleMouse(const int& mouse_wheel);
     
     // 计算世界变换矩阵
     void computeWorldTransform();

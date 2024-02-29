@@ -11,19 +11,25 @@ private:
     float mMaxPitch;
     float mPitch;
 
+    Vector3 mPosOffset;
+
 public:
     FPSCamera(class Actor* owner);
     ~FPSCamera();
 
     void update(float dt) override;
+    void processInput(const uint8_t* keyboard_state) override;
+    void handleMouseWheel(const int& mouse_wheel) override;
 
     void setPitchSpeed(float pitchSpeed);    
     void setPitch(float pitch);
     void setMaxPitch(float maxPitch);
+    void setPosOffset(const Vector3& offset);
 
     float getPitchSpeed() const;
     float getMaxPitch() const;
     float getPitch() const;
+    Vector3 getPosOffset() const;
 
     EComponentType getType() const override;
 

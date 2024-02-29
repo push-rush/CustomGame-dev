@@ -50,6 +50,7 @@ public:
     virtual void update(float dt);
     virtual void onUpdateWorldTransform();
     virtual void processInput(const uint8_t* keyboard_state);
+    virtual void handleMouseWheel(const int& mouse_wheel);
 
     int getUpdateOrder() const;
     class Actor* getActor() const; 

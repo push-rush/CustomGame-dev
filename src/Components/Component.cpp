@@ -58,6 +58,11 @@ void Component::processInput(const uint8_t* keyboard_state)
     
 }
 
+void Component::handleMouseWheel(const int& mouse_wheel)
+{
+
+}
+
 Actor* Component::getActor() const
 {
     auto temp = this->mOwner;

@@ -10,11 +10,14 @@
 #include "../../include/Renderers/Mesh.h"
 #include "../../include/Renderers/Button.h"
 #include "../../include/Renderers/HUD.h"
+#include "../../include/Renderers/Graphics3d.h"
 
 // #include "../../include/Collision.h"
 // #include "../../include/MeshComponent.h"
 #include "../../include/Components/SkeletalMeshComponent.h"
 #include "../../include/Components/PointLightComponent.h"
+
+#include "../../include/Actors/FPSActor.h"
 
 #include "../../include/Game.h"
 
@@ -146,6 +149,16 @@ bool Renderer::loadShaders()
     );
     this->mMeshShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
 
+    /**************** 基础网格着色器 ******************/
+    this->mBasicMeshShader = new Shader();
+    if (!this->mBasicMeshShader->Load("../Shaders/BasicMesh.vert", "../Shaders/BasicMesh.frag"))
+    {
+		SDL_Log("[Renderer] Load mesh shader failed...");
+        return false;
+    }
+    this->mBasicMeshShader->setActive();
+    this->mBasicMeshShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
+
     /********** 设置蒙皮着色器 ***********/
     this->mSkeletalShader = new Shader();
     if (!this->mSkeletalShader->Load("../Shaders/Skinned.vert", "../Shaders/GBufferWrite.frag"))
@@ -259,7 +272,21 @@ void Renderer::draw()
     this->draw3DScene(this->mMirrorBuffer, this->mMirrorView, this->mProjection, 0.20f);
     this->draw3DScene(this->mGBuffer->getBufferID(), this->mView, this->mProjection, 1.0f, false);
 
+    this->mBasicMeshShader->setActive();
+    this->mBasicMeshShader->setMatrixUniform("uViewProj", this->mView * mProjection);
+    
+    // 设置世界变换矩阵
+    // this->mMeshShader->setMatrixUniform("uWorldTransform", this->getGame()->getPlayer()->getWorldTransform());
+    
+    // 设置镜面反射率
+    // this->mMeshShader->setFloatUniform("uSpecPower", 0.2f);
+
     auto hud = this->getGame()->getHUD();
+
+    // auto click_center3d = hud->getClickPoint();
+    // Renderers::Graphics3d::drawCylinder(this->mMeshShader, click_center3d, 25.0f, 100.0f, Vector3{0.75f, 0.5f, 0.25f}, 4);
+    // Renderers::Graphics3d::drawCube(this->mBasicMeshShader, click_center3d, 60.0f, 50.0f, 50.0f, Vector3{0.85f, 0.55f, 0.85f}, true);
+
     glBindFramebuffer(GL_FRAMEBUFFER, hud->getBindFrameBuffer());
     glClearColor(hud->getUIBGColor().x, hud->getUIBGColor().y, hud->getUIBGColor().z, 1.0f);
     glDepthMask(GL_TRUE);
@@ -1016,4 +1043,9 @@ bool Renderer::createUIFrameBuffer(unsigned int& buffer, class Texture*& tex, bo
 class Shader* Renderer::getBasicShader() const
 {
     return this->mBasicShader;
+}
+
+Shader* Renderer::getBasicMeshShader() const
+{
+    return this->mBasicMeshShader;
 }

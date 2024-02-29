@@ -71,6 +71,13 @@ void CameraActor::actorInput(const uint8_t* keyboard_states)
     this->mMoveComponent->setAngularSpeed(angularSpeed);
 }
 
+void CameraActor::actorHandleMouse(const int& mouse_wheel)
+{
+
+
+
+}
+
 void CameraActor::setFootstepSurface(float value)
 {
 	this->mFootstep.setPaused(true);

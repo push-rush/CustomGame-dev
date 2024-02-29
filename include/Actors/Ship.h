@@ -16,6 +16,7 @@ public:
 
     void updateActor(float dt) override;
     void actorInput(const uint8_t* keyboard_state) override;
+    void actorHandleMouse(const int& mouse_wheel) override;
 
     class SpriteComponent* getSpriteComponent() const;
     float getLaserCooldown() const;

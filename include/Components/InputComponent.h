@@ -20,6 +20,8 @@ public:
     ~InputComponent();
 
     void processInput(const uint8_t* keyboard_state) override;
+    void handleMouseWheel(const int& mouse_wheel) override;
+
     void setForwardKey(uint8_t key);
     void setBackKey(uint8_t key);
     void setClockwiseKey(uint8_t key);

@@ -20,6 +20,8 @@ public:
     ~OrbitActor();
 
     void actorInput(const uint8_t* keyboard_state) override;
+    void actorHandleMouse(const int& mouse_wheel) override;
+
     Actor::EActorType getType() const override;
     
     void loadProperties(const rapidjson::Value& inObj) override;

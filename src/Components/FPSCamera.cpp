@@ -10,6 +10,8 @@ FPSCamera::FPSCamera(class Actor* owner)
     this->mMaxPitch = Math::Pi * 0.33f;
     this->mPitch = 0.0f;
     this->mPitchSpeed = 0.0f;
+
+    this->mPosOffset = Vector3{0.0f, 0.0f, 0.0f};
 }
 
 FPSCamera::~FPSCamera()
@@ -21,13 +23,15 @@ void FPSCamera::update(float dt)
 {
     // 更新父类组件
     CameraComponent::update(dt);
-    Vector3 cameraPos = this->getActor()->getPosition() + Vector3{0.0f, -250.0f, 100.0f};
+    Vector3 cameraPos = this->getActor()->getPosition() + this->mPosOffset;
 
     // 更新相机位置
     // 更新相机俯仰角度
     this->mPitch += this->mPitchSpeed * dt;
+    
     // 限制俯仰角度
     this->mPitch = Math::Clamp(this->mPitch, -this->mMaxPitch, this->mMaxPitch);
+
     // 得到相机相对于角色的俯仰
     Quaternion quat = Quaternion(this->getActor()->getRight(), this->mPitch);
 
@@ -46,6 +50,24 @@ void FPSCamera::update(float dt)
 
     // SDL_Log("Update pitch: %f", mPitch);
     // SDL_Log("forward: [%f %f %f]", this->getActor()->getForward().x, this->getActor()->getForward().y, this->getActor()->getForward().z);
+}
+
+void FPSCamera::processInput(const uint8_t* keyboard_state)
+{
+    
+
+
+}
+
+void FPSCamera::handleMouseWheel(const int& mouse_wheel)
+{
+    // 得到相机相对于角色的俯仰
+    Quaternion quat = Quaternion(this->getActor()->getRight(), this->mPitch);
+
+    // 旋转角色的前向向量
+    Vector3 viewForward = Vector3::Transform(this->getActor()->getForward(), quat);
+
+    this->mPosOffset += viewForward * mouse_wheel * 35.0f;
 }
 
 void FPSCamera::setPitchSpeed(float pitchSpeed)
@@ -76,6 +98,16 @@ float FPSCamera::getMaxPitch() const
 float FPSCamera::getPitch() const
 {   
     return this->mPitch;
+}
+
+Vector3 FPSCamera::getPosOffset() const
+{
+    return this->mPosOffset;
+}
+
+void FPSCamera::setPosOffset(const Vector3& offset)
+{
+    this->mPosOffset = offset;
 }
 
 Component::EComponentType FPSCamera::getType() const

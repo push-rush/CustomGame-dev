@@ -91,6 +91,11 @@ void FollowActor::actorInput(const uint8_t* keyboard_state)
     this->mMoveComponent->setAngularSpeed(angularSpeed);
 }
 
+void FollowActor::actorHandleMouse(const int& mouse_wheel)
+{
+
+}
+
 void FollowActor::setFootstepSurface(float value)
 {
     this->mFootstep.setPaused(true);

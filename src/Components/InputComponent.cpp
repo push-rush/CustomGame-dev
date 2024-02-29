@@ -50,6 +50,11 @@ void InputComponent::processInput(const uint8_t* keyboard_state)
     this->getActor()->recomputeWorldTransform(true);
 }
 
+void InputComponent::handleMouseWheel(const int& mouse_wheel)
+{
+
+}
+
 void InputComponent::setForwardKey(uint8_t key)
 {
     this->mForwardKey = key;

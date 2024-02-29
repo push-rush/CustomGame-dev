@@ -17,7 +17,10 @@ public:
 
     void updateActor(float dt) override;
     void setFootstepSurface(float);
+    
     void actorInput(const uint8_t* keyboard_states) override;
+    void actorHandleMouse(const int& mouse_wheel) override;
+    
     Actor::EActorType getType() const override;
 
     void loadProperties(const rapidjson::Value& inObj) override;

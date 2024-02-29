@@ -26,6 +26,10 @@ private:
     TreeStruct mMenuTree;
     std::vector<TreeNode*> mNodeStack;
 
+    // 点击点反投影
+    Vector3 mStartPoint;
+    Vector3 mEndPoint;
+
 public:
     HUD(class Game* game);
     ~HUD();
@@ -64,5 +68,8 @@ public:
     // getters
     TreeStruct* getUIMenuTree();
     void nodeAddToStack(TreeNode* node);
+    Vector3 getClickPoint();
+
+
     // setters
 };

@@ -88,6 +88,11 @@ void OrbitActor::actorInput(const uint8_t* keyboard_state)
     }
 }
 
+void OrbitActor::actorHandleMouse(const int& mouse_wheel)
+{
+
+}
+
 Actor::EActorType OrbitActor::getType() const
 {
     return EOrbitActor;

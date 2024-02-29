@@ -107,6 +107,7 @@ void Actor::updateComponents(float dt)
     //     }
     // }
 }
+
     
 void Actor::updateActor(float dt)
 {
@@ -214,7 +215,7 @@ void Actor::processInput(const uint8_t* keyboard_state)
 {
     if (mState == EActive)
     {
-        for (auto comp : mComponents)
+        for (auto comp : this->mComponents)
         {
             comp->processInput(keyboard_state);
         }
@@ -222,8 +223,26 @@ void Actor::processInput(const uint8_t* keyboard_state)
     }
 }
 
+void Actor::handleMouseWheel(const int& mouse_wheel)
+{
+    if (mState == EActive)
+    {
+        for (auto comp : this->mComponents)
+        {
+            comp->handleMouseWheel(mouse_wheel);
+        }
+        actorHandleMouse(mouse_wheel);
+    }
+}
+
 void Actor::actorInput(const uint8_t* keyboard_state)
 {
+
+}
+
+void Actor::actorHandleMouse(const int& mouse_wheel)
+{
+
 
 }
 

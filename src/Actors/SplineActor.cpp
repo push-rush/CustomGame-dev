@@ -35,6 +35,11 @@ void SplineActor::actorInput(const uint8_t* keyboardStates)
 
 }
 
+void SplineActor::actorHandleMouse(const int& mouse_wheel)
+{
+
+}
+
 Actor::EActorType SplineActor::getType() const
 {
     return ESplineActor;

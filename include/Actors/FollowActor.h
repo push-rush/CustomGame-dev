@@ -28,6 +28,7 @@ public:
     ~FollowActor();
 
     void actorInput(const uint8_t* keyboard_state) override;
+    void actorHandleMouse(const int& mouse_wheel) override;
     
     void updateActor(float dt) override;
     void setFootstepSurface(float);

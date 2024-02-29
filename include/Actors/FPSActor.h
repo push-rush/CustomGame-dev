@@ -26,6 +26,8 @@ public:
     ~FPSActor();
 
     void actorInput(const uint8_t* keyboard_state) override;
+    void actorHandleMouse(const int& mouse_wheel) override;
+    
     void updateActor(float dt) override;
     void setFootstepSurface(float);
 
@@ -35,8 +37,12 @@ public:
     // 发射弹球
     void shoot();
 
+    // getters
     Actor::EActorType getType() const override;
-    
+    class FPSCamera* getFPSCamera() const;
+
+    // setters
+
     void loadProperties(const rapidjson::Value& inObj) override;
     void saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& props) override;
 };

@@ -20,6 +20,8 @@ public:
 
     void loadProperties(const rapidjson::Value& inObj) override;
     void saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& props) override;
+
+    void onUpdateWorldTransform() override;
 };
 
 bool intersect(CircleComponent* cc1, CircleComponent* cc2);

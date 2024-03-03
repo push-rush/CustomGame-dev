@@ -11,6 +11,18 @@
 #include "./General/Cmath.h"
 
 /**
+ * 射线
+*/
+struct Ray
+{
+    Vector3 origin;
+    Vector3 direction;
+
+    Ray(const Vector3& _origin, const Vector3& _direction) : origin(_origin), direction(_direction) {}
+};
+
+
+/**
  * 线段
 */
 struct LineSegment
@@ -358,3 +370,8 @@ bool intersect(const LineSegment& l, AABB& b, float& outT, Vector3& outNorm);
 */
 bool sweptSphere(const Sphere& P0, const Sphere& P1,
     const Sphere& Q0, const Sphere& Q1, float& t);
+
+/**
+ * 射线与AABB包围框相交测试
+*/
+bool intersect(const Ray& ray, const AABB& b, Vector3& inter_point);

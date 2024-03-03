@@ -16,4 +16,6 @@ public:
     Actor::EActorType getType() const override;
     void loadProperties(const rapidjson::Value& inObj) override;
     void saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& props) override;
+
+    void updateActor(float dt) override;
 };

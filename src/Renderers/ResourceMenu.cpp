@@ -321,8 +321,8 @@ void ResourceMenu::update(float dt)
 
                     Vector2 pos = Vector2{0.0f, 0.0f};
                     TextButton* link_tb = nullptr;
-                    float text_offset = -this->getUIBufferViewSize().x * 0.5f + 80;
-                    float tex_offset = -this->getUIBufferViewSize().x * 0.5f + 30;
+                    float tex_offset = -this->getUIBufferViewSize().x * 0.5f + 25;
+                    float text_offset = -this->getUIBufferViewSize().x * 0.5f + 90;
                     if (!strcmp(node->mNodeName.c_str(), "root"))
                     {
                         auto r = this->mResourceMenuTree.findTreeNode("root");
@@ -372,6 +372,7 @@ void ResourceMenu::update(float dt)
                     // std::cout << "root_name:" << (*root_name.begin()).second << std::endl;
 
                     std::map<std::string, std::string> name_map = allocTex(rp->mType);
+
                     std::string text = rp->mName;
                     wchar_t pwchar[text.length()] = {'\0'};
                     for (int i = 0; i < (int)text.length(); ++i)
@@ -380,7 +381,6 @@ void ResourceMenu::update(float dt)
                     }
                     std::wstring w_str(pwchar, pwchar + (int)text.length());
                     
-
                     std::string node_name = node->mNodeName;
                     TextButton* b = new TextButton(
                         this,
@@ -1234,8 +1234,8 @@ std::map<std::string, std::string> ResourceMenu::allocTex(const ResourceManager:
         }
         case ResourceManager::ELight:
         {
-            tex_map.emplace("off", "lightIcon");
-            tex_map.emplace("on", "lightIcon");
+            tex_map.emplace("off", "lightIconOff");
+            tex_map.emplace("on", "lightIconOn");
             break;
         }
         case ResourceManager::ESkeleton:
@@ -1283,12 +1283,14 @@ void ResourceMenu::bindEvent(const UIBindEvent& event_id, Button* b)
         {
             SDL_Log("[ResourceMenu] New Collection...");
 
+            auto resource_manager = this->getGame()->getResourceManager();
             ResourceManager::ResourceProperty* rep = new ResourceManager::ResourceProperty{
-                "default",
+                nullptr,
+                resource_manager->allocDefaultName(ResourceManager::ECollection),
                 ResourceManager::ECollection,
                 ResourceManager::EUnactivited
             };
-            this->getGame()->getResourceManager()->addResourceProperty(rep);
+            resource_manager->addResourceProperty(rep);
 
             break;
         }

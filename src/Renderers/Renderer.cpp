@@ -288,9 +288,14 @@ void Renderer::draw()
     // Renderers::Graphics3d::drawCube(this->mBasicMeshShader, click_center3d, 60.0f, 50.0f, 50.0f, Vector3{0.85f, 0.55f, 0.85f}, true);
 
     glBindFramebuffer(GL_FRAMEBUFFER, hud->getBindFrameBuffer());
-    glClearColor(hud->getUIBGColor().x, hud->getUIBGColor().y, hud->getUIBGColor().z, 1.0f);
+    glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilMask(0xFF);
+
+    glClearColor(hud->getUIBGColor().x, hud->getUIBGColor().y, hud->getUIBGColor().z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // glBindFramebuffer(GL_FRAMEBUFFER, hud->getBindFrameBuffer());
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -298,6 +303,9 @@ void Renderer::draw()
     // 从G缓存区绘制
     this->drawFromGBuffer(hud->getBindFrameBuffer());
 
+    glDisable(GL_STENCIL_TEST);
+    // glStencilMask(0x00);
+    
     // 绘制HUD元素
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // this->drawUI();
@@ -691,8 +699,8 @@ void Renderer::setLightUniforms(class Shader* shader, const Matrix4& view)
 Vector3 Renderer::unProject(const Vector3& screenPoint) const
 {
     Vector3 deviceCoord = screenPoint;
-    deviceCoord.x /= (this->mScreenHeight * 0.5);
-    deviceCoord.y /= (this->mScreenWidth * 0.5);
+    deviceCoord.x /= (this->mScreenWidth * 0.5);
+    deviceCoord.y /= (this->mScreenHeight * 0.5);
 
     Matrix4 unProjection = this->mView * this->mProjection;
     unProjection.Invert();
@@ -814,21 +822,28 @@ void Renderer::draw3DScene(unsigned int frameBuffer, const Matrix4& view, const 
     // 基于比例设置视窗大小
     glViewport(0, 0, static_cast<int>(this->mScreenWidth * viewportScale), static_cast<int>(this->mScreenHeight * viewportScale));
 
-    // 清空颜色/深度缓存区
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // 开启模板测试
+    glEnable(GL_STENCIL_TEST);
+    glStencilMask(0xFF);
+    
+    // 打开深度缓冲区
+    glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    /************* 绘制3D网格 *************/
     
     // 关闭颜色缓冲区混合
     glDisable(GL_BLEND);
     
-    // 打开深度缓冲区
-    glEnable(GL_DEPTH_TEST);
+    glClearColor(29.0f / 255.0f , 53.0f / 255.0f, 54.0f / 255.0f, 1.0f);
+
+    // 清空颜色/深度缓存区/模板测试缓存区
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
+    /************* 绘制3D网格 *************/
 
     this->mMeshShader->setActive();
     this->mMeshShader->setMatrixUniform("uViewProj", view * proj);
+    
 
     if (limit)
     {
@@ -838,10 +853,72 @@ void Renderer::draw3DScene(unsigned int frameBuffer, const Matrix4& view, const 
     {
         if (mc != nullptr)
         {
-            mc->draw(this->mMeshShader);
+            auto act = mc->getActor();
+            if ((act->getState() == Actor::ESelected || act->getState() == Actor::EClicked) && act->getType() != Actor::EPlaneActor)
+            {
+                // 开启模板测试
+                glEnable(GL_STENCIL_TEST);
+                // glEnable(GL_DEPTH_TEST);
+                glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+                // glClear(GL_STENCIL_BUFFER_BIT);
+                
+                glStencilMask(0xFF);
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+                this->mMeshShader->setActive();
+                this->mMeshShader->setMatrixUniform("uViewProj", view * proj);
+
+                mc->draw(this->mMeshShader);
+                
+                // 激活基本网格着色器
+                this->mBasicMeshShader->setActive();
+                this->mBasicMeshShader->setMatrixUniform("uViewProj", view * proj);
+
+                glStencilMask(0x00);
+                glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+                glDisable(GL_DEPTH_TEST);
+
+                // 放大目标角色
+                auto world = act->getWorldTransform();
+                auto scale = act->getScale();
+                act->setScale(scale * 1.20f);
+                act->actorComputerWorldTransform();
+
+                this->mBasicMeshShader->setVectorUniform("uColor", Vector3{0.85f, 0.75f, 0.35f});
+
+                mc->draw(this->mBasicMeshShader);
+                
+                // 还原正常大小
+                act->setScale(scale);
+                act->setWorldTranform(world);
+  
+                glStencilMask(0x00);
+                glDisable(GL_STENCIL_TEST);
+                glEnable(GL_DEPTH_TEST);
+            }
+            else
+            {
+                // 禁用模板测试
+                glDisable(GL_STENCIL_TEST);
+
+                // 打开深度测试
+                glEnable(GL_DEPTH_TEST);
+                glDepthMask(GL_TRUE);
+                // glDisable(GL_STENCIL_TEST);
+
+                // 激活网格着色器
+                this->mMeshShader->setActive();
+                this->mMeshShader->setMatrixUniform("uViewProj", view * proj);
+
+                mc->draw(this->mMeshShader);
+            }
+
             // SDL_Log("MC size: %d", this->mMeshComponents.size());
         }
     }
+    
+    this->mMeshShader->setActive();
+    this->mMeshShader->setMatrixUniform("uViewProj", view * proj);
 
     /********* 绘制蒙皮 ***********/
 
@@ -879,6 +956,7 @@ void Renderer::drawFromGBuffer(const unsigned& buffer_id)
     glBindFramebuffer(GL_FRAMEBUFFER, buffer_id);
     
     glDisable(GL_DEPTH_TEST);
+    // glDisable(GL_STENCIL_TEST);
 
     this->mGGlobalShader->setActive();
 
@@ -897,38 +975,38 @@ void Renderer::drawFromGBuffer(const unsigned& buffer_id)
 
     // /******** 绘制点光源 *******/
     // // 将G缓存区中的深度缓存区绘制到默认帧缓冲区的深度缓存区中
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mGBuffer->getBufferID());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_id);
-    int width = static_cast<int>(this->mScreenWidth);
-    int height = static_cast<int>(this->mScreenHeight);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    // glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mGBuffer->getBufferID());
+    // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_id);
+    // int width = static_cast<int>(this->mScreenWidth);
+    // int height = static_cast<int>(this->mScreenHeight);
+    // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-    // 重启深度缓冲区测试，但是禁止深度缓存区写入
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
+    // // 重启深度缓冲区测试，但是禁止深度缓存区写入
+    // glEnable(GL_DEPTH_TEST);
+    // glDepthMask(GL_FALSE);
 
-    // 激活点光源着色器和网格
-    this->mGPointLightShader->setActive();
-    this->mPointLightMesh->getVertexArray()->setActive();
+    // // 激活点光源着色器和网格
+    // this->mGPointLightShader->setActive();
+    // this->mPointLightMesh->getVertexArray()->setActive();
 
-    // 设置视图投影矩阵
-    this->mGPointLightShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
+    // // 设置视图投影矩阵
+    // this->mGPointLightShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
     
-    // 设置相机位置
-    Matrix4 cameraPos = this->mView;
-    cameraPos.Invert();
-    this->mGPointLightShader->setVectorUniform("uCameraPos", cameraPos.GetTranslation());
-    this->mGBuffer->setTexturesActive();
+    // // 设置相机位置
+    // Matrix4 cameraPos = this->mView;
+    // cameraPos.Invert();
+    // this->mGPointLightShader->setVectorUniform("uCameraPos", cameraPos.GetTranslation());
+    // this->mGBuffer->setTexturesActive();
 
-    // 允许点光源颜色混合到已存在的颜色中
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
+    // // 允许点光源颜色混合到已存在的颜色中
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_ONE, GL_ONE);
 
-    // 绘制点光源
-    for (auto p : this->mPointLightComps)
-    {
-        p->draw(this->mGPointLightShader, this->mPointLightMesh);
-    }
+    // // 绘制点光源
+    // for (auto p : this->mPointLightComps)
+    // {
+    //     p->draw(this->mGPointLightShader, this->mPointLightMesh);
+    // }
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
@@ -1048,4 +1126,9 @@ class Shader* Renderer::getBasicShader() const
 Shader* Renderer::getBasicMeshShader() const
 {
     return this->mBasicMeshShader;
+}
+
+std::vector<MeshComponent*>& Renderer::getMeshComponents()
+{
+    return this->mMeshComponents;
 }

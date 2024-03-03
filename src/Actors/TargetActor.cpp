@@ -40,3 +40,32 @@ void TargetActor::saveProperties(rapidjson::Document::AllocatorType& alloc, rapi
 {
     Actor::saveProperties(alloc, props);
 }
+
+void TargetActor::updateActor(float dt)
+{
+    Actor::updateActor(dt);
+
+    // auto renderer = this->getGame()->getRenderer();
+    
+    // MeshComponent* mcp = nullptr;
+    // if (reUpdateColliBox())
+    // {
+    //     for (auto cp : renderer->getMeshComponents())
+    //     {
+    //         if (cp->getActor() == this && cp != this->mMeshComponent)
+    //         {
+    //             mcp = cp;
+    //             break;
+    //         }
+    //     }
+
+    // }
+
+    // if (mcp)
+    // {
+    //     renderer->removeMeshComponent(this->mMeshComponent);
+    //     this->mMeshComponent = mcp;
+        
+    //     updateColliBox(false);
+    // }
+}

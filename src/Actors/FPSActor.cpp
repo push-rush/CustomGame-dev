@@ -1,14 +1,18 @@
 #include "../../include/Game.h"
+
 #include "../../include/Actors/FPSActor.h"
+#include "../../include/Actors/PlaneActor.h"
+#include "../../include/Actors/BallActor.h"
+
 #include "../../include/Components/MoveComponent.h"
 #include "../../include/Components/FPSCamera.h"
 #include "../../include/Components/AudioComponent.h"
 #include "../../include/Components/MeshComponent.h"
-#include "../../include/Renderers/Renderer.h"
-#include "../../include/Actors/PlaneActor.h"
 #include "../../include/Components/BoxComponent.h"
-#include "../../include/Actors/BallActor.h"
 #include "../../include/Components/BallMove.h"
+
+#include "../../include/Renderers/Renderer.h"
+#include "../../include/Renderers/Mesh.h"
 
 FPSActor::FPSActor(class Game* game)
 : Actor(game)
@@ -28,15 +32,17 @@ FPSActor::FPSActor(class Game* game)
     this->mFPSModel->setScale(0.75f);
     
     this->mMeshComponent = new MeshComponent(this->mFPSModel);
-    this->mMeshComponent->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/Rifle.gpmesh"));
+    auto mesh = game->getRenderer()->getMesh("../Assets/Meshes/Rifle.gpmesh");
+    this->mMeshComponent->setMesh(mesh);
 
     this->mBoxComponent = new BoxComponent(this);
-    AABB myBox(
-        Vector3(-25.0f, -25.0f, -87.5f),
-        Vector3(25.0f, 25.0f, 87.5f)  
-    );
+    this->mBoxComponent->setObjectBox(*(mesh->getBox()));
+    // AABB myBox(
+    //     Vector3(-25.0f, -25.0f, -87.5f),
+    //     Vector3(25.0f, 25.0f, 87.5f)  
+    // );
     
-    this->mBoxComponent->setObjectBox(myBox);
+    // this->mBoxComponent->setObjectBox(myBox);
     this->mBoxComponent->setShouldRotate(false);
 }
 

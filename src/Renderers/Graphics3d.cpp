@@ -206,10 +206,12 @@ bool Graphics3d::drawCylinder(Shader* shader, const Vector3& center, const float
 
         // 添加顶点索引
         std::vector<uint32_t> indices;
+
+        // std::cout << "idx:" << "\n";
         for (int i = 1; i < partition_num + 1; i++)
         {
-            auto temp_idx1 = (i + 1) % (partition_num + 1) == 0 ? (i + 1) : 1;
-            auto temp_idx2 = (partition_num + 1 + i + 1) % (2 * (partition_num + 1)) == 0 ? (partition_num + 1 + i + 1) : (partition_num + 2);
+            auto temp_idx1 = (i + 1) % (partition_num + 1) == 0 ? 1 : (i + 1);
+            auto temp_idx2 = (partition_num + 1 + i + 1) % (2 * (partition_num + 1)) == 0 ? (partition_num + 2) : (partition_num + 1 + i + 1);
             
             // 上底面顶点索引
             indices.emplace_back(0);
@@ -229,9 +231,26 @@ bool Graphics3d::drawCylinder(Shader* shader, const Vector3& center, const float
             indices.emplace_back(i);
             indices.emplace_back(temp_idx1);
             indices.emplace_back(temp_idx2);
+        
+            // std::cout << "(" << 0 << " " << i << " " << temp_idx1 << ")"; 
+            // std::cout << " (" << partition_num + 1 << " " << partition_num + 1 + i << " " << temp_idx2 << ")";
+            // std::cout << " (" << i << " " << partition_num + 1 + i << " " << temp_idx2 << ")";
+            // std::cout << " (" << i << " " << temp_idx1 << " " << temp_idx2 << ")" << "\n";
         }
         
-        // SDL_Log("[Graphics] vertex size: %d index size: %d", verts.size(), indices.size());
+        // SDL_Log("[Graphics3d] vertex size: %d index size: %d", verts.size(), indices.size());
+
+        // SDL_Log("[Graphics3d] verts:");
+        // for (int i = 0; i < (int)verts.size(); i += 8)
+        // {
+        //     std::cout << "(" << verts[i] << " " << verts[i + 1] << " " << verts[i + 2] << ") ";
+        // }
+
+        // for (auto idx : indices)
+        // {
+        //     // SDL_Log("[%.2f %.2f %.2f]", verts[idx * 8], verts[idx * 8 + 1], verts[idx * 8 + 2]);
+        //     std::cout << idx << ": " << verts[idx * 8] << " " << verts[idx * 8 + 1] << " " << verts[idx * 8 + 2] << "\n";
+        // }
         
         VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts.data(), (partition_num + 1) * 2, indices.data(), indices.size());
         
@@ -258,7 +277,6 @@ bool Graphics3d::drawCylinder(Shader* shader, const Vector3& center, const float
         return false;
     }
 
-
     return true;
 }
 
@@ -272,7 +290,7 @@ bool Graphics3d::drawSphere(Shader* shader, const Vector3& center, const float& 
         
         // 球体最高点
         verts.emplace_back(center.x);
-        verts.emplace_back(center.y + radius);
+        verts.emplace_back(float(center.y + radius));
         verts.emplace_back(center.z);
         verts.emplace_back(0.0f);
         verts.emplace_back(1.0f);
@@ -280,27 +298,34 @@ bool Graphics3d::drawSphere(Shader* shader, const Vector3& center, const float& 
         verts.emplace_back(0.0f);
         verts.emplace_back(1.0f);
 
+        // std::cout << "verts:" << "\n";
         for (int i = slices - 1; i > 0; i--)
         {
-            float lat = Math::Pi * (-0.5f + (i / slices));
+            float lat = Math::Pi * (-0.5f + (float(i) / float(slices)));
             float y0 = Math::Sin(lat);
             float yr0 = Math::Cos(lat);
 
             for (int j = 0; j < stacks; j++)
             {
-                float lng = 2.0f * Math::Pi * (j / stacks);
-                float x = Math::Cos(lng);
-                float z = Math::Sin(lng);
+                float lng = 2.0f * Math::Pi * (float(j) / float(stacks));
+                float x0 = Math::Cos(lng);
+                float z0 = Math::Sin(lng);
 
-                verts.emplace_back(center.x + x * yr0 * radius);
-                verts.emplace_back(center.y + y0 * radius);
-                verts.emplace_back(center.z + z * yr0 * radius);
+                float vert_x = float(center.x + x0 * yr0 * radius);
+                float vert_y = float(center.y + y0 * radius);
+                float vert_z = float(center.z + z0 * yr0 * radius);
                 
-                verts.emplace_back(x * yr0);
+                verts.emplace_back(vert_x);
+                verts.emplace_back(vert_y);
+                verts.emplace_back(vert_z);
+                
+                verts.emplace_back(float(x0 * yr0));
                 verts.emplace_back(y0);
-                verts.emplace_back(z * yr0);
+                verts.emplace_back(float(z0 * yr0));
                 verts.emplace_back(0.0f);
                 verts.emplace_back(1.0f);
+
+                // std::cout << " angle: (" << lat << " " << lng <<  ") v(" << x0 << " " << y0 << " " << z0 << ")" << "\n";
             }
         }
 
@@ -317,33 +342,50 @@ bool Graphics3d::drawSphere(Shader* shader, const Vector3& center, const float& 
         // 顶点索引序列
         std::vector<uint32_t> indices;
         
-        int end = verts.size() - 1;
+        int end = ((int)verts.size() / 8) - 1;
+
         for (int i = 1; i < stacks + 1; i++)
         {
+            auto temp_idx = (i + 1) % (stacks + 1) == 0 ? 1 : (i + 1);
+
             indices.emplace_back(0);
             indices.emplace_back(i);
-            indices.emplace_back((i + 1) % stacks);
+            indices.emplace_back(temp_idx);
 
             indices.emplace_back(end);
             indices.emplace_back(end - i);
-            indices.emplace_back(end - ((i + 1) % stacks));
+            indices.emplace_back(end - temp_idx);
         }
 
         for (int i = 0; i < slices - 2; i++)
         {
             for (int j = 0; j < stacks; j++)
             {
-                indices.emplace_back(i * stacks + 1 + j);
-                indices.emplace_back((i + 1) * stacks + 1 + j);
-                indices.emplace_back((i + 1) * stacks + 1 + (j + 1) % stacks);
+                auto temp_idx = (j + 1) % stacks == 0 ? 1 : j + 1;
 
                 indices.emplace_back(i * stacks + 1 + j);
-                indices.emplace_back(i * stacks + 1 + (j + 1) % stacks);
-                indices.emplace_back((i + 1) * stacks + 1 + (j + 1) % stacks);
+                indices.emplace_back((i + 1) * stacks + 1 + j);
+                indices.emplace_back((i + 1) * stacks + 1 + temp_idx);
+
+                indices.emplace_back(i * stacks + 1 + j);
+                indices.emplace_back(i * stacks + 1 + temp_idx);
+                indices.emplace_back((i + 1) * stacks + 1 + temp_idx);
             }
         }
 
-        VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts.data(), (slices - 2) * stacks + 2, indices.data(), indices.size());
+        // std::cout << "verts:" << " size:" << verts.size() << "\n";
+        // for (int i = 0; i < (int)verts.size(); i += 8)
+        // {
+        //     std::cout << " (" << verts[i + 0] << " " << verts[i + 1] << " " << verts[i + 2] << ")" << "\n";
+        // }
+
+        // std::cout << "idx:" << "\n";
+        // for (int i = 0; i < (int)indices.size(); i += 3)
+        // {
+        //     std::cout << " (" << indices[i + 0] << " " << indices[i + 1] << " " << indices[i + 2] << ")" << "\n";
+        // }
+
+        VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts.data(), (int)(verts.size() / 8), indices.data(), indices.size());
         
         shader->setActive();
         v->setActive();
@@ -391,17 +433,19 @@ bool Graphics3d::drawCone(Shader* shader, const Vector3& center, const float& ra
 
         for (int i = 0; i < slices; i++)
         {
-            float angle = 2.0f * Math::Pi * (i / slices);
+            float angle = 2.0f * Math::Pi * (float(i) / float(slices));
 
-            float x = Math::Cos(angle);
-            float y = Math::Sin(angle);
+            float x0 = Math::Cos(angle);
+            float y0 = Math::Sin(angle);
 
-            verts.emplace_back(center.x + radius * x);
+            verts.emplace_back(center.x + radius * x0);
             verts.emplace_back(center.y);
-            verts.emplace_back(center.z + radius * y);
-            verts.emplace_back(x);
+            verts.emplace_back(center.z + radius * y0);
+
+            verts.emplace_back(x0);
             verts.emplace_back(0.0f);
-            verts.emplace_back(y);
+            verts.emplace_back(y0);
+
             verts.emplace_back(1.0f);
             verts.emplace_back(0.0f);
         }
@@ -409,12 +453,14 @@ bool Graphics3d::drawCone(Shader* shader, const Vector3& center, const float& ra
         std::vector<uint32_t> indices;
         for (int i = 1; i < slices + 1; i++)
         {
+            auto temp_idx = (i + 1) % (slices + 1) == 0 ? 1 : (i + 1);
+
             indices.emplace_back(0);
             indices.emplace_back(i);
-            indices.emplace_back((i + 1) % slices);
+            indices.emplace_back(temp_idx);
         }
 
-        VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts.data(), slices + 1, indices.data(), indices.size());
+        VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts.data(), int(verts.size() / 8), indices.data(), indices.size());
         
         shader->setActive();
         v->setActive();

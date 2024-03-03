@@ -16,14 +16,15 @@
 #include <glfw3.h>
 
 MeshComponent::MeshComponent(class Actor* owner, bool isSkeletal)
-: Component(owner), mIsSkeletal(isSkeletal), mMeshName("default")
+: Component(owner), mIsSkeletal(isSkeletal)
 {
     this->mMesh = nullptr;
     this->mTextureIndex = 0;
     this->getActor()->getGame()->getRenderer()->addMeshComponent(this);
 
     ResourceManager::ResourceProperty* rep = new ResourceManager::ResourceProperty{
-        mMeshName,
+        this,
+        "Mesh." + to_string(this->getCompID()),
         ResourceManager::EMeshObject,
         ResourceManager::EUnactivited
     };
@@ -74,7 +75,7 @@ void MeshComponent::draw(class Shader* shader)
     }
     else
     {
-        SDL_Log("[MeshComponent] Mesh: %s is null...", this->mMeshName.c_str());
+        SDL_Log("[MeshComponent] Mesh: %d is null...", this->getCompID());
         return;
     }
 }
@@ -117,7 +118,10 @@ void MeshComponent::loadProperties(const rapidjson::Value& inObj)
     if (JsonHelper::getString(inObj, "meshFile", path))
     {
         SDL_Log("[MeshComponent] Set mesh component...");
+
         this->setMesh(this->getActor()->getGame()->getRenderer()->getMesh(path.c_str()));
+
+        this->getActor()->updateColliBox(true);
     }
 }
 
@@ -131,12 +135,12 @@ void MeshComponent::saveProperties(rapidjson::Document::AllocatorType& alloc, ra
     }
 }   
 
-void MeshComponent::setMeshName(std::string name)
-{
-    this->mMeshName = name;
-}
+// void MeshComponent::setMeshName(std::string name)
+// {
+//     this->mMeshName = name;
+// }
 
-std::string MeshComponent::getMeshName() const
-{
-    return this->mMeshName;
-}
+// std::string MeshComponent::getMeshName() const
+// {
+//     return this->mMeshName;
+// }

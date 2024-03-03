@@ -123,6 +123,7 @@ public:
     class VertexArray* getSpriteVerts() const;
     class Shader* getBasicShader() const;
     class Shader* getBasicMeshShader() const;
+    std::vector<MeshComponent*>& getMeshComponents();
 
     // class Texture* getUITexture() const;
     // unsigned int getUIBuffer() const;

@@ -201,3 +201,43 @@ bool sweptSphere(const Sphere& P0, const Sphere& P1,
 		}
 	}
 }
+
+bool intersect(const Ray& ray, const AABB& aabb, Vector3& inter_point)
+{
+	float tmin, tmax, tymin, tymax, tzmin, tzmax;
+
+    tmin = (aabb.mMin.x - ray.origin.x) / ray.direction.x;
+    tmax = (aabb.mMax.x - ray.origin.x) / ray.direction.x;
+
+    tymin = (aabb.mMin.y - ray.origin.y) / ray.direction.y;
+    tymax = (aabb.mMax.y - ray.origin.y) / ray.direction.y;
+
+    if ((tmin > tymax) || (tymin > tmax))
+        return false;
+
+    if (tymin > tmin)
+        tmin = tymin;
+    if (tymax < tmax)
+        tmax = tymax;
+
+    tzmin = (aabb.mMin.z - ray.origin.z) / ray.direction.z;
+    tzmax = (aabb.mMax.z - ray.origin.z) / ray.direction.z;
+
+    if ((tmin > tzmax) || (tzmin > tmax))
+        return false;
+
+    if (tzmin > tmin)
+        tmin = tzmin;
+    if (tzmax < tmax)
+        tmax = tzmax;
+	
+	// if (tmin > tmax)
+    //     return false;
+
+    // Calculate the intersection point
+    inter_point.x = ray.origin.x + tmin * ray.direction.x;
+    inter_point.y = ray.origin.y + tmin * ray.direction.y;
+    inter_point.z = ray.origin.z + tmin * ray.direction.z;
+
+    return true;
+}

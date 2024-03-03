@@ -1,12 +1,21 @@
 #include "../../include/General/ResourceManager.h"
+
 #include "../../include/Renderers/EmptySprite.h"
+#include "../../include/Renderers/Renderer.h"
+
+#include "../../include/Actors/Actor.h"
+
+#include "../../include/Components/MeshComponent.h"
+
+#include "../../include/Game.h"
 
 ResourceManager::ResourceManager(Game* game) :
     mGame(game), mCurSelectMenu("root"), 
-    mMeshSeq(0), mImageSeq(0), mSkeletonSeq(0), mDefaultSeq(0)
+    mMeshSeq(0), mImageSeq(0), mSkeletonSeq(0), mCollectionSeq(0), mLightSeq(0), mDefaultSeq(0)
 {
     ResourceProperty* rep = new ResourceProperty{
-        "Collection",
+        nullptr,
+        this->allocDefaultName(ResourceManager::ECollection),
         ECollection,
         EUnactivited
     };
@@ -27,6 +36,27 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::update()
 {
+    auto acts = this->mGame->getActors();
+    auto comps = this->mGame->getRenderer()->getMeshComponents();
+
+    for (auto act : acts)
+    {
+        if (act->getState() == Actor::EClicked)
+        {
+            for (auto cp : comps)
+            {
+                if (cp->getActor() == act)
+                {
+                    auto node_name = "default." + to_string(cp->getCompID());
+                    auto node = this->mResourceTree.findTreeNode(node_name);
+                    this->setCurSelectMenu(node->mNodeParent);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
     // auto r = this->mResourceTree.findTreeNode("root");
 
     // std::queue<TreeNode*> q;
@@ -90,17 +120,17 @@ void ResourceManager::update()
 */
 void ResourceManager::addResourceProperty(ResourceProperty* rep)
 {
-    if (!strcmp(rep->mName.c_str(), "default"))
-    {
-        rep->mName = rep->mName + std::to_string(this->mDefaultSeq);
-        this->mDefaultSeq++;
-    }
+    // if (!strcmp(rep->mName.c_str(), "default"))
+    // {
+    //     rep->mName = rep->mName + std::to_string(this->mDefaultSeq);
+    //     this->mDefaultSeq++;
+    // }
 
     if (this->mResourceTree.getTreeSize() < 1000)
     {
         // 创建节点
         TreeNode* node = new TreeNode{
-            this->allocDefaultName(rep->mType),
+            rep->mName,
             this->mCurSelectMenu,
             (void*)(rep)
         };
@@ -127,8 +157,21 @@ std::string ResourceManager::allocDefaultName(const ResourceType& type)
         }
         case ESkeleton:
         {
-            name = std::string(mSkeletonPrefix) + "." + std::to_string(mSkeletonSeq);
+            name = std::string(SkeletonPrefix) + "." + std::to_string(mSkeletonSeq);
             ++mSkeletonSeq;
+            break;
+        }
+        case ECollection:
+        {
+            name = std::string(CollectionPrefix) + "." + std::to_string(mCollectionSeq);
+            ++this->mCollectionSeq;
+
+            break;
+        }
+        case ELight:
+        {
+            name = std::string(LightPrefix) + "." + std::to_string(mLightSeq);
+            ++this->mLightSeq;
             break;
         }
         default:

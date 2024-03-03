@@ -2,7 +2,6 @@
 #include "../../include/Actors/Actor.h"
 #include "../../include/General/LevelLoader.h"
 
-
 const char* Component::TypeNames[NUM_COMPONENT_TYPES]
 {   
     "Component",
@@ -25,13 +24,19 @@ const char* Component::TypeNames[NUM_COMPONENT_TYPES]
     "TargetComponent",
 };
 
+int Component::SCompSequence = 0;
+
 Component::Component()
 {
-
+    this->setCompID(Component::SCompSequence);
+    ++Component::SCompSequence;
 }
 
 Component::Component(class Actor* owner, int updateOrder)
 {
+    this->setCompID(Component::SCompSequence);
+    ++Component::SCompSequence;
+
     this->mOwner = owner;
     mUpdateOrder = updateOrder;
 
@@ -92,4 +97,14 @@ void Component::loadProperties(const rapidjson::Value& inObj)
 void Component::saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& props)
 {
     JsonHelper::addInt(alloc, props, "updateOrder", this->mUpdateOrder);
+}
+
+int Component::getCompID() const
+{
+    return this->mCompID;
+}
+
+void Component::setCompID(const int& id)
+{
+    this->mCompID = id;
 }

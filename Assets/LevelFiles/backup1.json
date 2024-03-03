@@ -26,7 +26,7 @@
     },
     "actors": [
         {
-            "type": "Actor",
+            "type": "TargetActor",
             "properties": {
                 "state": "active",
                 "scale": 100.0,
@@ -49,11 +49,23 @@
                         "updateOrder": 100,
                         "meshFile": "../Assets/Meshes/Cube.gpmesh"
                     }
+                },
+                {
+                    "type": "BoxComponent",
+                    "properties": {
+                        "updateOrder": 100
+                    }
+                },
+                {
+                    "type": "TargetComponent",
+                    "properties": {
+                        "updateOrder": 100
+                    }
                 }
             ]
         },
         {
-            "type": "Actor",
+            "type": "SphereActor",
             "properties": {
                 "state": "active",
                 "scale": 3.0,
@@ -80,14 +92,14 @@
             ]
         },
         {
-            "type": "Actor",
+            "type": "TargetActor",
             "properties": {
                 "state": "active",
-                "scale": 100.0,
+                "scale": 40.0,
                 "position": [
-                    100.0,
-                    45.0,
-                    88.0
+                    50.0,
+                    -105.0,
+                    5.0
                 ],
                 "rotation": [
                     0.0,
@@ -102,6 +114,18 @@
                     "properties": {
                         "updateOrder": 100,
                         "meshFile": "../Assets/Meshes/Fox.gpmesh"
+                    }
+                },
+                {
+                    "type": "BoxComponent",
+                    "properties": {
+                        "updateOrder": 100
+                    }
+                },
+                {
+                    "type": "TargetComponent",
+                    "properties": {
+                        "updateOrder": 100
                     }
                 }
             ]
@@ -8554,10 +8578,10 @@
             ]
         },
         {
-            "type": "Actor",
+            "type": "SphereActor",
             "properties": {
                 "state": "active",
-                "scale": 1.0,
+                "scale": 3.0,
                 "position": [
                     500.0,
                     -75.0,

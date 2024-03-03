@@ -19,7 +19,8 @@ const char* Actor::typeNames[Actor::NUM_ACTOR_TYPES] =
     "PlaneActor",
     "Ship",
     "SplineActor",
-    "TargetActor"
+    "TargetActor",
+    "SphereActor"
 };
 
 Actor::Actor()
@@ -30,6 +31,7 @@ Actor::Actor()
     this->mQuat = Quaternion::Identity;
     this->mRecomputeWorldTransform = true;
     this->mWorldTransform = Matrix4::Identity;
+    this->mUpdateColliBox = false;
 }
 
 Actor::Actor(class Game* game)
@@ -41,6 +43,7 @@ Actor::Actor(class Game* game)
     this->mQuat = Quaternion::Identity;
     this->mRecomputeWorldTransform = true;
     this->mWorldTransform = Matrix4::Identity;
+    this->mUpdateColliBox = false;
 
     game->addActor(this);
 }
@@ -240,10 +243,36 @@ void Actor::actorInput(const uint8_t* keyboard_state)
 
 }
 
-void Actor::actorHandleMouse(const int& mouse_wheel)
+void Actor::actorHandleMouse(const int& mouse)
 {
+    switch (mouse)
+    {
+        case (SDL_BUTTON_LEFT):
+        {
+            if (this->mState == Actor::ESelected)
+            {
+                this->mState = Actor::EClicked;
 
-
+                for (auto act : this->getGame()->getActors())
+                {
+                    if (act->getState() == Actor::EActive)
+                    {
+                        continue;
+                    }
+                    else if (act != this && act->getState() != EDead)
+                    {
+                        act->setState(EActive);
+                    }
+                }
+                SDL_Log("[Actor] State: Clicked...");
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
 }
 
 class Game* Actor::getGame() const
@@ -256,10 +285,7 @@ void Actor::computeWorldTransform()
 {
     if (mRecomputeWorldTransform)
     {
-        this->mWorldTransform = Matrix4::CreateScale(this->mScale);
-        // this->mWorldTransform *= Matrix4::CreateRotationZ(this->mRotation);
-        this->mWorldTransform *= Matrix4::CreateFromQuaternion(this->mQuat);
-        this->mWorldTransform *= Matrix4::CreateTranslation(this->mPosition);
+        this->actorComputerWorldTransform();
 
         for (auto comp : this->mComponents)
         {
@@ -373,4 +399,26 @@ void Actor::saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson:
 Actor::EActorType Actor::getType() const
 {
     return EActor;
+}
+
+void Actor::setWorldTranform(const Matrix4& world)
+{
+    this->mWorldTransform = world;
+}
+
+void Actor::actorComputerWorldTransform()
+{
+    this->mWorldTransform = Matrix4::CreateScale(this->mScale);
+    this->mWorldTransform *= Matrix4::CreateFromQuaternion(this->mQuat);
+    this->mWorldTransform *= Matrix4::CreateTranslation(this->mPosition);
+}
+
+bool Actor::reUpdateColliBox() const
+{
+    return this->mUpdateColliBox;
+}
+
+void Actor::updateColliBox(const bool& update)
+{
+    this->mUpdateColliBox = update;
 }

@@ -41,6 +41,8 @@ public:
 private:
     class Actor* mOwner = nullptr;
     int mUpdateOrder;
+    int mCompID;
+    static int SCompSequence;
 
 public:
     Component(/* args */);
@@ -68,4 +70,10 @@ public:
     virtual void saveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& props);
 
     virtual EComponentType getType() const;
+
+    // getters
+    int getCompID() const;
+
+    // setters
+    void setCompID(const int& id);
 };

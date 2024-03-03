@@ -20,11 +20,24 @@ bool GBuffer::create(int width, int height)
 	glBindFramebuffer(GL_FRAMEBUFFER, mBufferID);
     
     // 为目标添加深度缓存区
-	GLuint depthBuffer;
-	glGenRenderbuffers(1, &depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	// GLuint depthBuffer;
+	// glGenRenderbuffers(1, &depthBuffer);
+	// glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	// glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	// glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+    // 为目标添加模板测试缓存区
+    // GLuint stencilBuffer;
+    // glGenRenderbuffers(1, &stencilBuffer);
+    // glBindRenderbuffer(GL_RENDERBUFFER, stencilBuffer);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_COMPONENTS, width, height);
+    // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencilBuffer);
+
+    GLuint depthStencilBuffer;
+    glGenRenderbuffers(1, &depthStencilBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthStencilBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilBuffer);
 
     // 为G缓存区的每一个输出创建纹理
     for (int i = 0; i < NUM_GBUFFER_TEXTURES; ++i)

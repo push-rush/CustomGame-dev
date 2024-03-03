@@ -32,6 +32,7 @@
 #include "../../include/Renderers/Console.h"
 #include "../../include/Renderers/Button.h"
 #include "../../include/Renderers/PropertyMenu.h"
+#include "../../include/Renderers/Collision.h"
 
 #include "../include/General/LevelLoader.h"
 #include "../include/General/ResourceManager.h"
@@ -42,8 +43,8 @@
 #include "rapidjson.h"
 #include "document.h"
 
-#define LOAD_PATH "../Assets/LevelFiles/SaveFile1.gplevel"
-#define SAVE_PATH "../Assets/LevelFiles/SaveFile.gplevel"
+#define LOAD_PATH "../Assets/LevelFiles/SaveFile1.json"
+#define SAVE_PATH "../Assets/LevelFiles/SaveFile.json"
 
 #define LOAD_HUD_PATH "../Assets/LevelFiles/HUD_save.gplevel"
 #define SAVE_HUD_PATH "../Assets/LevelFiles/HUD_save1.json"
@@ -260,6 +261,14 @@ void Game::processInput()
                         // this->mUIStack.back()->handleKeyPress(event.button.button);
                         // SDL_Log("[UIScreen] type: %d", (int)(this->mUIStack.back()->getUIType()));
                     }
+
+                    if (!this->mActors.empty())
+                    {
+                        for (auto act : this->mActors)
+                        {
+                            act->actorHandleMouse(event.button.button);
+                        }
+                    }
                     // if (this->mHUD)
                     // {
                     //     this->mHUD->handleKeyPress(event.button.button);
@@ -340,6 +349,8 @@ void Game::processInput()
             }
         }
         mUpdatingActors = false;
+
+        // this->mHUD->processInput(keyboard_state);
     }
     else
     {
@@ -496,6 +507,73 @@ void Game::updateGame(string name)
 
 void Game::generateOutput()
 {
+    // bool flag = false;
+    Actor* target = nullptr;
+
+    Ray ray = this->mHUD->getClickRay();
+    LineSegment ls = this->mHUD->getClickLine();
+    // auto st = ls.mStart;
+    // sort(this->mActors.begin(), this->mActors.end(), [st](Actor& a1, Actor& a2){
+    //     return (a1.getPosition() - st).LengthSq() < (a2.getPosition() - st).LengthSq();
+    // });
+
+    // 测试线段在物理空间中的碰撞
+    PhysWorld* phys = this->mPhysWorld;
+    CollisionInfo info;
+    if (this->mGameState == EPaused)
+    {   // 暂停状态下检测鼠标是否选中物体
+        if (phys->segmentCast(ls, info))
+        {
+            // 如果与线段相交，则选中该目标对象
+            target = info.mCollActor;
+            if (target && target->getState() == Actor::EActive)
+            {
+                target->setState(Actor::ESelected);
+
+                // flag = true;
+            }
+            // SDL_Log("[Game] Find seleted actor: %d", (int)target->getType());
+        }
+        else
+        {
+            for (auto act : this->mActors)
+            {
+                if (act->getState() == Actor::EActive)
+                {
+                    continue;
+                }
+                else if (act->getState() == Actor::ESelected)
+                {
+                    act->setState(Actor::EActive);
+                }
+            }
+        }
+
+        if (target)
+        {
+            for (auto act : this->mActors)
+            {
+                if (act->getState() == Actor::EActive)
+                {
+                    continue;
+                }
+                else if (act != target && act->getState() == Actor::ESelected)
+                {
+                    act->setState(Actor::EActive);
+                }
+            }
+        }
+    }
+    else if (this->mGameState == EGamePlay)
+    {
+        for (auto act : this->mActors)
+        {
+            act->setState(Actor::EActive);
+        }
+    }
+
+    // SDL_Log("[Game] Update generate output...");
+
     this->mRenderer->draw();
 }
 
@@ -754,7 +832,7 @@ void Game::loadData()
         this->mResourceMenu->setBindTexture(tex);
 
         // auto scale = this->mHUD->getUIViewScale();
-        this->mResourceMenu->setUIViewScale(Vector2{0.30f, 0.50f});
+        this->mResourceMenu->setUIViewScale(Vector2{0.10f, 0.50f});
         this->mResourceMenu->setUIPosOffset(Vector2{
             w - this->mResourceMenu->getUIBufferPos().x - this->mResourceMenu->getUIBufferViewSize().x, 
             h - this->mResourceMenu->getUIBufferPos().y - this->mResourceMenu->getUIBufferViewSize().y
@@ -852,7 +930,7 @@ void Game::loadData()
 
         auto scale = this->mResourceMenu->getUIViewScale();
         // auto scale = this->mHUD->getUIViewScale();
-        this->mConsole->setUIViewScale(Vector2{scale.x, 0.30f});
+        this->mConsole->setUIViewScale(Vector2{scale.x, 0.10f});
         this->mConsole->setUIPosOffset(Vector2{
             -this->mConsole->getUIBufferPos().x,
             -this->mConsole->getUIBufferPos().y

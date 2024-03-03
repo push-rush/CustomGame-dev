@@ -1,6 +1,11 @@
 #include "../../include/Renderers/PhysWorld.h"
-#include "../../include/Components/BoxComponent.h"
 #include "../../include/Renderers/Collision.h"
+
+#include "../../include/Components/BoxComponent.h"
+#include "../../include/Components/CircleComponent.h"
+
+#include "../../include/Actors/Actor.h"
+
 
 PhysWorld::PhysWorld(class Game* game)
 {
@@ -38,10 +43,15 @@ bool PhysWorld::segmentCast(const class LineSegment& segLine, CollisionInfo& out
     bool collided = false;
     float closestT = Math::Infinity;
 
+    // auto st = segLine.mStart;
+    // sort(this->mBoxComponents.begin(), this->mBoxComponents.end(), [st](BoxComponent*& b1, BoxComponent*& b2){
+    //     return (b1->getActor()->getPosition() - st).LengthSq() < (b2->getActor()->getPosition() - st).LengthSq();
+    // });
+
     Vector3 norm;
     for (auto box : this->mBoxComponents)
     {
-        float t = 0.0;
+        float t = 0.0f;
         if (intersect(segLine, box->getWorldBox(), t, norm))
         {
             if (t < closestT)
@@ -49,13 +59,83 @@ bool PhysWorld::segmentCast(const class LineSegment& segLine, CollisionInfo& out
                 outCollInfo.mCastPoint = segLine.PointOnSegment(t);
                 outCollInfo.mCollPlaneNormal = norm;
                 outCollInfo.mCollBoxComp = box;
+                outCollInfo.mCollCircleComp = nullptr;
                 outCollInfo.mCollActor = box->getActor();
                 collided = true;
 
                 closestT = t;
+
+                // break;
+            }
+
+            // auto dist = box->getWorldBox().mMax - box->getWorldBox().mMin;
+            // SDL_Log("[PhysWorld] Box size: w: %.2f h: %.2f l: %.2f", dist.x, dist.y, dist.z);
+        }
+    }
+
+    for (auto circle : this->mCircleComponents)
+    {
+        float t = 0.0f;
+
+        Sphere s = {circle->getCenter(), circle->getRadius()};
+        if (intersect(segLine, s, t))
+        {
+            if (t < closestT)
+            {
+                outCollInfo.mCastPoint = segLine.PointOnSegment(t);
+                outCollInfo.mCollPlaneNormal = norm;
+                outCollInfo.mCollBoxComp = nullptr;
+                outCollInfo.mCollCircleComp = circle;
+                outCollInfo.mCollActor = circle->getActor();
+                collided = true;
+
+                closestT = t;
+                break;
             }
         }
     }
+
+    return collided;
+}
+
+/**
+ * TODO: 函数实现存在问题，待改
+*/
+bool PhysWorld::RayCast(const class Ray& ray, CollisionInfo& outCollInfo)
+{
+    bool collided = false;
+    float closestT = Math::Infinity;
+
+    auto st = ray.origin;
+    sort(this->mBoxComponents.begin(), this->mBoxComponents.end(), [st](BoxComponent*& b1, BoxComponent*& b2){
+        return (b1->getActor()->getPosition() - st).LengthSq() < (b2->getActor()->getPosition() - st).LengthSq();
+    });
+
+    // auto st = ray.origin;
+    Vector3 colli_point = Vector3{0.0f, 0.0f, 0.0f};
+    for (auto box : this->mBoxComponents)
+    {
+        float t = 0.0f;
+        if (intersect(ray, box->getWorldBox(), colli_point))
+        {
+            t = (colli_point - st).LengthSq();
+            if (t < closestT)
+            {
+                outCollInfo.mCastPoint = colli_point;
+                outCollInfo.mCollPlaneNormal = Vector3{0.0f, 0.0f, 0.0f};
+                outCollInfo.mCollBoxComp = box;
+                outCollInfo.mCollCircleComp = nullptr;
+                outCollInfo.mCollActor = box->getActor();
+                collided = true;
+
+                closestT = t;
+                // break;
+            }
+
+            SDL_Log("[PhysWorld] actor type: %d dist: %.2f", (int)(box->getActor()->getType()), t);
+        }
+    }
+
     return collided;
 }
 
@@ -102,4 +182,30 @@ void PhysWorld::testSweepAndPrune(std::function<void(class Actor*, class Actor*)
             }
         }
     }
+}
+
+void PhysWorld::addCircleComponent(class CircleComponent* sphere)
+{
+    this->mCircleComponents.emplace_back(sphere);
+}
+
+void PhysWorld::removeCircleComponent(class CircleComponent* sphere)
+{
+    for (auto iter = this->mCircleComponents.begin(); iter != this->mCircleComponents.end();)
+    {
+        if ((*iter) == sphere)
+        {
+            iter = this->mCircleComponents.erase(iter);
+            break;
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+}
+
+std::vector<BoxComponent*>& PhysWorld::getBoxComponents()
+{
+    return this->mBoxComponents;
 }

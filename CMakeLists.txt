@@ -89,6 +89,7 @@ add_executable(${PROJECT_NAME}
     ./src/Actors/SplineActor.cpp
     ./src/Actors/BallActor.cpp
     ./src/Actors/TargetActor.cpp
+    ./src/Actors/SphereActor.cpp
     
     # Components
     ./src/Components/Component.cpp 

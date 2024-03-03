@@ -68,8 +68,9 @@ public:
     // getters
     TreeStruct* getUIMenuTree();
     void nodeAddToStack(TreeNode* node);
-    Vector3 getClickPoint();
 
+    class Ray getClickRay();
+    class LineSegment getClickLine();
 
     // setters
 };

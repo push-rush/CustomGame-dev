@@ -1,15 +1,28 @@
 #include "../../include/Components/PointLightComponent.h"
+
 #include "../../include/Renderers/Shader.h"
 #include "../../include/Renderers/Mesh.h"
-#include "../../include/Actors/Actor.h"
-#include "../../include/Renderers/VertexArray.h"
-#include "../../include/Game.h"
 #include "../../include/Renderers/Renderer.h"
+#include "../../include/Renderers/VertexArray.h"
+
+#include "../../include/Actors/Actor.h"
+
 #include "../../include/General/LevelLoader.h"
+#include "../../include/General/ResourceManager.h"
+
+#include "../../include/Game.h"
 
 PointLightComponent::PointLightComponent(class Actor* owner)
 : Component(owner)
 {
+     ResourceManager::ResourceProperty* rep = new ResourceManager::ResourceProperty{
+        this,
+        "PointLight." + to_string(this->getCompID()),
+        ResourceManager::ELight,
+        ResourceManager::EUnactivited
+    };
+    this->getActor()->getGame()->getResourceManager()->addResourceProperty(rep);
+
     owner->getGame()->getRenderer()->addPointLightComponent(this);
 }
 

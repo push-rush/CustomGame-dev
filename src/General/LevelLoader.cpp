@@ -20,6 +20,7 @@
 #include "../../include/Actors/PlaneActor.h"
 #include "../../include/Actors/CameraActor.h"
 #include "../../include/Actors/SplineActor.h"
+#include "../../include/Actors/SphereActor.h"
 
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MeshComponent.h"
@@ -55,6 +56,7 @@ std::unordered_map<std::string, LevelLoader::ActorFunc> LevelLoader::sActorFacto
     {"CameraActor", &Actor::create<CameraActor>},
     {"SplineActor", &Actor::create<SplineActor>},
     {"FPSActor", &Actor::create<FPSActor>},
+    {"SphereActor", &Actor::create<SphereActor>},
 };
 
 std::unordered_map<std::string, LevelLoader::ComponentFunc> LevelLoader::sComponentFactoryMap

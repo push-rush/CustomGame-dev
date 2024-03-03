@@ -100,7 +100,6 @@ bool Mesh::load(const std::string& fileName, Renderer* renderer)
 
     this->mShaderName = doc["shader"].GetString();
 
-
     VertexArray::Layout layout = VertexArray::PosNormTex;
     size_t vertSize = 8;
 

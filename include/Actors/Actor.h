@@ -29,6 +29,7 @@ public:
         EShip,
         ESplineActor,
         ETargetActor,
+        ESphereActor,
 
         NUM_ACTOR_TYPES
     };
@@ -44,7 +45,9 @@ public:
     {
         EActive,
         EPaused,
-        EDead
+        EDead,
+        ESelected,
+        EClicked
     };
 
     // 组件/角色更新
@@ -69,6 +72,7 @@ public:
     virtual class SpriteComponent* getSpriteComponent() const;
     std::vector<class Component*>& getComponents();
     virtual EActorType getType() const;
+    bool reUpdateColliBox() const;
 
     // Setters
     void setState(State);
@@ -76,6 +80,8 @@ public:
     void setRotation(Quaternion);
     void setFixedPosition(class Vector3 pos);
     virtual void setPosition(class Vector3 pos);
+    void setWorldTranform(const Matrix4& world);
+    void updateColliBox(const bool& update);
 
     // 外部输入处理
     void processInput(const uint8_t* keyboard_state);
@@ -86,6 +92,7 @@ public:
     // 计算世界变换矩阵
     void computeWorldTransform();
     void recomputeWorldTransform(bool);
+    void actorComputerWorldTransform();
 
     // 碰撞反弹方向计算
     void rotateToNewForward(const Vector3& forward);
@@ -119,4 +126,6 @@ private:
     
     Matrix4 mWorldTransform;    // 角色时间变换矩阵
     bool mRecomputeWorldTransform;
+
+    bool mUpdateColliBox;
 };

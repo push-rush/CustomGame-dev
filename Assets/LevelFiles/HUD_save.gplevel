@@ -552,6 +552,14 @@
             {
                 "name": "menuArrowUnfold",
                 "texturePath": "../Assets/Images/MenuArrowUnfold.png"
+            },
+            {
+                "name": "lightIconOff",
+                "texturePath": "../Assets/Images/PointLightOffIcon.png"
+            },
+            {
+                "name": "lightIconOn",
+                "texturePath": "../Assets/Images/PointLightOnIcon.png"
             }
         ],
         "elements": [

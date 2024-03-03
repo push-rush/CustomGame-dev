@@ -6,7 +6,9 @@
 
 #define MeshNamePrefix "Mesh"
 #define ImageNamePrefix "Image"
-#define mSkeletonPrefix "Skeleton"
+#define SkeletonPrefix "Skeleton"
+#define CollectionPrefix "Collection"
+#define LightPrefix "Light"
 
 class ResourceManager
 {   
@@ -18,7 +20,7 @@ public:
         ESkeleton,
         EImage,
         ELight,
-        ECamera
+        ECamera,
     };
 
     enum ResourceState 
@@ -43,6 +45,7 @@ public:
 
     struct ResourceProperty
     {
+        class Component* mBindComp;
         std::string mName;
         ResourceType mType;
         ResourceState mState;
@@ -72,5 +75,7 @@ private:
     int mMeshSeq;
     int mImageSeq;
     int mSkeletonSeq;
+    int mCollectionSeq;
+    int mLightSeq;
     int mDefaultSeq;
 };

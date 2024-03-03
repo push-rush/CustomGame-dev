@@ -158,19 +158,31 @@ void HUD::draw(class Shader* basicShader, class Shader* spriteShader, class Shad
         }
     }
 
-    Shader* mesh_shader = this->getGame()->getRenderer()->getBasicMeshShader();
+    // Shader* mesh_shader = this->getGame()->getRenderer()->getBasicMeshShader();
 
-    auto vec = this->mStartPoint - this->mEndPoint;
-    if (!Math::NearZero(vec.LengthSq()))
-    {
-        auto center = this->mStartPoint + this->mEndPoint;
-        center.x *= 0.5f;
-        center.y *= 0.5f;
-        center.z *= 0.5f;
-        Renderers::Graphics3d::drawCylinder(mesh_shader, center, 10.0f, 36.0f, Vector3{0.15f, 0.15f, 0.55f}, 32);
+    // auto vec = this->mEndPoint - this->mStartPoint;
+    // if (!Math::NearZero(vec.LengthSq()))
+    // {
+    //     auto center = this->mStartPoint + this->mEndPoint;
+    //     center.x *= 0.5f;
+    //     center.y *= 0.5f;
+    //     center.z *= 0.5f;
 
-        // SDL_Log("[HUD] Unprojection...");
-    }
+    //     vec.Normalize();
+
+    //     // Renderers::Graphics3d::drawCylinder(mesh_shader, this->mStartPoint + vec * 50.0f, 10.0f, 36.0f, Vector3{0.25f, 0.25f, 0.45f}, 12);
+    //     // Renderers::Graphics3d::drawCylinder(mesh_shader, this->mStartPoint + vec * 500.0f, 10.0f, 36.0f, Vector3{0.25f, 0.25f, 0.45f}, 12);
+    //     Renderers::Graphics3d::drawSphere(mesh_shader, this->mStartPoint + vec * 500.0f, 5.0f, Vector3{0.25f, 0.35f, 0.45f}, 8, 16);
+    //     Renderers::Graphics3d::drawSphere(mesh_shader, this->mStartPoint + vec * 5000.0f, 100.0f, Vector3{0.25f, 0.35f, 0.45f}, 8, 16);
+
+    //     // SDL_Log(
+    //     //     "[HUD] Start point: (%.2f %.2f %.2f) End point: (%.2f %.2f %.2f)", 
+    //     //     this->mStartPoint.x, this->mStartPoint.y, this->mStartPoint.z,
+    //     //     this->mEndPoint.x, this->mEndPoint.y, this->mEndPoint.z
+    //     // );
+
+    //     // SDL_Log("[HUD] Unprojection...");
+    // }
 }
 
 // void HUD::draw(class Shader* shader, class Shader* fontShader, EmptySprite* e, const Vector2& offset)
@@ -627,33 +639,47 @@ void HUD::processInput(const uint8_t* keys)
     }
 
     // 获取当前选中目标的位置信息
-    // auto player = (FPSActor*)(this->getGame()->getPlayer());
-    // auto pos = player->getPosition();
-    // auto pos_offset = player->getFPSCamera()->getPosOffset();
-    // pos += pos_offset;
+    auto player = (FPSActor*)(this->getGame()->getPlayer());
+    auto pos = player->getPosition();
+    auto pos_offset = player->getFPSCamera()->getPosOffset();
+    pos += pos_offset;
 
     // 由鼠标点击位置计算反投影三维点
-    // Vector3 stPoint = Vector3(mousePos.x, mousePos.y, -0.9f);
-    // Vector3 start = this->getGame()->getRenderer()->unProject(stPoint);
-    // stPoint.z = 0.9f;
-    // Vector3 end = this->getGame()->getRenderer()->unProject(stPoint);
-    // Vector3 dir = end - start;
-    // dir.Normalize();
+    Vector3 stPoint = Vector3(mousePos.x, mousePos.y, 0.0f);
+    this->mStartPoint = this->getGame()->getRenderer()->unProject(stPoint);
+    // this->mStartPoint = pos;
 
+    stPoint.z = 0.9f;
+    this->mEndPoint = this->getGame()->getRenderer()->unProject(stPoint);
+    Vector3 dir = this->mEndPoint - this->mStartPoint;
+    dir.Normalize();
+    this->mEndPoint = this->mStartPoint + dir * 10000.0f;
+
+    // Vector3 dir1 = this->mStartPoint - pos;
+    // dir1.Normalize();
+    
     // SDL_Log("[HUD] Unproj st pos: (%.2f, %.2f, %.2f) \
     //     end pos: (%.2f, %.2f, %.2f) \
-    //     act pos: (%.2f, %.2f, %.2f)", 
-    //     start.x, start.y, start.z,
-    //     end.x, end.y, end.z,
-    //     pos.x, pos.y, pos.z
+    //     act pos: (%.2f, %.2f, %.2f) \
+    //     dir1: (%.2f, %.2f, %.2f)",
+    //     this->mStartPoint.x, this->mStartPoint.y, this->mStartPoint.z,
+    //     this->mEndPoint.x, this->mEndPoint.y, this->mEndPoint.z,
+    //     pos.x, pos.y, pos.z,
+    //     dir.x, dir.y, dir.z
     // );
 
-    this->mStartPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 0.0f});
-    this->mEndPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 0.9f});
+    // this->mStartPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 0.0f});
+    // this->mEndPoint = this->getGame()->getRenderer()->unProject(Vector3{mousePos.x, mousePos.y, 1.0f});
 }
 
-Vector3 HUD::getClickPoint()
+LineSegment HUD::getClickLine()
 {
-    auto vec = this->mEndPoint + this->mStartPoint; 
-    return Vector3{vec.x * 0.5f, vec.y * 0.5f, vec.z * 0.5f};
+    return LineSegment(this->mStartPoint, this->mEndPoint);
+}
+
+Ray HUD::getClickRay()
+{
+    auto dir = this->mEndPoint - this->mStartPoint;
+    dir.Normalize();
+    return Ray(this->mStartPoint, dir);
 }

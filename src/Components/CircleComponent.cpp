@@ -1,6 +1,13 @@
 #include "../../include/Components/CircleComponent.h"
+
 #include "../../include/Actors/Actor.h"
+
 #include "../../include/General/LevelLoader.h"
+
+#include "../../include/Renderers/PhysWorld.h"
+
+#include "../../include/Game.h"
+
 
 CircleComponent::CircleComponent()
 {
@@ -11,6 +18,8 @@ CircleComponent::CircleComponent(class Actor* owner)
 : Component(owner)
 {
     this->mRadius = 0.0f;
+
+    owner->getGame()->getPhysWorld()->addCircleComponent(this);
 }
 
 CircleComponent::~CircleComponent()
@@ -64,4 +73,9 @@ void CircleComponent::saveProperties(rapidjson::Document::AllocatorType& alloc, 
 {
     Component::saveProperties(alloc, props);
     
+}
+
+void CircleComponent::onUpdateWorldTransform()
+{
+    this->mRadius *= this->getActor()->getScale();
 }

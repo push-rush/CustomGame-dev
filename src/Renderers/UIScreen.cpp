@@ -84,29 +84,39 @@ void UIScreen::draw(
 {
     auto pos_offset = this->getUITranslation();
 
-    if (basicShader && !strcmp(elem->getType().c_str(), "button"))
+    if (basicShader) 
     {
-        Button* b = (Button*)(elem);
-        
-        if (b->getHighlighted() || b->getSpriteState() == EmptySprite::ESelected)
+        if (!strcmp(elem->getType().c_str(), "button"))
+        {
+            Button* b = (Button*)(elem);
+            if (b->getHighlighted() || b->getSpriteState() == EmptySprite::ESelected)
+            {
+                Renderers::Graphics2d::drawRectangle(
+                    basicShader, 
+                    b->getPosition() + pos_offset, 
+                    b->getDimension().x, b->getDimension().y, 
+                    b->getBindBgColor()
+                );
+                Renderers::Graphics2d::drawPolygon(
+                    basicShader, 
+                    { 
+                        Vector2{b->getPosition().x - b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y + b->getDimension().y * 0.5f + pos_offset.y}, 
+                        Vector2{b->getPosition().x + b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y + b->getDimension().y * 0.5f + pos_offset.y},
+                        Vector2{b->getPosition().x + b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y - b->getDimension().y * 0.5f + pos_offset.y},
+                        Vector2{b->getPosition().x - b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y - b->getDimension().y * 0.5f + pos_offset.y}
+                    },
+                    b->getBindBoxColor(),
+                    2
+                );
+            }
+        }
+        else if (elem->getBindTexName().size() < 1)
         {
             Renderers::Graphics2d::drawRectangle(
                 basicShader, 
-                b->getPosition() + pos_offset, 
-                b->getDimension().x, b->getDimension().y, 
-                b->getBindBgColor()
-            );
-
-            Renderers::Graphics2d::drawPolygon(
-                basicShader, 
-                { 
-                    Vector2{b->getPosition().x - b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y + b->getDimension().y * 0.5f + pos_offset.y}, 
-                    Vector2{b->getPosition().x + b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y + b->getDimension().y * 0.5f + pos_offset.y},
-                    Vector2{b->getPosition().x + b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y - b->getDimension().y * 0.5f + pos_offset.y},
-                    Vector2{b->getPosition().x - b->getDimension().x * 0.5f + pos_offset.x, b->getPosition().y - b->getDimension().y * 0.5f + pos_offset.y}
-                },
-                b->getBindBoxColor(),
-                2
+                elem->getPosition() + pos_offset, 
+                elem->getDimension().x, elem->getDimension().y, 
+                elem->getBindBgColor()
             );
         }
     }

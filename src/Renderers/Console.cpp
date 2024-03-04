@@ -213,7 +213,7 @@ void Console::processInput(const uint8_t* keys)
 
 void Console::handleMouseWheel(const int& mouse_wheel)
 {
-    SDL_Log("[Console] Mouse wheel is scrolling...");
+    // SDL_Log("[Console] Mouse wheel is scrolling...");
 
     UIScreen::handleMouseWheel(mouse_wheel);
 

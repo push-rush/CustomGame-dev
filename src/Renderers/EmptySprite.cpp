@@ -32,6 +32,7 @@ EmptySprite::EmptySprite(
         this->mTextSize = this->setNameTexture(text, fontSize);
     }
 
+    this->mBindBgColor = Vector3{0.15f, 0.28f, 0.35f};
     this->mBindTexOffset = Vector2{0.0f, 0.0f};
     this->mBindTextOffset = Vector2{0.0f, 0.0f};
 }
@@ -261,4 +262,14 @@ void EmptySprite::setBindTexOffset(const Vector2& offset)
 void EmptySprite::setBindTextOffset(const Vector2& offset)
 {
     this->mBindTextOffset = offset;
+}
+
+void EmptySprite::setBindBgColor(const Vector3& color)
+{
+    this->mBindBgColor = color;
+}
+
+Vector3 EmptySprite::getBindBgColor() const
+{
+    return this->mBindBgColor;
 }

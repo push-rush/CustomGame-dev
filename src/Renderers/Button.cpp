@@ -110,9 +110,10 @@ Button::Button(class UIScreen* ui,
     this->mIsClickable = true;
     this->mContainText = true;
 
-    this->mBindBgColor = bgColor;
+    // this->mBindBgColor = bgColor;
     this->mBindBoxColor = boxColor;
 
+    this->setBindBgColor(bgColor);
     this->setBindTexOffset(bindTexOffset);
     this->setBindTextOffset(bindTextOffset);
 }
@@ -134,9 +135,10 @@ Button::Button(class UIScreen* ui,
     this->mIsClickable = true;
     this->mContainText = true;
 
-    this->mBindBgColor = bgColor;
+    // this->mBindBgColor = bgColor;
     this->mBindBoxColor = boxColor;
 
+    this->setBindBgColor(bgColor);
     this->setBindTexOffset(bindTexOffset);
 }
 
@@ -298,20 +300,21 @@ void Button::setBindEventID(const int& event)
     this->mBindEventID = event;
 }
 
-Vector3 Button::setBindBgColor(const Vector3& color)
-{
-    this->mBindBgColor = color;
-}
+// Vector3 Button::setBindBgColor(const Vector3& color)
+// {
+//     this->mBindBgColor = color;
+// }
+
+// Vector3 Button::getBindBgColor() const
+// {
+//     return this->mBindBgColor;
+// }
 
 Vector3 Button::setBindBoxColor(const Vector3& color)
 {
     this->mBindBoxColor = color;
 }
 
-Vector3 Button::getBindBgColor() const
-{
-    return this->mBindBgColor;
-}
 
 Vector3 Button::getBindBoxColor() const
 {

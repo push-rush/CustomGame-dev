@@ -44,9 +44,9 @@
 #include "document.h"
 
 #define LOAD_PATH "../Assets/LevelFiles/SaveFile1.json"
-#define SAVE_PATH "../Assets/LevelFiles/SaveFile.json"
+#define SAVE_PATH "../Assets/LevelFiles/SaveFile0.json"
 
-#define LOAD_HUD_PATH "../Assets/LevelFiles/HUD_save.gplevel"
+#define LOAD_HUD_PATH "../Assets/LevelFiles/HUD_save0.json"
 #define SAVE_HUD_PATH "../Assets/LevelFiles/HUD_save1.json"
 
 #define LOAD_UITREE_PATH "../Assets/LevelFiles/UITree_menu1.json"
@@ -501,6 +501,9 @@ void Game::updateGame(string name)
             ++iter;
         }
     }
+
+    // 更新资源管理器
+    // this->mResourceManager->update(false);
 
     // SDL_Log("[Game] Update game over...");
 }

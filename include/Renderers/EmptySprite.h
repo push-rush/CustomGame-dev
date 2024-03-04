@@ -28,10 +28,11 @@ private:
     std::string mName;
     std::string mType;
     std::map<std::string, std::string> mBindTexName;
+    SpriteState mSpriteState;
     Vector2 mPosition;
     Vector2 mScale;
     Vector2 mDimension;
-    SpriteState mSpriteState;
+    Vector3 mBindBgColor;
 
     // ui文本信息
     bool mContainText;
@@ -84,6 +85,8 @@ public:
     Vector2 getBindTexOffset() const;
     Vector2 getBindTextOffset() const;
 
+    Vector3 getBindBgColor() const;
+
     // setters
     void setSpriteName(const std::string& name);
     void setType(const std::string& type);
@@ -103,6 +106,8 @@ public:
 
     void setBindTexOffset(const Vector2& offset);
     void setBindTextOffset(const Vector2& offset);
+
+    void setBindBgColor(const Vector3& color);
 
     bool containText();
 };

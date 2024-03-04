@@ -1,10 +1,15 @@
 #include "../../include/Actors/Actor.h"
-#include "../../include/Components/Component.h"
-#include "../../include/Game.h"
-#include "../../include/Renderers/Renderer.h"
-#include "../../include/Components/SpriteComponent.h"
-#include "../../include/General/LevelLoader.h"
 #include "../../include/Actors/TargetActor.h"
+
+#include "../../include/Game.h"
+
+#include "../../include/Renderers/Renderer.h"
+
+#include "../../include/General/LevelLoader.h"
+#include "../../include/General/ResourceManager.h"
+
+#include "../../include/Components/SpriteComponent.h"
+#include "../../include/Components/Component.h"
 
 const char* Actor::typeNames[Actor::NUM_ACTOR_TYPES] = 
 {
@@ -264,6 +269,10 @@ void Actor::actorHandleMouse(const int& mouse)
                         act->setState(EActive);
                     }
                 }
+
+                auto resource_manager = this->getGame()->getResourceManager();
+                resource_manager->update(true);
+                
                 SDL_Log("[Actor] State: Clicked...");
             }
             break;

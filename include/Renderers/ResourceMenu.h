@@ -23,6 +23,8 @@ private:
     Vector2 mBottomButtonPos;
     Vector2 mRightButtonPos;
 
+    class TreeNode* mCurPickingNode;
+
 public:
     ResourceMenu(class Game* game);
     ~ResourceMenu();
@@ -59,11 +61,12 @@ public:
     // getters
     TreeStruct* getResourceMenuTree();
     void nodeAddToStack(TreeNode* node);
-
+    TreeNode* getCurPickingNode() const;
     TreeStruct* getResourceEventTree();
+
+    // setters
+
     void updateResourceEventStack();
-
     std::map<std::string, std::string> allocTex(const ResourceManager::ResourceType& type);
-
     void setUIBorderPos(const Vector2& left, const Vector2& bottom, const Vector2& right);
 };

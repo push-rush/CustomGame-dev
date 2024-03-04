@@ -683,27 +683,33 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
             }
         }
 
-        // for (auto tex : ui->getUITextures())
-        // {
-        //     std::cout << "[LevelLoader] tex name:" << tex.first << std::endl;
-        // }
-
         iter = inObject.FindMember("elements");
         if (iter != inObject.MemberEnd())
         {
             auto& elements = iter->value;
             for (rapidjson::SizeType i = 0; i < elements.Size(); ++i)
             {
+                int event_id = -1;
+                int updateOrder = 100;
+                Vector2 pos = Vector2{0.0f, 0.0f};
+                Vector2 size = Vector2{0.0f, 0.0f};
+                Vector2 scale = Vector2{0.0f, 0.0f};
+                Vector3 bg_color = Vector3{0.25f, 0.30f, 0.26f};
+                Vector3 box_color = Vector3{0.25f, 0.50f, 0.66f};
+                Vector2 tex_offset = Vector2{0.0f, 0.0f};
+                
+                std::string text = "";
+                int font_size = 35;
+                Vector3 text_color = Vector3{0.5, 0.25, 0.25};
+                Vector2 text_offset = Vector2{0.0f, 0.0f};
+
+                std::string name = "";
+                std::string type = "";
+                std::string bind_name = "";
+
                 const rapidjson::Value& elem = elements[i];
                 if (elem.IsObject())
                 {
-                    int event_id = -1;
-                    int updateOrder = 100;
-                    Vector2 pos = Vector2{0.0f, 0.0f};
-                    Vector2 size = Vector2{0.0f, 0.0f};
-                    Vector2 scale = Vector2{0.0f, 0.0f};
-
-                    std::string name, type, bind_name;
                     if (JsonHelper::getString(elem, "name", name) &&
                         JsonHelper::getString(elem, "type", type) &&
                         elem.HasMember("properties"))
@@ -714,19 +720,35 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                             JsonHelper::getVector2(props, "position", pos) &&
                             JsonHelper::getVector2(props, "size", size) &&
                             JsonHelper::getVector2(props, "scale", scale) &&
-                            JsonHelper::getInt(props, "bindEventID", event_id)
+                            JsonHelper::getInt(props, "bindEventID", event_id) &&
+                            JsonHelper::getString(props, "bindText", text) &&
+                            JsonHelper::getVector2(props, "bindTextOffset", text_offset) &&
+                            JsonHelper::getVector3(props, "textColor", text_color) &&
+                            JsonHelper::getInt(props, "fontSize", font_size) &&
+                            JsonHelper::getVector2(props, "bindTexOffset", tex_offset) &&
+                            JsonHelper::getVector3(props, "bindBGColor", bg_color) &&
+                            JsonHelper::getVector3(props, "bindBoxColor", box_color)
                         );
 
                         if (flag || true)
                         {
-                            std::string text;
+                            wstring w_str;
+                            if (text.size() > 0)
+                            {
+                                wchar_t pwchar[text.length()] = {'\0'};
+                                for (int i = 0; i < (int)text.length(); ++i)
+                                {
+                                    memcpy(&pwchar[i], &text[i], sizeof(char));
+                                }  
+                                w_str = wstring(pwchar, pwchar + (int)text.length());
+                            }
+                            
                             std::map<std::string, std::string> texs_map;
                             if (!strcmp(type.c_str(), "button"))
                             {
                                 SDL_Log("[LevelLoader] load button name: %s", name.c_str());
 
                                 std::string buttonOn, buttonOff;
-                                // String2WString str2Wstr;
                                 const rapidjson::Value& texs = props["bindTexName"];
                                 if (texs.IsObject())
                                 {
@@ -738,68 +760,69 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         texs_map.emplace("on", buttonOn);
                                     }
 
-                                    if (JsonHelper::getString(props, "bindText", text))
+                                    if (text.size() > 0)
                                     {
-                                        // std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-                                        // std::wstring w_str = converter.from_bytes(text);
-
-                                        wchar_t pwchar[text.length()] = {'\0'};
-                                        for (int i = 0; i < (int)text.length(); ++i)
-                                        {
-                                            memcpy(&pwchar[i], &text[i], sizeof(char));
-                                        }  
-                                        wstring w_str(pwchar, pwchar + (int)text.length());
-
-                                        int font_size = 35;
-                                        Vector3 text_color = Vector3{0.5, 0.25, 0.25};
-                                        
-                                        // 读取文本颜色和字体大小
-                                        JsonHelper::getVector3(props, "textColor", text_color);
-                                        JsonHelper::getInt(props, "fontSize", font_size);
-
-                                        // ui->addButton<Button>(
-                                        //     name, type, 
-                                        //     texs_map, 
-                                        //     w_str, text_color, font_size,
-                                        //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
-                                        //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                        //     }, true, scale
+                                        // TextButton* b = new TextButton(
+                                        //     this,
+                                        //     node_name, "button",
+                                        //     pos, Vector2{this->getUIBufferViewSize().x * 1.0f, 24}, Vector2{1.0f, 1.0f},
+                                        //     Vector3{0.35f, 0.55f, 0.65f}, Vector3{0.35f, 0.55f, 0.65f},
+                                        //     w_str, Vector3{0.85f, 0.85f, 0.85f}, 18, Vector2{text_offset, 0.0f}, 
+                                        //     name_map, Vector2{tex_offset, 0.0f},
+                                        //     OpenChildren, [](){},
+                                        //     false
                                         // );
 
                                         Button* b = new Button(
-                                            ui,
-                                            name, type, 
-                                            texs_map, 
-                                            w_str, text_color, font_size,
-                                            event_id, [](){},
+                                            ui, 
+                                            name, type,
                                             pos, size, scale,
+                                            bg_color, box_color,
+                                            w_str, text_color, font_size, text_offset,
+                                            texs_map, tex_offset,
+                                            event_id, [](){},
                                             true
                                         );
 
-                                        b->setClickCallback([ui, event_id, b](){
+                                        // Button* b = new Button(
+                                        //     ui,
+                                        //     name, type,
+                                        //     texs_map, 
+                                        //     w_str, text_color, font_size,
+                                        //     event_id, [](){},
+                                        //     pos, size, scale,
+                                        //     true
+                                        // );
+
+
+                                        b->setClickCallback(
+                                            [ui, event_id, b](){
                                             ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
                                         });
                                     }
                                     else
                                     {
-                                        // ui->addButton<Button>(
-                                        //     name, type,
-                                        //     texs_map,
-                                        //     pos, (UIScreen::UIBindEvent)event_id, [ui, event_id](){
-                                        //         ui->bindEvent((UIScreen::UIBindEvent)event_id);
-                                        //     }, true, scale
+                                        // Button* b = new Button(
+                                        //     ui,
+                                        //     name, type, 
+                                        //     texs_map, 
+                                        //     event_id, [](){},
+                                        //     pos, size, scale,
+                                        //     true
                                         // );
 
                                         Button* b = new Button(
-                                            ui,
-                                            name, type, 
-                                            texs_map, 
-                                            event_id, [](){},
+                                            ui, 
+                                            name, type,
                                             pos, size, scale,
+                                            bg_color, box_color,
+                                            texs_map, tex_offset,
+                                            event_id, [](){},
                                             true
                                         );
 
-                                        b->setClickCallback([ui, event_id, b](){
+                                        b->setClickCallback(
+                                            [ui, event_id, b](){
                                             ui->bindEvent((UIScreen::UIBindEvent)event_id, b);
                                         });
                                     }
@@ -813,23 +836,10 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                 JsonHelper::getString(props, "bindTexName", bind_name);
                                 texs_map.emplace("default", bind_name);
 
-                                if (JsonHelper::getString(props, "bindText", text))
+                                EmptySprite* e = nullptr;
+                                if (text.size() > 0)
                                 {
-                                    wchar_t pwchar[text.length()] = {'\0'};
-                                    for (int i = 0; i < (int)text.length(); ++i)
-                                    {
-                                        memcpy(&pwchar[i], &text[i], sizeof(char));
-                                    }  
-                                    wstring w_str(pwchar, pwchar + (int)text.length());
-
-                                    int font_size = 35;
-                                    Vector3 text_color = Vector3{0.5, 0.25, 0.25};
-                                    
-                                    // 读取文本颜色和字体大小
-                                    JsonHelper::getVector3(props, "textColor", text_color);
-                                    JsonHelper::getInt(props, "fontSize", font_size);
-
-                                    new EmptySprite(
+                                    e = new EmptySprite(
                                         ui, 
                                         name, 
                                         type,
@@ -844,7 +854,7 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                 }
                                 else
                                 {
-                                    new EmptySprite(
+                                    e = new EmptySprite(
                                         ui, 
                                         name, 
                                         type,
@@ -854,9 +864,16 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         scale, 
                                         updateOrder
                                     );
+
+                                }
+
+                                if (e)
+                                {
+                                    e->setBindBgColor(bg_color);
+                                    e->setBindTexOffset(tex_offset);
+                                    e->setBindTextOffset(text_offset);
                                 }
                             }
-
                             SDL_Log("[LevelLoader] Load HUD element name: %s", name.c_str());
                         }
                     }

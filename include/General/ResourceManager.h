@@ -54,12 +54,15 @@ public:
     ResourceManager(class Game* game);
     ~ResourceManager();
 
-    void update();
+    void update(const bool& cast);
     void addResourceProperty(ResourceProperty* rep);
     std::string allocDefaultName(const ResourceType& type);
 
-    void addObjectResource(std::string name);
+    void removePickingResNode(TreeNode* res_node);
 
+    void addPickingResNode(TreeNode* res_node);
+
+    // setters
     void setCurSelectMenu(const std::string& menu);
 
     // getters
@@ -70,7 +73,7 @@ private:
     TreeStruct mResourceTree;
     std::string mCurSelectMenu;
 
-    std::vector<std::string> mSelectedResources;
+    std::vector<TreeNode*> mPickingResNodes;
 
     int mMeshSeq;
     int mImageSeq;

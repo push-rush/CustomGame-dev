@@ -14,7 +14,7 @@
 #include "../../include/Game.h"
 
 ResourceMenu::ResourceMenu(class Game* game)
-: UIScreen(game), mFlag(false)
+: UIScreen(game), mFlag(false), mCurPickingNode(nullptr)
 {
     this->setUIType(EResourceMenu);
     
@@ -386,7 +386,7 @@ void ResourceMenu::update(float dt)
                         this,
                         node_name, "button",
                         pos, Vector2{this->getUIBufferViewSize().x * 1.0f, 24}, Vector2{1.0f, 1.0f},
-                        Vector3{0.35f, 0.35f, 0.35f}, Vector3{0.35f, 0.35f, 0.35f},
+                        Vector3{0.35f, 0.55f, 0.65f}, Vector3{0.35f, 0.55f, 0.65f},
                         w_str, Vector3{0.85f, 0.85f, 0.85f}, 18, Vector2{text_offset, 0.0f}, 
                         name_map, Vector2{tex_offset, 0.0f},
                         OpenChildren, [](){},
@@ -396,9 +396,14 @@ void ResourceMenu::update(float dt)
                     b->setLinkTextButton(link_tb);
                     if (rp->mType == ResourceManager::ECollection)
                     {
-                        b->setClickCallback([this, b, node, rp](){
-                            SDL_Log("[ResourceMenu] Button is selected...");
+                        b->setClickCallback([this, b, node, rp, resource_manager](){
+                            SDL_Log("[ResourceMenu] Collection Button is selected...");
+
                             b->setSpriteState(EmptySprite::ESelected);
+
+                            // 添加当前指定对象
+                            resource_manager->addPickingResNode(node);
+
                             if (rp->mState == ResourceManager::EComp_DisplayFold || rp->mState == ResourceManager::EComp_ChooseFold)
                             {
                                 rp->mState = ResourceManager::EComp_ChooseUnfold;
@@ -408,16 +413,26 @@ void ResourceMenu::update(float dt)
                                 rp->mState = ResourceManager::EComp_ChooseFold;
                             }
                             
-                            SDL_Log("rep state: %d", rp->mState);
+                            SDL_Log("[ResourceMenu] Collection rep state: %d", rp->mState);
                         });
 
                     }
                     else
                     {
-                        b->setClickCallback([this, b, rp](){
+                        b->setClickCallback([this, b, node, rp, resource_manager](){
                             SDL_Log("[ResourceMenu] Button is selected...");
+                            
                             b->setSpriteState(EmptySprite::ESelected);
                             rp->mState = ResourceManager::EChosen;
+                            
+                            // 设置当前指定对象
+                            this->mCurPickingNode = node;
+                            resource_manager->addPickingResNode(node);
+
+                            // auto target_node = resource_manager->getResourceTree()->findTreeNode(b->getSpriteName());
+                            // SDL_Log("[ResourceMenu] Rep state: %d", rp->mState);
+
+                            SDL_Log("[ResourceMenu] Target node name: %s", node->mNodeName.c_str());
                         });
                     }
 
@@ -506,7 +521,11 @@ void ResourceMenu::update(float dt)
                                 auto pos_offset = tb->getPosition() - tb->getLinkButtonPos();
 
                                 pos.y -= tb->getDimension().y;
+
+                                // 重新设置当前button位置
                                 tb->setPosition(Vector2{tb->getPosition().x, pos.y});
+                                
+                                // 更新link_button位置信息
                                 tb->setLinkButtonPos(tb->getPosition() - pos_offset);
 
                                 if (parent)
@@ -582,6 +601,10 @@ void ResourceMenu::update(float dt)
                         {
                             auto tb = (TextButton*)(n->mNodeValuePointer);
                             tb->setSpriteState(EmptySprite::ESelected);
+
+                            // 设置当前指定对象
+                            this->mCurPickingNode = node;
+                            resource_manager->addPickingResNode(node);
 
                             TextButton* link_tb = tb->getLinkTextButton();
                             if (link_tb)
@@ -714,22 +737,25 @@ void ResourceMenu::update(float dt)
                         {
                             if (temp_rep->mType == ResourceManager::ECollection)
                             {
-                                if (temp_rep->mState == ResourceManager::EComp_ChooseFold ||
-                                    temp_rep->mState == ResourceManager::EComp_HideFold
-                                )
-                                {
+                                if (temp_rep->mState == ResourceManager::EComp_HideFold)
+                                {   // 若子文件夹处于隐藏状态，则显示
                                     temp_rep->mState = ResourceManager::EComp_DisplayFold;
                                 }
-                                else if (temp_rep->mState == ResourceManager::EComp_ChooseUnfold ||
-                                    temp_rep->mState == ResourceManager::EComp_HideUnfold
-                                )
+                                else if (temp_rep->mState == ResourceManager::EComp_HideUnfold)
                                 {
                                     temp_rep->mState = ResourceManager::EComp_DisplayUnfold;
                                 }
                             }
                             else
                             {
-                                temp_rep->mState = ResourceManager::EDisplay;
+                                if (temp_rep->mState == ResourceManager::EHidden)
+                                {   // 若子对象处于隐藏状态，则显示
+                                    temp_rep->mState = ResourceManager::EDisplay;
+                                }
+                                else
+                                {
+
+                                }
                             }
                         }
                     }
@@ -951,7 +977,11 @@ void ResourceMenu::handleKeyPress(int key)
                         }
                     }
 
-                    if (flag && tb)
+                    if (!flag) 
+                    {
+                        this->mCurPickingNode = nullptr;
+                    }
+                    else if (flag && tb)
                     {
                         auto resource_tree = resource_manager->getResourceTree();
                         auto node = resource_tree->findTreeNode(tb->getSpriteName());
@@ -987,6 +1017,7 @@ void ResourceMenu::handleKeyPress(int key)
                                 }
                             }
                         }
+                        resource_manager->removePickingResNode(node);
                     }
                 }
             }
@@ -1020,6 +1051,10 @@ void ResourceMenu::handleKeyPress(int key)
                     e->setSpriteState(EmptySprite::EUninvisible);    
                 }
             }
+
+            auto resource_manager = this->getGame()->getResourceManager();
+            resource_manager->update(false);
+
             break;
         }
         case (SDL_BUTTON_RIGHT):
@@ -1036,11 +1071,11 @@ void ResourceMenu::handleKeyPress(int key)
                 root->mNodeValuePointer = nullptr;
             }
 
+            auto resource_manager = this->getGame()->getResourceManager();
             if (!this->mResourceStack.empty())
             {
                 bool flag = false;
                 Button *tb = nullptr;
-                auto resource_manager = this->getGame()->getResourceManager();
                 auto resource_tree = resource_manager->getResourceTree();
                 for (auto n : this->mResourceStack)
                 {
@@ -1050,12 +1085,17 @@ void ResourceMenu::handleKeyPress(int key)
                         SDL_Log("[ResourceMenu] Button is display...");
 
                         b->setSpriteState(EmptySprite::ESelected);
+
                         root->mNodeValuePointer = (void*)b;
                         
                         if (resource_manager)
                         {
                             auto temp_node = resource_tree->findTreeNode(n->mNodeName);
                             auto temp_rep = (ResourceManager::ResourceProperty*)(temp_node->mNodeValuePointer);
+                            
+                            // 设置当前选定节点
+                            this->mCurPickingNode = temp_node;
+                            resource_manager->addPickingResNode(temp_node);
 
                             if (temp_rep)
                             {
@@ -1169,9 +1209,14 @@ void ResourceMenu::handleKeyPress(int key)
                             tb_rep->mState = ResourceManager::EDisplay;
                         }
                     }
+
+                    resource_manager->removePickingResNode(tb_node);
                 }
             }
 
+            // 更新资源管理器
+            // auto resource_manager = this->getGame()->getResourceManager();
+            resource_manager->update(false);
             break;
         }
         case (SDLK_ESCAPE):
@@ -1313,7 +1358,7 @@ void ResourceMenu::setUIBorderPos(const Vector2& left, const Vector2& bottom, co
 
 void ResourceMenu::handleMouseWheel(const int& mouse_wheel)
 {
-    SDL_Log("[ResourceMenu] Mouse wheel is scrolling...");
+    // SDL_Log("[ResourceMenu] Mouse wheel is scrolling...");
 
     UIScreen::handleMouseWheel(mouse_wheel);
 
@@ -1350,7 +1395,7 @@ void ResourceMenu::handleMouseWheel(const int& mouse_wheel)
         }
         
         auto dy = right_border->getPosition().y + mouse_wheel * 10.0f;
-        SDL_Log("[ResourceMenu] Mouse wheel is scrolling: y: %d %.1f", mouse_wheel, dy);
+        // SDL_Log("[ResourceMenu] Mouse wheel is scrolling: y: %d %.1f", mouse_wheel, dy);
 
         if ((dy + h * 0.5f + right_border->getDimension().y * 0.5) > (this->getUIBufferPos().y + this->getUIPosOffset().y + this->getUIBufferViewSize().y))
         {
@@ -1397,4 +1442,9 @@ void ResourceMenu::updateResourceEventStack()
             }
         }   
     }
+}
+
+TreeNode* ResourceMenu::getCurPickingNode() const
+{
+    return this->mCurPickingNode;
 }

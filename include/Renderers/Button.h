@@ -91,7 +91,7 @@ public:
     void setButtonPos(const Vector2& pos);
     void setBindEventID(const int& event);
 
-    Vector3 setBindBgColor(const Vector3& color);
+    // void setBindBgColor(const Vector3& color);
     Vector3 setBindBoxColor(const Vector3& color);
 
     // getters
@@ -102,7 +102,7 @@ public:
     bool getButtonState() const;
     Vector2 getButtonScale() const;
 
-    Vector3 getBindBgColor() const;
+    // Vector3 getBindBgColor() const;
     Vector3 getBindBoxColor() const;
 
     // 判断点击点在按钮范围内
@@ -121,6 +121,6 @@ private:
     bool mIsClickable;
     bool mContainText;
 
-    Vector3 mBindBgColor;
+    // Vector3 mBindBgColor;
     Vector3 mBindBoxColor;
 };

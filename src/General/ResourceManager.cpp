@@ -2,6 +2,7 @@
 
 #include "../../include/Renderers/EmptySprite.h"
 #include "../../include/Renderers/Renderer.h"
+#include "../../include/Renderers/ResourceMenu.h"
 
 #include "../../include/Actors/Actor.h"
 
@@ -34,82 +35,172 @@ ResourceManager::~ResourceManager()
 
 }
 
-void ResourceManager::update()
+void ResourceManager::update(const bool& cast)
 {
     auto acts = this->mGame->getActors();
     auto comps = this->mGame->getRenderer()->getMeshComponents();
+    auto resource_menu = this->mGame->getResourceMenu();
 
-    for (auto act : acts)
+    if (cast)
     {
-        if (act->getState() == Actor::EClicked)
+        for (auto cp : comps)
         {
-            for (auto cp : comps)
+            auto act = cp->getActor();
+            if (act && act->getState() == Actor::EClicked)
             {
-                if (cp->getActor() == act)
+                auto node_name = "Mesh." + to_string(cp->getCompID());
+                auto node = this->mResourceTree.findTreeNode(node_name);
+                
+                if (node)
                 {
-                    auto node_name = "default." + to_string(cp->getCompID());
-                    auto node = this->mResourceTree.findTreeNode(node_name);
                     this->setCurSelectMenu(node->mNodeParent);
+                    
+                    ResourceProperty* rep = (ResourceProperty*)node->mNodeValuePointer;
+                    if (rep)
+                    {
+                        rep->mState = ResourceManager::EChosen;
+
+                        for (auto iter = this->mPickingResNodes.begin(); iter != this->mPickingResNodes.end();)
+                        {
+                            auto n = (*iter);
+                            if (n && n != node)
+                            {
+                                ResourceProperty* rp = (ResourceProperty*)n->mNodeValuePointer;
+                                
+                                if (rp->mState == ResourceManager::EChosen)
+                                {
+                                    rp->mState = ResourceManager::EDisplay;
+                                }
+                                else if (rp->mState == ResourceManager::EComp_ChooseFold)
+                                {
+                                    rp->mState = ResourceManager::EComp_DisplayFold;
+                                }
+                                else if (rp->mState == ResourceManager::EComp_ChooseUnfold)
+                                {
+                                    rp->mState = ResourceManager::EComp_DisplayUnfold;
+                                }
+
+                                iter = this->mPickingResNodes.erase(iter);
+                            }
+                            else
+                            {
+                                ++iter;
+                            }
+                        }
+
+                        this->addPickingResNode(node);
+
+                        // auto root = this->mResourceTree.findTreeNode("root");
+                        // std::queue<TreeNode*> s;
+                        // s.push(root);
+
+                        // while (!s.empty())
+                        // {
+                        //     int size = s.size();
+                        //     while (size--)
+                        //     {
+                        //         TreeNode* node = s.front();
+                        //         s.pop();
+
+                        //         if (node)
+                        //         {
+                        //             ResourceProperty* rp = (ResourceProperty*)node->mNodeValuePointer;
+                        //             if (strcmp(node->mNodeName.c_str(), node_name.c_str()))
+                        //             {
+                        //                 if (rp->mState == ResourceManager::EChosen)
+                        //                 {
+                        //                     rp->mState = ResourceManager::EDisplay;
+                        //                 }
+                        //                 else if (rp->mState == ResourceManager::EComp_ChooseFold)
+                        //                 {
+                        //                     rp->mState = ResourceManager::EComp_DisplayFold;
+                        //                 }
+                        //                 else if (rp->mState == ResourceManager::EComp_ChooseUnfold)
+                        //                 {
+                        //                     rp->mState = ResourceManager::EComp_DisplayUnfold;
+                        //                 }
+                        //             }
+
+                        //             for (auto child : node->mChildren)
+                        //             {
+                        //                 if (child)
+                        //                 {
+                        //                     s.push(child);
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
+                        // }
+                    }
                     break;
                 }
             }
-            break;
+        }
+    }
+    else
+    {
+        if (resource_menu)
+        {
+            auto selected_node = resource_menu->getCurPickingNode();
+            if (selected_node)
+            {
+                Actor* target = nullptr;
+                for (auto cp : comps)
+                {
+                    auto act = cp->getActor();
+                    if (act)
+                    {
+                        std::string cp_name = "Mesh." + to_string(cp->getCompID());
+                        if (!strcmp(selected_node->mNodeName.c_str(), cp_name.c_str()))
+                        {
+                            act->setState(Actor::EClicked);
+                            target = act;
+
+                            // SDL_Log("[ResourceManager] Cur comp name: %s", cp_name.c_str());
+                            break;
+                        }
+                    }
+                }
+
+                if (target)
+                {
+                    for (auto cp : comps)
+                    {
+                        auto act = cp->getActor();
+                        if (act != target)
+                        {
+                            act->setState(Actor::EActive);
+                        }
+                    }
+                }
+            }
         }
     }
 
-    // auto r = this->mResourceTree.findTreeNode("root");
-
-    // std::queue<TreeNode*> q;
-    // q.push(r);
-
-    // while (!q.empty())
-    // {
-    //     int size = q.size();
-    //     while (size--)
-    //     {
-    //         auto n = q.front();
-    //         q.pop();
-    //         if (n->mNodeValuePointer)
-    //         {
-    //             auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(n->mNodeValuePointer);
-    //             if (rep->mState == ResourceManager::EDeleted)
-    //             {
-    //                 this->mResourceTree.deleteTreeNode(n->mNodeName);
-    //             }
-    //         }
-
-    //         for (auto iter = n->mChildren.begin(); iter != n->mChildren.end(); ++iter)
-    //         {
-    //             if ((*iter))
-    //             {
-    //                 q.push((*iter));
-    //             }
-    //         }
-    //     }
-    // }
-
-    for (auto rep_name : this->mSelectedResources)
+    for (auto picking_node : this->mPickingResNodes)
     {
-        auto n = this->mResourceTree.findTreeNode(rep_name);
-        if (n && n->mNodeValuePointer)
+        if (picking_node && picking_node->mNodeValuePointer)
         {
-            auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(n->mNodeValuePointer);
+            auto rep = reinterpret_cast<ResourceManager::ResourceProperty*>(picking_node->mNodeValuePointer);
 
             switch (rep->mState)
             {
                 case ResourceManager::EDeleted:
                 {
-                    this->mResourceTree.deleteTreeNode(n->mNodeName);
+                    this->mResourceTree.deleteTreeNode(picking_node->mNodeName);
                     break;
                 }
                 case ResourceManager::ERename:
                 {
-                    
 
                     break;
                 }
                 default:
+                {
+                    SDL_Log("[ResourceManager] Update picking node...");
+
                     break;
+                }
             }
         }
     }
@@ -190,9 +281,28 @@ TreeStruct* ResourceManager::getResourceTree()
     return &this->mResourceTree;
 }
 
-void ResourceManager::addObjectResource(std::string name)
+void ResourceManager::addPickingResNode(TreeNode* res_node)
 {
-    this->mSelectedResources.emplace_back(name);
+    for (auto n : this->mPickingResNodes)
+    {
+        if (n == res_node)
+        {
+            return;
+        }
+    }
+    this->mPickingResNodes.emplace_back(res_node);
+}
+
+void ResourceManager::removePickingResNode(TreeNode* res_node)
+{
+    for (auto iter = this->mPickingResNodes.begin(); iter != this->mPickingResNodes.end(); ++iter)
+    {
+        if ((*iter) == res_node)
+        {
+            iter = this->mPickingResNodes.erase(iter);
+            break;
+        }
+    }
 }
 
 void ResourceManager::setCurSelectMenu(const std::string& menu)

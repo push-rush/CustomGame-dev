@@ -61,34 +61,34 @@
         ],
         "elements": [
             {
-                "name": "Menu2",
+                "name": "Menu1",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "menu2",
+                    "bindTexName": "None",
                     "updateOrder": 100,
                     "position": [
                         -710.0,
                         0.0
                     ],
                     "scale": [
-                        0.0,
-                        0.0
+                        1.0,
+                        1.0
                     ]
                 }
             },
             {
-                "name": "Menu1",
+                "name": "Menu2",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "menu1",
+                    "bindTexName": "None",
                     "updateOrder": 100,
                     "position": [
                         0.0,
                         365.0
                     ],
                     "scale": [
-                        0.0,
-                        0.0
+                        1.0,
+                        1.0
                     ]
                 }
             },
@@ -96,11 +96,10 @@
                 "name": "Radar",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "radar",
                     "updateOrder": 90,
                     "position": [
-                        -560.0,
-                        220.0
+                        -530.0,
+                        215.0
                     ],
                     "scale": [
                         0.0,
@@ -112,11 +111,10 @@
                 "name": "RadarArrow",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "radarArrow",
                     "updateOrder": 100,
                     "position": [
-                        -560.0,
-                        220.0
+                        -530.0,
+                        215.0
                     ],
                     "scale": [
                         0.0,
@@ -128,7 +126,6 @@
                 "name": "Crosschair",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "crosshairEnemy",
                     "updateOrder": 100,
                     "position": [
                         0.0,
@@ -230,7 +227,6 @@
                 "name": "background",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "bg",
                     "updateOrder": 100,
                     "position": [
                         0.0,
@@ -354,7 +350,6 @@
                 "name": "background1",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "background1",
                     "updateOrder": 80,
                     "position": [
                         0.0,
@@ -370,7 +365,6 @@
                 "name": "slider0",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "slider0",
                     "updateOrder": 100,
                     "position": [
                         60.0,

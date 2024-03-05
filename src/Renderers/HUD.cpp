@@ -124,7 +124,7 @@ void HUD::draw(class Shader* basicShader, class Shader* spriteShader, class Shad
 
     for (auto elem : this->getUIElements())
     {
-        UIScreen::draw(nullptr, spriteShader, fontShader, elem);
+        UIScreen::draw(basicShader, spriteShader, fontShader, elem);
 
         if (!strcmp(elem->getSpriteName().c_str(), "Radar"))
         {

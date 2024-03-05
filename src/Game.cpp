@@ -835,7 +835,7 @@ void Game::loadData()
         this->mResourceMenu->setBindTexture(tex);
 
         // auto scale = this->mHUD->getUIViewScale();
-        this->mResourceMenu->setUIViewScale(Vector2{0.10f, 0.50f});
+        this->mResourceMenu->setUIViewScale(Vector2{0.25f, 0.50f});
         this->mResourceMenu->setUIPosOffset(Vector2{
             w - this->mResourceMenu->getUIBufferPos().x - this->mResourceMenu->getUIBufferViewSize().x, 
             h - this->mResourceMenu->getUIBufferPos().y - this->mResourceMenu->getUIBufferViewSize().y
@@ -933,7 +933,7 @@ void Game::loadData()
 
         auto scale = this->mResourceMenu->getUIViewScale();
         // auto scale = this->mHUD->getUIViewScale();
-        this->mConsole->setUIViewScale(Vector2{scale.x, 0.10f});
+        this->mConsole->setUIViewScale(Vector2{scale.x, 0.20f});
         this->mConsole->setUIPosOffset(Vector2{
             -this->mConsole->getUIBufferPos().x,
             -this->mConsole->getUIBufferPos().y

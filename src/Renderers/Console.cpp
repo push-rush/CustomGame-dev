@@ -114,24 +114,28 @@ void Console::update(float dt)
     }
     
     auto scale = this->getGame()->getPropertyMenu()->getUIViewScale();
-    this->setUIViewScale(Vector2{1.0f - scale.x, this->getUIViewScale().y});
-    this->setUIPosOffset(Vector2{
-        -this->getUIBufferPos().x,
-        -this->getUIBufferPos().y
-    });
+    auto old_scale = this->getUIViewScale();
+    if (!Math::NearZero(scale.x - old_scale.x) || !Math::NearZero(1.0f - scale.y - old_scale.y))
+    {
+        this->setUIViewScale(Vector2{1.0f - scale.x, this->getUIViewScale().y});
+        this->setUIPosOffset(Vector2{
+            -this->getUIBufferPos().x,
+            -this->getUIBufferPos().y
+        });
 
-    up_border->setPosition(Vector2{
-        this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x * 0.5f, 
-        this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y
-    });
-    up_border->setDimension(Vector2{this->getUIBufferViewSize().x, 20.0f});
+        up_border->setPosition(Vector2{
+            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x * 0.5f, 
+            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y
+        });
+        up_border->setDimension(Vector2{this->getUIBufferViewSize().x, 20.0f});
 
-    right_border->setPosition(Vector2{
-        this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x, 
-        this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y * 0.5f
-    });
-    right_border->setDimension(Vector2{20.0f, this->getUIBufferViewSize().y});
-
+        right_border->setPosition(Vector2{
+            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x, 
+            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y * 0.5f
+        });
+        right_border->setDimension(Vector2{20.0f, this->getUIBufferViewSize().y});
+    }
+    
     int x = 0, y = 0;
     Uint32 mouse = SDL_GetMouseState(&x, &y);
     Vector2 mousePos(static_cast<float>(x), static_cast<float>(y));

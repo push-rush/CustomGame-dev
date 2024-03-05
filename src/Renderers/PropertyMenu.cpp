@@ -95,17 +95,37 @@ void PropertyMenu::update(float dt)
     auto h = this->getGame()->getRenderer()->getScreenHeight();
 
     auto scale = this->getGame()->getResourceMenu()->getUIViewScale();
-    this->setUIViewScale(Vector2{scale.x, 1.0f - scale.y});
-    this->setUIPosOffset(Vector2{
-        w - this->getUIBufferPos().x - this->getUIBufferViewSize().x, 
-        -this->getUIBufferPos().y
-    });
+    auto old_scale = this->getUIViewScale();
+    if (!Math::NearZero(scale.x - old_scale.x) || !Math::NearZero(1.0f - scale.y - old_scale.y))
+    {
+        this->setUIViewScale(Vector2{scale.x, 1.0f - scale.y});
+        this->setUIPosOffset(Vector2{
+            w - this->getUIBufferPos().x - this->getUIBufferViewSize().x, 
+            -this->getUIBufferPos().y
+        });
 
-    right_border->setPosition(Vector2{
-        this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x, 
-        this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y * 0.5f
-    });
-    right_border->setDimension(Vector2{20.0f, this->getUIBufferViewSize().y});
+        right_border->setPosition(Vector2{
+            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x, 
+            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y * 0.5f
+        });
+        right_border->setDimension(Vector2{20.0f, this->getUIBufferViewSize().y});
+
+        EmptySprite* left_bar = nullptr;
+        for (auto elem : this->getUIElements())
+        {
+            if (!strcmp(elem->getSpriteName().c_str(), "Sidebar"))
+            {
+                left_bar = elem;
+                break;
+            }
+        }
+
+        left_bar->setDimension(Vector2{left_bar->getDimension().x, this->getUIBufferViewSize().y});
+        left_bar->setPosition(Vector2{
+            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + left_bar->getDimension().x * 0.5f,
+            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + left_bar->getDimension().y * 0.5f
+        });
+    }
 
     int x = 0, y = 0;
     Uint32 mouse = SDL_GetMouseState(&x, &y);

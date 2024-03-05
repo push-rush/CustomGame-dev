@@ -11,6 +11,8 @@
 #include "../../include/Renderers/DialogBox.h"
 #include "../../include/Renderers/Button.h"
 #include "../../include/Renderers/ResourceMenu.h"
+#include "../../include/Renderers/PropertyMenu.h"
+#include "../../include/Renderers/Console.h"
 
 #include "../../include/Actors/Actor.h"
 #include "../../include/Actors/TargetActor.h"
@@ -184,8 +186,21 @@ bool LevelLoader::loadUIElements(class Game* game, const std::string& fileName)
         loadHUD(game, resource_menu, game->getResourceMenu());
     }
 
-    SDL_Log("[LevelLoader] Load ui element over...");
+    // 加载PropertyMenu信息
+    const rapidjson::Value& property_menu = doc["PropertyMenu"];
+    if (property_menu.IsObject())
+    {
+        loadHUD(game, property_menu, game->getPropertyMenu());
+    }
 
+    // 加载Console信息
+    const rapidjson::Value& console = doc["Console"];
+    if (console.IsObject())
+    {
+        loadHUD(game, console, game->getConsole());
+    }
+
+    SDL_Log("[LevelLoader] Load ui element over...");
     return true;
 }
 
@@ -726,9 +741,10 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                             JsonHelper::getVector3(props, "textColor", text_color) &&
                             JsonHelper::getInt(props, "fontSize", font_size) &&
                             JsonHelper::getVector2(props, "bindTexOffset", tex_offset) &&
-                            JsonHelper::getVector3(props, "bindBGColor", bg_color) &&
                             JsonHelper::getVector3(props, "bindBoxColor", box_color)
                         );
+                        
+                        bool is_bind_bg = JsonHelper::getVector3(props, "bindBGColor", bg_color);
 
                         if (flag || true)
                         {
@@ -834,8 +850,15 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                             else
                             {
                                 JsonHelper::getString(props, "bindTexName", bind_name);
-                                texs_map.emplace("default", bind_name);
-
+                                if (strcmp(bind_name.c_str(), "None"))
+                                {
+                                    texs_map.emplace("default", bind_name);
+                                }
+                                else
+                                {
+                                    SDL_Log("[LevelLoader] BG is: %d BG Color: (%.2f %.2f %.2f)", (int)is_bind_bg, bg_color.x, bg_color.y, bg_color.z);
+                                }
+                                
                                 EmptySprite* e = nullptr;
                                 if (text.size() > 0)
                                 {
@@ -848,7 +871,7 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         pos, 
                                         scale, 
                                         updateOrder,
-                                        Vector2{0.0f, 0.0f},
+                                        size,
                                         true, w_str, text_color, font_size 
                                     );
                                 }
@@ -862,9 +885,9 @@ void LevelLoader::loadHUD(class Game* game, const rapidjson::Value& inObject, cl
                                         true,
                                         pos, 
                                         scale, 
-                                        updateOrder
+                                        updateOrder,
+                                        size
                                     );
-
                                 }
 
                                 if (e)
@@ -1245,7 +1268,10 @@ bool LevelLoader::saveHUD(rapidjson::Document::AllocatorType& alloc, class Game*
             }
             else
             {
-                JsonHelper::addString(alloc, props, "bindTexName", (*elem->getBindTexName().begin()).second);
+                if (elem->getBindTexName().size() < 1)
+                {
+                    JsonHelper::addString(alloc, props, "bindTexName", "None");
+                }
             }
 
             JsonHelper::addInt(alloc, props, "updateOrder", elem->getUpdateOrder());

@@ -61,14 +61,19 @@
         ],
         "elements": [
             {
-                "name": "Menu2",
+                "name": "Menu1",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "menu2",
+                    "bindTexName": "None",
+                    "bindBGColor": [0.15, 0.25, 0.30],
                     "updateOrder": 100,
                     "position": [
                         -710.0,
                         0.0
+                    ],
+                    "size": [
+                        86.0,
+                        768.0
                     ],
                     "scale": [
                         1.0,
@@ -77,14 +82,19 @@
                 }
             },
             {
-                "name": "Menu1",
+                "name": "Menu2",
                 "type": "default",
                 "properties": {
-                    "bindTexName": "menu1",
+                    "bindTexName": "None",
+                    "bindBGColor": [0.30, 0.35, 0.40],
                     "updateOrder": 100,
                     "position": [
                         0.0,
                         365.0
+                    ],
+                    "size": [
+                        1440.0,
+                        38.0
                     ],
                     "scale": [
                         1.0,
@@ -99,8 +109,8 @@
                     "bindTexName": "radar",
                     "updateOrder": 90,
                     "position": [
-                        -560.0,
-                        220.0
+                        -530.0,
+                        215.0
                     ],
                     "scale": [
                         1.0,
@@ -115,8 +125,8 @@
                     "bindTexName": "radarArrow",
                     "updateOrder": 100,
                     "position": [
-                        -560.0,
-                        220.0
+                        -530.0,
+                        215.0
                     ],
                     "scale": [
                         1.0,
@@ -564,6 +574,186 @@
         ],
         "elements": [
             {
+            }
+        ]
+    },
+    "PropertyMenu": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "MaterialIconOff",
+                "texturePath": "../Assets/Images/MaterialIconOff.png"
+            },
+            {
+                "name": "MaterialIconOn",
+                "texturePath": "../Assets/Images/MaterialIconOn.png"
+            },
+            {
+                "name": "TextureIconOff",
+                "texturePath": "../Assets/Images/TextureIconOff.png"
+            },
+            {
+                "name": "TextureIconOn",
+                "texturePath": "../Assets/Images/TextureIconOn.png"
+            },
+            {
+                "name": "ParticleIconOff",
+                "texturePath": "../Assets/Images/ParticleIconOff.png"
+            },
+            {
+                "name": "ParticleIconOn",
+                "texturePath": "../Assets/Images/ParticleIconOn.png"
+            },
+            {
+                "name": "PhysicsIconOff",
+                "texturePath": "../Assets/Images/PhysicsIconOff.png"
+            },
+            {
+                "name": "PhysicsIconOn",
+                "texturePath": "../Assets/Images/PhysicsIconOn.png"
+            }
+        ],
+        "elements": [
+            {
+                "name": "Sidebar",
+                "type": "default",
+                "properties": {
+                    "bindTexName": "None",
+                    "bindBGColor": [0.16, 0.24, 0.20],
+                    "updateOrder": 100,
+                    "position": [
+                        370.0,
+                        -192.0
+                    ],
+                    "size": [
+                        50.0,
+                        384.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "MaterialIcon",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "MaterialIconOff",
+                        "on": "MaterialIconOn"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        378.0,
+                        -25.0
+                    ],
+                    "size": [
+                        40.0, 
+                        35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "TextureIcon",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "TextureIconOff",
+                        "on": "TextureIconOn"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        378.0,
+                        -70.0
+                    ],
+                    "size": [
+                        40.0, 
+                        35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "ParticleIcon",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "ParticleIconOff",
+                        "on": "ParticleIconOn"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        378.0,
+                        -115.0
+                    ],
+                    "size": [
+                        40.0, 
+                        35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "PhysicsIcon",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "PhysicsIconOff",
+                        "on": "PhysicsIconOn"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        378.0,
+                        -160.0
+                    ],
+                    "size": [
+                        40.0, 
+                        35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        ]
+    },
+    "Console": {
+        "textures": [
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            }
+        ],
+        "elements": [
+            {
+
             }
         ]
     }

@@ -7,10 +7,9 @@
 #include <stdlib.h>
 #include <cstring>
 
-#include <glew.h>
-#include <glfw3.h>
+#include <GL/glew.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class Shader
 {

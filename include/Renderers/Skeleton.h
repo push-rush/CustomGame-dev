@@ -1,3 +1,13 @@
+/*
+ * @Author: push-rush 1441488761@qq.com
+ * @Date: 2024-04-19 11:38:25
+ * @LastEditors: push-rush 1441488761@qq.com
+ * @LastEditTime: 2024-04-19 20:19:58
+ * @FilePath: /CustomGame-dev/include/Renderers/Skeleton.h
+ * @Description: Custom game engine constructing...
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #pragma once
 
 #include <iostream>

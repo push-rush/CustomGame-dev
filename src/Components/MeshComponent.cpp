@@ -12,8 +12,9 @@
 #include "../../include/General/LevelLoader.h"
 #include "../../include/General/ResourceManager.h"
 
-#include <glew.h>
-#include <glfw3.h>
+#include <GL/glew.h>
+// #include <glew.h>
+// #include <glfw3.h>
 
 MeshComponent::MeshComponent(class Actor* owner, bool isSkeletal)
 : Component(owner), mIsSkeletal(isSkeletal)

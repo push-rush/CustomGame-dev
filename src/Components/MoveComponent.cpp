@@ -2,8 +2,6 @@
 #include "../../include/Actors/Actor.h"
 #include "../../include/General/LevelLoader.h"
 
-#include "SDL.h"
-
 MoveComponent::MoveComponent()
 {
     

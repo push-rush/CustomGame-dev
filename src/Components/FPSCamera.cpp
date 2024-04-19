@@ -2,8 +2,6 @@
 #include "../../include/Components/FPSCamera.h"
 #include "../../include/General/LevelLoader.h"
 
-#include "SDL.h"
-
 FPSCamera::FPSCamera(class Actor* owner)
 : CameraComponent(owner)
 {

@@ -12,7 +12,8 @@
 #include <rapidjson.h>
 #include <document.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
+// #include <SDL.h>
 
 #include "./Cmath.h"
 

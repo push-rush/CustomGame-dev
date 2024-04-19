@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(CustomGame)
-find_package(OpenGL REQUIRED)
+
+if (POLICY CMP0072)
+    set(OpenGL_GL_PREFERENCE LEGACY)
+endif()
 
 # set(UNICODE ON)
 # set(_UNICODE ON)
@@ -14,20 +17,29 @@ add_definitions("-Wall -g")
 #是否使用fmod studio，加载bank文件的形式
 add_definitions(-D USE_FMOD_STUDIO) 
 
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(freetype REQUIRED)
+
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
+find_package(SDL2_ttf REQUIRED)
+include_directories(${SDL2_TTF_INCLUDE_DIRS})
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+
 # 生成可执行文件
 include_directories(include)
 include_directories(${PROJECT_SOURCE_DIR}/External/imgui)
-include_directories(${PROJECT_SOURCE_DIR}/External/soil/inc/SOIL)
-include_directories(${PROJECT_SOURCE_DIR}/External/glew-2.2.0-win32/glew-2.2.0/include/GL)
-include_directories(${PROJECT_SOURCE_DIR}/External/freetype-windows-binaries/include)
-include_directories(${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/studio/inc)
-include_directories(${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/fsbank/inc)
-include_directories(${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/lowlevel/inc)
-include_directories(${PROJECT_SOURCE_DIR}/External/glfw-3.3.8.bin.WIN32/glfw-3.3.8.bin.WIN32/include/GLFW)
+include_directories(${PROJECT_SOURCE_DIR}/External/soil/include/SOIL)
+include_directories(${PROJECT_SOURCE_DIR}/External/freetype/include)
+
 include_directories(${PROJECT_SOURCE_DIR}/External/RapidJson/rapidjson-1.1.0/rapidjson-1.1.0/include/rapidjson)
-include_directories(${PROJECT_SOURCE_DIR}/External/SDL2/SDL2-devel-2.0.22-mingw/SDL2-2.0.22/i686-w64-mingw32/include/SDL2)
-include_directories(${PROJECT_SOURCE_DIR}/External/SDL2/SDL2_ttf-devel-2.20.2-mingw/SDL2_ttf-2.20.2/i686-w64-mingw32/include/SDL2)
-include_directories(${PROJECT_SOURCE_DIR}/External/SDL2/SDL2_image-devel-2.6.3-mingw/SDL2_image-2.6.3/i686-w64-mingw32/include/SDL2)
+include_directories(${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/core/inc)
+include_directories(${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/fsbank/inc)
+include_directories(${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/studio/inc)
 
 add_library(IMGUI SHARED 
     ${PROJECT_SOURCE_DIR}/External/imgui/imgui.cpp 
@@ -41,8 +53,7 @@ add_library(IMGUI SHARED
 
 target_link_libraries(IMGUI 
     OpenGL::GL
-    ${PROJECT_SOURCE_DIR}/External/glfw-3.3.8.bin.WIN32/glfw-3.3.8.bin.WIN32/lib-mingw/glfw3.dll
-    ${PROJECT_SOURCE_DIR}/External/glew-2.2.0-win32/glew-2.2.0/lib/Release/Win32/glew32.lib
+    glfw
 )
 
 add_executable(${PROJECT_NAME} 
@@ -112,7 +123,7 @@ add_executable(${PROJECT_NAME}
     ./src/Components/MirrorCamera.cpp
     
     # General
-    ./src/General/Cmath.cpp
+    ./src/General/CMath.cpp
     ./src/General/Random.cpp 
     ./src/General/LevelLoader.cpp
     ./src/General/DebugManager.cpp
@@ -129,18 +140,14 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
 
     IMGUI
-    ${PROJECT_SOURCE_DIR}/External/SDL2/SDL2-devel-2.0.22-mingw/SDL2-2.0.22/i686-w64-mingw32/bin/SDL2.dll
-    ${PROJECT_SOURCE_DIR}/External/SDL2/SDL2_image-devel-2.6.3-mingw/SDL2_image-2.6.3/i686-w64-mingw32/bin/SDL2_image.dll
-    ${PROJECT_SOURCE_DIR}/External/SDL2/SDL2_ttf-devel-2.20.2-mingw/SDL2_ttf-2.20.2/i686-w64-mingw32/bin/SDL2_ttf.dll
-    ${PROJECT_SOURCE_DIR}/External/soil/build/libsoil.dll
-    
-    ${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/lowlevel/lib/fmod.dll
-    ${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/fsbank/lib/fsbank.dll
-    ${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/studio/lib/fmodstudio.dll
-    ${PROJECT_SOURCE_DIR}/External/freetype-windows-binaries/release_dll/win32/freetype.dll
-)
+    SDL2
+    SDL2_ttf
+    freetype
+    GLEW::GLEW
+   
+    ${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/core/lib/x86_64/libfmod.so
+    ${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/fsbank/lib/x86_64/libfsbank.so
+    ${PROJECT_SOURCE_DIR}/External/fmodstudioapi20300linux/api/studio/lib/x86_64/libfmodstudio.so
 
-link_libraries(${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/lowlevel/lib/fmod_vc.lib 
-    ${PROJECT_SOURCE_DIR}/External/FMOD/FMOD_Studio_API_Windows_1.09.09/api/studio/lib/fmodstudio_vc.lib
+    ${PROJECT_SOURCE_DIR}/External/soil/build/lib/libSOIL.a
 )

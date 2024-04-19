@@ -1,7 +1,7 @@
 #include "../../include/Renderers/GBuffer.h"
 #include "../../include/Renderers/Texture.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 GBuffer::GBuffer()
 {

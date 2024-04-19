@@ -1,5 +1,8 @@
 # cmake
-build
+build/
+
+# External libs
+External/
 
 # Prerequisites
 *.d

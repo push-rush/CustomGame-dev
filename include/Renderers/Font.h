@@ -6,10 +6,9 @@
 #include <vector>
 #include <unordered_map>
 
-#include <SDL_ttf.h>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H 
+#include <SDL2/SDL_ttf.h>
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
 
 #include "../include/General/Cmath.h"
 

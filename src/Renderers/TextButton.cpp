@@ -8,7 +8,7 @@
 
 #include "../../include/Game.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 TextButton::TextButton(
     class UIScreen* ui,

@@ -2,10 +2,11 @@
 #include "../../include/Audios/AudioSystem.h"
 #include "../../include/General/Cmath.h"
 
-#include "fmod.h"
-#include "fmod_errors.h"
-#include "fmod_studio.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
+#include <fmod.hpp>
+#include <fmod_errors.h>
+#include <fmod_studio.h>
+#include <fmod_common.h>
 
 namespace
 {
@@ -102,7 +103,9 @@ void SoundEvent::setParameter(const std::string& name, float value)
     auto event = this->mSystem ? this->mSystem->getEventInstance(this->mID) : nullptr;
     if (event)
     {
-        FMOD_Studio_EventInstance_SetParameterValue(event, name.c_str(), value);
+        // FMOD_Studio_EventInstance_SetParameterValue(event, name.c_str(), value);
+        // FMOD_Studio_EventInstance_SetParameterByID(event, name.c_str(), value);
+        FMOD_Studio_EventInstance_SetParameterByName(event, name.c_str(), value, true);
     }
 }
 
@@ -146,7 +149,9 @@ float SoundEvent::getParameter(const std::string& name)
     auto event = this->mSystem ? this->mSystem->getEventInstance(this->mID) : nullptr;
     if (event)
     {
-        FMOD_Studio_EventInstance_GetParameterValue(event, name.c_str(), &value, &value);
+        // FMOD_Studio_EventInstance_GetParameterValue(event, name.c_str(), &value, &value);
+        // FMOD_Studio_EventInstance_GetParameterByID(event, name.c_str(), value);
+        FMOD_Studio_EventInstance_SetParameterByName(event, name.c_str(), value, true);
     }
     return value;
 }

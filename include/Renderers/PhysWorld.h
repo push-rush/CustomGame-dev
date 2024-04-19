@@ -1,3 +1,13 @@
+/*
+ * @Author: push-rush 1441488761@qq.com
+ * @Date: 2024-04-19 11:38:25
+ * @LastEditors: push-rush 1441488761@qq.com
+ * @LastEditTime: 2024-04-19 20:18:41
+ * @FilePath: /CustomGame-dev/include/Renderers/PhysWorld.h
+ * @Description: Custom game engine constructing...
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,7 +16,7 @@
 
 #include "./General/Cmath.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 struct CollisionInfo
 {

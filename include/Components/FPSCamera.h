@@ -4,6 +4,8 @@
 
 #include "./CameraComponent.h"
 
+#include <SDL2/SDL.h>
+
 class FPSCamera : public CameraComponent
 {
 private:

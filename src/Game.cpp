@@ -37,6 +37,7 @@
 #include "../include/General/LevelLoader.h"
 #include "../include/General/ResourceManager.h"
 
+#include <SDL2/SDL_ttf.h>
 #include "fmod.hpp"
 #include "fmod_studio.h"
 #include "fmod_errors.h"

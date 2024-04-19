@@ -8,12 +8,13 @@
 #include <time.h>
 
 // sdl
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 // opengl
-#include <glew.h>
-#include <glfw3.h>
+#include <GL/glew.h>
+
+#include <SOIL/SOIL.h>
 
 #include "./General/Cmath.h"
 

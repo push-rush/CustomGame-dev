@@ -6,9 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <time.h>
-// #include <windows.h>
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "./Audios/SoundEvent.h"
 

@@ -2,7 +2,7 @@
 #include "../../include/Renderers/Skeleton.h"
 
 #include <document.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 Animation::Animation(/* args */)
 {

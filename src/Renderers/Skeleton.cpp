@@ -1,7 +1,7 @@
 #include "../../include/Renderers/Skeleton.h"
 #include "../../include/Components/SkeletalMeshComponent.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <document.h>
 
 Matrix4 BoneTransform::toMatrix() const

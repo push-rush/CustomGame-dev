@@ -7,56 +7,56 @@
                 "texturePath": "../Assets/Images/MenuRoot2.png"
             },
             {
-                "name": "menu_bg1",
-                "texturePath": "../Assets/Images/MenuChild1.png"
-            },
-            {
-                "name": "radar",
-                "texturePath": "../Assets/Images/Radar.png"
-            },
-            {
-                "name": "crosschair",
-                "texturePath": "../Assets/Images/Crosshair.png"
-            },
-            {
-                "name": "blipTex",
-                "texturePath": "../Assets/Images/Blip.png"
-            },
-            {
-                "name": "menu_button2",
-                "texturePath": "../Assets/Images/MenuButton2.png"
-            },
-            {
-                "name": "crosshairEnemy",
-                "texturePath": "../Assets/Images/CrosshairRed.png"
-            },
-            {
-                "name": "button2",
-                "texturePath": "../Assets/Images/ButtonYellow.png"
-            },
-            {
-                "name": "menu1",
-                "texturePath": "../Assets/Images/Menu1.png"
-            },
-            {
                 "name": "radarArrow",
                 "texturePath": "../Assets/Images/RadarArrow.png"
-            },
-            {
-                "name": "button1",
-                "texturePath": "../Assets/Images/ButtonBlue.png"
             },
             {
                 "name": "menu_root1",
                 "texturePath": "../Assets/Images/MenuRoot1.png"
             },
             {
-                "name": "menu_button1",
-                "texturePath": "../Assets/Images/MenuButton1.png"
+                "name": "menu_bg1",
+                "texturePath": "../Assets/Images/MenuChild1.png"
+            },
+            {
+                "name": "crosshairEnemy",
+                "texturePath": "../Assets/Images/CrosshairRed.png"
+            },
+            {
+                "name": "blipTex",
+                "texturePath": "../Assets/Images/Blip.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
+                "name": "radar",
+                "texturePath": "../Assets/Images/Radar.png"
+            },
+            {
+                "name": "button1",
+                "texturePath": "../Assets/Images/ButtonBlue.png"
             },
             {
                 "name": "menu2",
                 "texturePath": "../Assets/Images/Menu2.png"
+            },
+            {
+                "name": "crosschair",
+                "texturePath": "../Assets/Images/Crosshair.png"
+            },
+            {
+                "name": "menu1",
+                "texturePath": "../Assets/Images/Menu1.png"
+            },
+            {
+                "name": "menu_button1",
+                "texturePath": "../Assets/Images/MenuButton1.png"
+            },
+            {
+                "name": "menu_button2",
+                "texturePath": "../Assets/Images/MenuButton2.png"
             }
         ],
         "elements": [
@@ -297,28 +297,44 @@
     "Setting": {
         "textures": [
             {
+                "name": "hook1",
+                "texturePath": "../Assets/Images/Hook0.png"
+            },
+            {
+                "name": "hook2",
+                "texturePath": "../Assets/Images/Hook1.png"
+            },
+            {
+                "name": "cross1",
+                "texturePath": "../Assets/Images/Cross2.png"
+            },
+            {
+                "name": "button2",
+                "texturePath": "../Assets/Images/ButtonYellow.png"
+            },
+            {
                 "name": "volume1",
                 "texturePath": "../Assets/Images/Volume1.png"
-            },
-            {
-                "name": "cross2",
-                "texturePath": "../Assets/Images/Cross3.png"
-            },
-            {
-                "name": "slider2",
-                "texturePath": "../Assets/Images/Slider4.png"
-            },
-            {
-                "name": "slider1",
-                "texturePath": "../Assets/Images/Slider7.png"
             },
             {
                 "name": "background1",
                 "texturePath": "../Assets/Images/BG1.png"
             },
             {
+                "name": "cross2",
+                "texturePath": "../Assets/Images/Cross3.png"
+            },
+            {
                 "name": "button1",
                 "texturePath": "../Assets/Images/ButtonBlue.png"
+            },
+            {
+                "name": "slider1",
+                "texturePath": "../Assets/Images/Slider7.png"
+            },
+            {
+                "name": "slider2",
+                "texturePath": "../Assets/Images/Slider4.png"
             },
             {
                 "name": "volume2",
@@ -327,22 +343,6 @@
             {
                 "name": "slider0",
                 "texturePath": "../Assets/Images/Slider2.png"
-            },
-            {
-                "name": "button2",
-                "texturePath": "../Assets/Images/ButtonYellow.png"
-            },
-            {
-                "name": "hook2",
-                "texturePath": "../Assets/Images/Hook1.png"
-            },
-            {
-                "name": "hook1",
-                "texturePath": "../Assets/Images/Hook0.png"
-            },
-            {
-                "name": "cross1",
-                "texturePath": "../Assets/Images/Cross2.png"
             }
         ],
         "elements": [

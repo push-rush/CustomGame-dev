@@ -1,7 +1,5 @@
 #include "../../include/Renderers/Texture.h"
 
-#include <SDL.h>
-
 static int TextureNum = 0;
 
 Texture::Texture()

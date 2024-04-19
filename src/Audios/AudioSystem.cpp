@@ -1,9 +1,11 @@
 #include "../../include/Audios/AudioSystem.h"
 
-#include "SDL.h"
-#include "fmod.hpp"
-#include "fmod_errors.h"
-#include "fmod_studio.h"
+#include <SDL2/SDL.h>
+#include <fmod.hpp>
+#include <fmod_errors.h>
+#include <fmod_studio.h>
+#include <fmod_common.h>
+
 #include "../../include/Audios/SoundEvent.h"
 #include "../../include/General/Cmath.h"
 
@@ -64,7 +66,7 @@ bool AudioSystem::init()
         return false;
     }
 
-    FMOD_Studio_System_GetLowLevelSystem(this->mSystem, &this->mLowLevelSystem);
+    FMOD_Studio_System_GetCoreSystem(this->mSystem, &this->mLowLevelSystem);
 
     this->loadBank("../Assets/Audios/Master Bank.strings copy.bank");
     this->loadBank("../Assets/Audios/Master Bank copy.bank");
@@ -283,7 +285,7 @@ void AudioSystem::setListener(const Matrix4& view)
     // 多普勒效应
     listener.velocity = vecToFMOD(Vector3(0.0, 0.0, 0.0));
 
-    FMOD_Studio_System_SetListenerAttributes(this->mSystem, 0, &listener);
+    FMOD_Studio_System_SetListenerAttributes(this->mSystem, 0, &listener, nullptr);
 }
 
 float AudioSystem::getBusVolume(const std::string& name) const

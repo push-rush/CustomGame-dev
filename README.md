@@ -1,6 +1,6 @@
 # CustomGameEngine
 ## Instruction
-    This project try to construct a game engine which includes graphics renderer, audio system, 2d/3d modeling, physical system, input system, ainmations and etc.
+    This project tries to construct a game engine which includes graphics renderer, audio system, 2d/3d modeling, physical system, input system, ainmations and etc.
 
 ## Environment
 | Libs | url | desc|

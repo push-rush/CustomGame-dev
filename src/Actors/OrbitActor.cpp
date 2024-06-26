@@ -11,7 +11,7 @@ OrbitActor::OrbitActor(class Game* game)
 {
     this->mCameraComponent = new OrbitCamera(this);
     this->mMeshComponent = new MeshComponent(this);
-    this->mMeshComponent->setMesh(game->getRenderer()->getMesh("../../Assets/RacingCar.gpmesh"));
+    this->mMeshComponent->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/RacingCar.gpmesh"));
 
     this->setPosition(Vector3(0.0f, 0.0f, -100.0f));
     this->mMoveComponent= new MoveComponent(this);

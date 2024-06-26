@@ -544,8 +544,24 @@
                 "texturePath": "../Assets/Images/MeshIcon.png"
             },
             {
+                "name": "meshIconOff",
+                "texturePath": "../Assets/Images/MeshIconOff.png"
+            },
+            {
+                "name": "meshIconOn",
+                "texturePath": "../Assets/Images/MeshIconOn.png"
+            },
+            {
                 "name": "collectionIcon",
                 "texturePath": "../Assets/Images/CollectionIcon.png"
+            },
+            {
+                "name": "collectionIconOff",
+                "texturePath": "../Assets/Images/CollectionIconOff.png"
+            },
+            {
+                "name": "collectionIconOn",
+                "texturePath": "../Assets/Images/CollectionIconOn.png"
             },
             {
                 "name": "menuTitleBG1",
@@ -570,6 +586,30 @@
             {
                 "name": "lightIconOn",
                 "texturePath": "../Assets/Images/PointLightOnIcon.png"
+            },
+            {
+                "name": "imageIconOff",
+                "texturePath": "../Assets/Images/ImageIconOff.png"
+            },
+            {
+                "name": "imageIconOn",
+                "texturePath": "../Assets/Images/ImageIconOn.png"
+            },
+            {
+                "name": "skeletonIconOff",
+                "texturePath": "../Assets/Images/SkeletonIconOff.png"
+            },
+            {
+                "name": "skeletonIconOn",
+                "texturePath": "../Assets/Images/SkeletonIconOn.png"
+            },
+            {
+                "name": "unknownIconOff",
+                "texturePath": "../Assets/Images/UnknownIconOff.png"
+            },
+            {
+                "name": "unknownIconOn",
+                "texturePath": "../Assets/Images/UnknownIconOn.png"
             }
         ],
         "elements": [
@@ -618,6 +658,14 @@
             {
                 "name": "PhysicsIconOn",
                 "texturePath": "../Assets/Images/PhysicsIconOn.png"
+            },
+            {
+                "name": "UniquePropertyIconOn",
+                "texturePath": "../Assets/Images/UniquePropertyIconOn.png"
+            },
+            {
+                "name": "UniquePropertyIconOff",
+                "texturePath": "../Assets/Images/UniquePropertyIconOff.png"
             }
         ],
         "elements": [
@@ -727,6 +775,30 @@
                     "position": [
                         378.0,
                         -160.0
+                    ],
+                    "size": [
+                        40.0, 
+                        35.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "UniquePropertyIcon",
+                "type": "button",
+                "properties": {
+                    "bindEventID": 0,
+                    "bindTexName": {
+                        "off": "UniquePropertyIconOff",
+                        "on": "UniquePropertyIconOn"
+                    },
+                    "updateOrder": 100,
+                    "position": [
+                        378.0,
+                        -205.0
                     ],
                     "size": [
                         40.0, 

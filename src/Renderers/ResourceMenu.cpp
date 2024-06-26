@@ -1261,20 +1261,20 @@ std::map<std::string, std::string> ResourceMenu::allocTex(const ResourceManager:
     {
         case ResourceManager::ECollection:
         {
-            tex_map.emplace("off", "collectionIcon");
-            tex_map.emplace("on", "collectionIcon");
+            tex_map.emplace("off", "collectionIconOff");
+            tex_map.emplace("on", "collectionIconOn");
             break;
         }
         case ResourceManager::EMeshObject:
         {
-            tex_map.emplace("off", "meshIcon");
-            tex_map.emplace("on", "meshIcon");
+            tex_map.emplace("off", "meshIconOff");
+            tex_map.emplace("on", "meshIconOn");
             break;
         }
         case ResourceManager::EImage:
         {
-            tex_map.emplace("off", "imageIcon");
-            tex_map.emplace("on", "imageIcon");
+            tex_map.emplace("off", "imageIconOff");
+            tex_map.emplace("on", "imageIconOn");
             break;
         }
         case ResourceManager::ELight:
@@ -1285,14 +1285,14 @@ std::map<std::string, std::string> ResourceMenu::allocTex(const ResourceManager:
         }
         case ResourceManager::ESkeleton:
         {
-            tex_map.emplace("off", "skeletonIcon");
-            tex_map.emplace("on", "skeletonIcon");
+            tex_map.emplace("off", "skeletonIconOff");
+            tex_map.emplace("on", "skeletonIconOn");
             break;
         }
         default:
         {
-            tex_map.emplace("off", "unknown");
-            tex_map.emplace("on", "unknown");
+            tex_map.emplace("off", "unknownIconOff");
+            tex_map.emplace("on", "unknownIconOn");
             break;
         }
     }

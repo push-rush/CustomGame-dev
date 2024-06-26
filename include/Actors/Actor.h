@@ -20,14 +20,16 @@ public:
         EActor,
         EAsteroid,
         EBallActor,
-        ECameraActor,
-        EFollowActor,
+        
         EFPSActor,
-        ELaser,
+        EFollowActor,
         EOrbitActor,
+        ESplineActor,
+
+        ECameraActor,
+        ELaser,
         EPlaneActor,
         EShip,
-        ESplineActor,
         ETargetActor,
         ESphereActor,
 
@@ -47,7 +49,8 @@ public:
         EPaused,
         EDead,
         ESelected,
-        EClicked
+        EClicked,
+        EHidden
     };
 
     // 组件/角色更新

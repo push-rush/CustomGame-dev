@@ -104,27 +104,84 @@ void PropertyMenu::update(float dt)
             -this->getUIBufferPos().y
         });
 
+        Vector2 left_bottom = Vector2{
+            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f, 
+            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f
+        };
+
         right_border->setPosition(Vector2{
-            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + this->getUIBufferViewSize().x, 
-            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + this->getUIBufferViewSize().y * 0.5f
+            left_bottom.x + this->getUIBufferViewSize().x, 
+            left_bottom.y + this->getUIBufferViewSize().y * 0.5f
         });
         right_border->setDimension(Vector2{20.0f, this->getUIBufferViewSize().y});
 
         EmptySprite* left_bar = nullptr;
+        EmptySprite* material_icon = nullptr;
+        EmptySprite* texture_icon = nullptr;
+        EmptySprite* particle_icon = nullptr;
+        EmptySprite* physics_icon = nullptr;
+        EmptySprite* unique_property_icon = nullptr;
+
         for (auto elem : this->getUIElements())
         {
             if (!strcmp(elem->getSpriteName().c_str(), "Sidebar"))
             {
                 left_bar = elem;
+                left_bar->setDimension(Vector2{left_bar->getDimension().x, this->getUIBufferViewSize().y});
+                left_bar->setPosition(Vector2{
+                    left_bottom.x + left_bar->getDimension().x * 0.5f,
+                    left_bottom.y + left_bar->getDimension().y * 0.5f
+                });
+                // break;
+            }
+            else if (!strcmp(elem->getSpriteName().c_str(), "MaterialIcon"))
+            {
+                material_icon = elem;
+
+                // material_icon->setDimension();
+                material_icon->setPosition(Vector2{
+                    left_bottom.x + material_icon->getDimension().x * 0.5f,
+                    left_bottom.y + this->getUIBufferViewSize().y - 25.0f
+                });
+            }
+            else if (!strcmp(elem->getSpriteName().c_str(), "TextureIcon"))
+            {
+                texture_icon = elem;
+                texture_icon->setPosition(Vector2{
+                    left_bottom.x + texture_icon->getDimension().x * 0.5f,
+                    left_bottom.y + this->getUIBufferViewSize().y - 70.0f
+                });
+            }
+            else if (!strcmp(elem->getSpriteName().c_str(), "ParticleIcon"))
+            {
+                particle_icon = elem;
+                particle_icon->setPosition(Vector2{
+                    left_bottom.x + particle_icon->getDimension().x * 0.5f,
+                    left_bottom.y + this->getUIBufferViewSize().y - 115.0f
+                });
+            }
+            else if (!strcmp(elem->getSpriteName().c_str(), "PhysicsIcon"))
+            {
+                physics_icon = elem;
+                physics_icon->setPosition(Vector2{
+                    left_bottom.x + physics_icon->getDimension().x * 0.5f,
+                    left_bottom.y + this->getUIBufferViewSize().y - 160.0f
+                });
+            }
+            else if (!strcmp(elem->getSpriteName().c_str(), "UniquePropertyIcon"))
+            {
+                unique_property_icon = elem;
+                unique_property_icon->setPosition(Vector2{
+                    left_bottom.x + unique_property_icon->getDimension().x * 0.5f,
+                    left_bottom.y + this->getUIBufferViewSize().y - 205.0f
+                });
+            }
+
+            if (left_bar && material_icon && texture_icon && particle_icon && physics_icon && unique_property_icon)
+            {
                 break;
             }
         }
-
-        left_bar->setDimension(Vector2{left_bar->getDimension().x, this->getUIBufferViewSize().y});
-        left_bar->setPosition(Vector2{
-            this->getUIBufferPos().x + this->getUIPosOffset().x - w * 0.5f + left_bar->getDimension().x * 0.5f,
-            this->getUIBufferPos().y + this->getUIPosOffset().y - h * 0.5f + left_bar->getDimension().y * 0.5f
-        });
     }
 
     int x = 0, y = 0;
@@ -244,4 +301,11 @@ void PropertyMenu::processInput(const uint8_t* keys)
     }
 
     mousePos = this->mousePosRemapping(mousePos);
+}
+
+void PropertyMenu::bindEvent(const UIBindEvent& event, class Button* b)
+{
+        
+
+
 }

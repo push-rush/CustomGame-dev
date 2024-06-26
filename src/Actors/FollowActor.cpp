@@ -17,6 +17,7 @@ FollowActor::FollowActor(class Game* game)
 
     // this->mMeshComponent = new MeshComponent(this);
     this->mSkeletalComponent = new SkeletalMeshComponent(this);
+    
     // this->mMeshComponent->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/RacingCar.gpmesh"));
     this->mSkeletalComponent->setMesh(game->getRenderer()->getMesh("../Assets/Meshes/CatWarrior.gpmesh"));
     this->mSkeletalComponent->setSkeleton(game->getSkeleton("../Assets/Skeletons/CatWarrior.gpskel"));

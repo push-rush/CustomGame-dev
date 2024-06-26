@@ -82,6 +82,8 @@ public:
     void addPlane(class PlaneActor*);
     void removePlane(class PlaneActor*);
 
+    void setPlayer(const int& type);
+
 private:
     // 输入处理/游戏更新/画面输出
     void processInput();

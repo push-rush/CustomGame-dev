@@ -838,13 +838,11 @@ void Renderer::draw3DScene(unsigned int frameBuffer, const Matrix4& view, const 
     // 清空颜色/深度缓存区/模板测试缓存区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-
     /************* 绘制3D网格 *************/
 
     this->mMeshShader->setActive();
     this->mMeshShader->setMatrixUniform("uViewProj", view * proj);
     
-
     if (limit)
     {
         this->setLightUniforms(this->mMeshShader, view);
@@ -896,7 +894,7 @@ void Renderer::draw3DScene(unsigned int frameBuffer, const Matrix4& view, const 
                 glDisable(GL_STENCIL_TEST);
                 glEnable(GL_DEPTH_TEST);
             }
-            else
+            else if (act->getState() != Actor::EHidden)
             {
                 // 禁用模板测试
                 glDisable(GL_STENCIL_TEST);
@@ -973,40 +971,40 @@ void Renderer::drawFromGBuffer(const unsigned& buffer_id)
         nullptr
     );
 
-    // /******** 绘制点光源 *******/
-    // // 将G缓存区中的深度缓存区绘制到默认帧缓冲区的深度缓存区中
-    // glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mGBuffer->getBufferID());
-    // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_id);
-    // int width = static_cast<int>(this->mScreenWidth);
-    // int height = static_cast<int>(this->mScreenHeight);
-    // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    /******** 绘制点光源 *******/
+    // 将G缓存区中的深度缓存区绘制到默认帧缓冲区的深度缓存区中
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mGBuffer->getBufferID());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_id);
+    int width = static_cast<int>(this->mScreenWidth);
+    int height = static_cast<int>(this->mScreenHeight);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-    // // 重启深度缓冲区测试，但是禁止深度缓存区写入
-    // glEnable(GL_DEPTH_TEST);
-    // glDepthMask(GL_FALSE);
+    // 重启深度缓冲区测试，但是禁止深度缓存区写入
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
 
-    // // 激活点光源着色器和网格
-    // this->mGPointLightShader->setActive();
-    // this->mPointLightMesh->getVertexArray()->setActive();
+    // 激活点光源着色器和网格
+    this->mGPointLightShader->setActive();
+    this->mPointLightMesh->getVertexArray()->setActive();
 
-    // // 设置视图投影矩阵
-    // this->mGPointLightShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
+    // 设置视图投影矩阵
+    this->mGPointLightShader->setMatrixUniform("uViewProj", this->mView * this->mProjection);
     
-    // // 设置相机位置
-    // Matrix4 cameraPos = this->mView;
-    // cameraPos.Invert();
-    // this->mGPointLightShader->setVectorUniform("uCameraPos", cameraPos.GetTranslation());
-    // this->mGBuffer->setTexturesActive();
+    // 设置相机位置
+    Matrix4 cameraPos = this->mView;
+    cameraPos.Invert();
+    this->mGPointLightShader->setVectorUniform("uCameraPos", cameraPos.GetTranslation());
+    this->mGBuffer->setTexturesActive();
 
-    // // 允许点光源颜色混合到已存在的颜色中
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_ONE, GL_ONE);
+    // 允许点光源颜色混合到已存在的颜色中
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
 
-    // // 绘制点光源
-    // for (auto p : this->mPointLightComps)
-    // {
-    //     p->draw(this->mGPointLightShader, this->mPointLightMesh);
-    // }
+    // 绘制点光源
+    for (auto p : this->mPointLightComps)
+    {
+        p->draw(this->mGPointLightShader, this->mPointLightMesh);
+    }
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);

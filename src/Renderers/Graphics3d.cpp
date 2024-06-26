@@ -547,5 +547,65 @@ bool Graphics3d::drawPlane(Shader* shader, const Vector3& center, const float& w
     return true;
 }
 
+// 贝塞尔曲面
+bool Graphics3d::drawBezierSurface(Shader* shader, const std::vector<Vector3>& xPoints, 
+    const std::vector<Vector3>& yPoints, const Vector3& color, const float& tValue)
+{
+    if (shader)
+    {
+        // float verts[] = {
+        //     center.x - width * 0.5f, center.y + height * 0.5f, center.z - length * 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        //     center.x + width * 0.5f, center.y + height * 0.5f, center.z - length * 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        //     center.x + width * 0.5f, center.y - height * 0.5f, center.z - length * 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        //     center.x - width * 0.5f, center.y - height * 0.5f, center.z - length * 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+
+        //     center.x - width * 0.5f, center.y + height * 0.5f, center.z + length * 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        //     center.x + width * 0.5f, center.y + height * 0.5f, center.z + length * 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        //     center.x + width * 0.5f, center.y - height * 0.5f, center.z + length * 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        //     center.x - width * 0.5f, center.y - height * 0.5f, center.z + length * 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  
+        // };
+
+        // uint32_t indexBuffer[] = {
+        //     0, 1, 2,
+        //     2, 3, 0,
+        //     4, 5, 6,
+        //     6, 7, 4,
+        //     0, 3, 7,
+        //     7, 4, 0,
+        //     1, 2, 6,
+        //     6, 5, 1,
+        //     0, 1, 5,
+        //     5, 4, 0,
+        //     3, 2, 6,
+        //     6, 7, 3
+        // };
+
+        // VertexArray* v = new VertexArray(VertexArray::PosNormTex, verts, 8, indexBuffer, 3 * 12);
+        
+        // shader->setActive();
+        // v->setActive();
+
+        // Matrix4 scaleMat = Matrix4::CreateScale(1.0f, 1.0f, 1.0f);
+        // Matrix4 transMat = Matrix4::CreateTranslation(Vector3(0.0f, 0.0f, 0.0f));
+        // Matrix4 world = scaleMat * transMat;
+        // shader->setMatrixUniform("uWorldTransform", world);
+        // shader->setVectorUniform("uColor", color);
+
+        // glDrawElements(GL_POINTS, 3 * 12, GL_UNSIGNED_INT, nullptr);
+
+        // if (v)
+        // {
+        //     delete v;
+        //     v = nullptr;
+        // }
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
+}
+
 } //namespace Renderers
 

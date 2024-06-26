@@ -13,7 +13,6 @@ namespace Renderers
     {
     private:
 
-
     public:
         Graphics3d();
         ~Graphics3d();
@@ -40,6 +39,10 @@ namespace Renderers
         // 平面
         static bool drawPlane(Shader* shader, const Vector3& center, const float& width, const float& length, const float& height = 0.0f,
                         const Vector3& color = Vector3{0.85f, 0.85f, 0.85f});
+
+        // 贝塞尔曲面
+        static bool drawBezierSurface(Shader* shader, const std::vector<Vector3>& xPoints, 
+            const std::vector<Vector3>& yPoints, const Vector3& color = Vector3{0.85f, 0.85f, 0.85f}, const float& tValue = 0.002f);
     };
 
 } // namespace Renderers

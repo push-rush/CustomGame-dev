@@ -28,4 +28,7 @@ public:
         class Shader* fontShader,
         class EmptySprite* elem
     ) override;
+
+    // 事件绑定
+    void bindEvent(const UIBindEvent& event, class Button* b) override;
 };

@@ -16,6 +16,7 @@ private:
     class UIElement* mHealthBar;
 
     bool mTargetEnemy;
+    // int mMouseWheelValue;
 
     std::vector<class TargetComponent*> mTargetComponents;
     std::vector<Vector2> mBlips; // 雷达光点
@@ -64,7 +65,8 @@ public:
     void processInput(const uint8_t* keys) override;
 
     void handleKeyPress(int key) override;
-    
+    void handleMouseWheel(const int& mouse_wheel) override;
+
     // getters
     TreeStruct* getUIMenuTree();
     void nodeAddToStack(TreeNode* node);

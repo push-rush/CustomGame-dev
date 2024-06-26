@@ -32,6 +32,7 @@ HUD::HUD(class Game* game)
     this->mRadarRange = 2000.0f;
     this->mRadarRadius = 90.0f;
     this->mTargetEnemy = false;
+    // this->mMouseWheelValue = 0;
 
     this->mRadar = nullptr;
     this->mHealthBar = nullptr;
@@ -585,6 +586,23 @@ void HUD::handleKeyPress(int key)
     default:
         break;
     }
+}
+
+void HUD::handleMouseWheel(const int& mouse_wheel)
+{
+    // mMouseWheelValue += mouse_wheel;
+    // if (mMouseWheelValue >= 3)
+    // {   // 相机视角及任务切换
+
+    //     Actor* cur_target = this->getGame()->getPlayer();
+    //     int order = (int(cur_target->getType()) + 1) % 7 ? 3 : (int(cur_target->getType()) + 1);
+    //     cur_target->setState(Actor::EHidden);
+
+    //     // 轮转设置当前的游戏主角
+    //     this->getGame()->setPlayer((Actor::EActorType)order);
+        
+    //     mMouseWheelValue = 0;
+    // }
 }
 
 void HUD::nodeAddToStack(TreeNode* node)

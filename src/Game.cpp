@@ -571,7 +571,10 @@ void Game::generateOutput()
     {
         for (auto act : this->mActors)
         {
-            act->setState(Actor::EActive);
+            if (act->getState() != Actor::EHidden)
+            {
+                act->setState(Actor::EActive);
+            }
         }
     }
 
@@ -979,7 +982,7 @@ void Game::loadData()
         this->mPauseMenu->setBindFrameBuffer(buffer);
         this->mPauseMenu->setBindTexture(tex);
 
-        this->mPauseMenu->setUIViewScale(Vector2{0.75f, 0.75f});
+        this->mPauseMenu->setUIViewScale(Vector2{0.55f, 0.55f});
         this->mPauseMenu->setUIBGColor(Vector3{0.1f, 0.5f, 0.5f});
     }
     this->mPauseMenu->setUIState(UIScreen::EInvisible);
@@ -1086,12 +1089,15 @@ void Game::loadData()
 
     // 跟拍相机
     // this->mFollowActor = new FollowActor(this);
+    // this->mFollowActor->setState(Actor::EHidden);
 
-    // 轨道相机
+    // // 轨道相机
     // this->mOrbitActor = new OrbitActor(this);
+    // this->mOrbitActor->setState(Actor::EHidden);
 
-    // 样条曲线相机
+    // // 样条曲线相机
     // this->mSplineActor = new SplineActor(this);
+    // this->mSplineActor->setState(Actor::EHidden);
 
     // 创建目标对象
     // a = new TargetActor(this);
@@ -1122,6 +1128,21 @@ void Game::loadData()
         if (act->getType() == Actor::EFPSActor)
         {
             this->mFPSActor = (FPSActor*)act;
+            break;
+        }
+        else if (act->getType() == Actor::EFollowActor)
+        {
+            this->mFollowActor = (FollowActor*)act;
+            break;
+        }
+        else if (act->getType() == Actor::EOrbitActor)
+        {
+            this->mOrbitActor = (OrbitActor*)act;
+            break;
+        }
+        else if (act->getType() == Actor::ESplineActor)
+        {
+            this->mSplineActor = (SplineActor*)act;
             break;
         }
     }
@@ -1236,21 +1257,30 @@ void Game::handleKey(const uint8_t key)
         }
         case SDLK_TAB:
         {
+            // if (this->mGameState == EGamePlay)
+            // {
+            //     // 设置为暂停状态
+            //     this->setGameState(EPaused);
+
+            //     if (this->mSetting)
+            //     {
+            //         // new Setting(this);
+
+            //         // this->mSetting->init();
+            //         this->mSetting->setUIState(UIScreen::EActive);
+            //         // this->pushUI(this->mSetting);
+            //     }
+            //     // 取消鼠标为相对模式
+            //     this->mSetting->setRelativeMouseMode(false);
+            // }
+
             if (this->mGameState == EGamePlay)
             {
-                // 设置为暂停状态
-                this->setGameState(EPaused);
-
-                if (this->mSetting)
-                {
-                    // new Setting(this);
-
-                    // this->mSetting->init();
-                    this->mSetting->setUIState(UIScreen::EActive);
-                    // this->pushUI(this->mSetting);
-                }
-                // 取消鼠标为相对模式
-                this->mSetting->setRelativeMouseMode(false);
+                Actor* cur_target = this->getPlayer();
+                int order = (int(cur_target->getType()) + 1) % 7 ? 3 : (int(cur_target->getType()) + 1);
+                cur_target->setState(Actor::EHidden);
+                // 轮转设置当前的游戏主角
+                this->setPlayer((Actor::EActorType)order);
             }
             break;
         }
@@ -1484,8 +1514,54 @@ Actor* Game::getPlayer() const
     //     }
     // }
 
-    return this->mFPSActor;
+    Actor* target = nullptr;
+    if (this->mFPSActor->getState() != Actor::EHidden)
+    {
+        target = this->mFPSActor;
+    }
+    else if (this->mFollowActor->getState() != Actor::EHidden)
+    {
+        target = this->mFollowActor;
+    }
+    else if (this->mOrbitActor->getState() != Actor::EHidden)
+    {
+        target = this->mOrbitActor;
+    }
+    else if (this->mSplineActor->getState() != Actor::EHidden)
+    {
+        target = this->mSplineActor;
+    }
+    return target;
     // return a;
+}
+
+void Game::setPlayer(const int& type)
+{
+    switch (type)
+    {
+        case Actor::EFPSActor:
+        {
+            this->mFPSActor->setState(Actor::EActive);
+            break;
+        }
+        case Actor::EFollowActor:
+        {
+            this->mFollowActor->setState(Actor::EActive);
+            break;
+        }
+        case Actor::EOrbitActor:
+        {
+            this->mOrbitActor->setState(Actor::EActive);
+            break;
+        }
+        case Actor::ESplineActor:
+        {
+            this->mSplineActor->setState(Actor::EActive);
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 Font* Game::getFont(const std::string& name)
